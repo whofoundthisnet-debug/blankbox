@@ -49,20 +49,17 @@
       right: 7%;
       top: 38%;
     }
-
-    #box {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: min(280px, 42vw);
-      aspect-ratio: 1.25;
-      transform: translate(-50%, -50%);
-      background: #d7a35d;
-      border: 6px solid #9b6b35;
-      border-radius: 8px;
-      z-index: 10;
-    }
-
+#boxOpening {
+  position: absolute;
+  left: 10%;
+  top: 5%;
+  width: 80%;
+  height: 42%;
+  background: #5d3b18;
+  border: 5px solid #70491f;
+  z-index: 2;
+  overflow: hidden;
+}
   #box {
   position: absolute;
   left: 50%;
@@ -109,7 +106,7 @@
   <div class="box-inside"></div>
   <div id="backFlap" class="flap"></div>
   <div id="frontFlap" class="flap"></div>
-
+  <div id="boxOpening"></div>
   <div class="box-body">
   </div>
 </div>
@@ -148,7 +145,7 @@
       item.style.fontSize = `${28 + Math.random() * 32}px`;
       item.style.fontWeight = "900";
       item.style.color = "#111";
-      item.style.zIndex = "50";
+      item.style.zIndex = "1";
 
       const startY = 20 + Math.random() * 55;
 
@@ -177,10 +174,10 @@
           boxRect.width / 2;
 
         const openingY =
-          boxRect.top -
-          sceneRect.top +
-          boxRect.height * 0.18;
-
+  boxRect.top -
+  sceneRect.top +
+  boxRect.height * 0.12;
+        
         const itemStartX = side === "left"
           ? -80
           : sceneRect.width + 80;
@@ -240,7 +237,7 @@
               {
                 transform:
                   `translate(${horizontalDistance}px,
-                  ${verticalDistance + boxRect.height * 0.45}px)
+                  ${verticalDistance + boxRect.height * 0.65)
                   rotate(540deg)
                   scale(0.45)`,
                 opacity: 0
