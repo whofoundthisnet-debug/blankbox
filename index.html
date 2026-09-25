@@ -114,8 +114,57 @@
     </div>
   </main>
 
-  <script>
-    // BlankBox launcher will be built here.
-  </script>
+  
+   <script>
+  const scene = document.getElementById("scene");
+
+  const junk = [
+    "◆",
+    "●",
+    "■",
+    "▲",
+    "★",
+    "✦",
+    "⬟",
+    "✚"
+  ];
+
+  junk.forEach((shape, index) => {
+    const item = document.createElement("div");
+
+    item.textContent = shape;
+    item.style.position = "absolute";
+    item.style.left = "-100px";
+    item.style.top = `${20 + Math.random() * 60}%`;
+    item.style.fontSize = `${25 + Math.random() * 35}px`;
+    item.style.fontWeight = "900";
+    item.style.color = "#111";
+    item.style.zIndex = "15";
+
+    scene.appendChild(item);
+
+    const delay = index * 180;
+
+    setTimeout(() => {
+      item.animate(
+        [
+          {
+            transform: "translateX(0) rotate(0deg)",
+            opacity: 0
+          },
+          {
+            transform: `translateX(${20 + Math.random() * 25}vw) rotate(${180 + Math.random() * 360}deg)`,
+            opacity: 1
+          }
+        ],
+        {
+          duration: 900,
+          easing: "cubic-bezier(.2,.8,.2,1)",
+          fill: "forwards"
+        }
+      );
+    }, delay);
+  });
+</script>
 </body>
 </html>
