@@ -63,17 +63,16 @@
       z-index: 10;
     }
 
-    #box::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 0;
-      width: 24%;
-      height: 100%;
-      transform: translateX(-50%);
-      background: #e8c17c;
-      opacity: 0.8;
-    }
+  #box {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(520px, 62vw);
+  height: min(360px, 44vw);
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  perspective: 900px;
+}
 
     #boxLabel {
       position: absolute;
@@ -127,7 +126,7 @@
     </div>
   </main>
 
-  <script>
+<script>
   const scene = document.getElementById("scene");
   const box = document.getElementById("box");
   const here = document.getElementById("here");
@@ -136,33 +135,30 @@
   const tape = document.getElementById("tape");
 
   const junkShapes = [
-    "◆",
-    "●",
-    "■",
-    "▲",
-    "★",
-    "✦",
-    "⬟",
-    "✚"
+    "◆", "●", "■", "▲",
+    "★", "✦", "⬟", "✚"
   ];
 
-  function createJunk(side) {
+  function createJunk(side, delayOffset = 0) {
     junkShapes.forEach((shape, index) => {
       const item = document.createElement("div");
 
       item.textContent = shape;
       item.style.position = "absolute";
-      item.style.fontSize = `${25 + Math.random() * 35}px`;
+      item.style.fontSize = `${28 + Math.random() * 32}px`;
       item.style.fontWeight = "900";
       item.style.color = "#111";
-      item.style.zIndex = "30";
+      item.style.zIndex = "50";
 
-      const startX = side === "left"
-        ? "-80px"
-        : "calc(100% + 80px)";
+      const startY = 20 + Math.random() * 55;
 
-      item.style.left = startX;
-      item.style.top = `${25 + Math.random() * 45}%`;
+      if (side === "left") {
+        item.style.left = "-80px";
+      } else {
+        item.style.left = "calc(100% + 80px)";
+      }
+
+      item.style.top = `${startY}%`;
 
       scene.appendChild(item);
 
@@ -170,18 +166,38 @@
         const boxRect = box.getBoundingClientRect();
         const sceneRect = scene.getBoundingClientRect();
 
-        const targetX =
+        /*
+          TARGET = the opening at the TOP of the box.
+          This is intentionally ABOVE the front face.
+        */
+
+        const openingX =
           boxRect.left -
           sceneRect.left +
-          boxRect.width / 2 -
-          20;
+          boxRect.width / 2;
 
-        const targetY =
+        const openingY =
           boxRect.top -
           sceneRect.top +
-          boxRect.height * 0.45;
+          boxRect.height * 0.18;
 
-        const startY = item.offsetTop;
+        const itemStartX = side === "left"
+          ? -80
+          : sceneRect.width + 80;
+
+        const itemStartY =
+          (startY / 100) * sceneRect.height;
+
+        const horizontalDistance =
+          openingX - itemStartX;
+
+        const verticalDistance =
+          openingY - itemStartY;
+
+        /*
+          Phase 1:
+          Fly toward the opening.
+        */
 
         item.animate(
           [
@@ -191,59 +207,96 @@
             },
             {
               transform:
-                `translate(${side === "left" ? targetX : targetX - sceneRect.width}px,
-                ${targetY - startY}px)
-                rotate(${360 + Math.random() * 500}deg)
-                scale(0.2)`,
+                `translate(${horizontalDistance}px,
+                ${verticalDistance}px)
+                rotate(${180 + Math.random() * 360}deg)
+                scale(1)`,
               opacity: 1
             }
           ],
           {
-            duration: 1300,
-            easing: "cubic-bezier(.15,.75,.25,1)",
+            duration: 1100,
+            easing: "cubic-bezier(.15,.8,.25,1)",
             fill: "forwards"
           }
         ).finished.then(() => {
-          item.remove();
+
+          /*
+            Phase 2:
+            The junk is now ABOVE THE OPENING.
+            Drop it straight down.
+          */
+
+          item.animate(
+            [
+              {
+                transform:
+                  `translate(${horizontalDistance}px,
+                  ${verticalDistance}px)
+                  rotate(360deg)
+                  scale(1)`,
+                opacity: 1
+              },
+              {
+                transform:
+                  `translate(${horizontalDistance}px,
+                  ${verticalDistance + boxRect.height * 0.45}px)
+                  rotate(540deg)
+                  scale(0.45)`,
+                opacity: 0
+              }
+            ],
+            {
+              duration: 500,
+              easing: "ease-in",
+              fill: "forwards"
+            }
+          ).finished.then(() => {
+            item.remove();
+          });
+
         });
-      }, index * 130);
+
+      }, delayOffset + index * 180);
     });
   }
 
   /*
-    STEP 1:
-    HERE appears.
-    Junk comes from the left.
-  */
+    HERE
+    */
 
-  createJunk("left");
+  createJunk("left", 0);
 
   /*
-    STEP 2:
-    Box opens after the first junk arrives.
-  */
+    Open the box before the junk reaches it.
+    */
 
   setTimeout(() => {
     box.classList.add("open");
-  }, 900);
+  }, 800);
 
   /*
-    STEP 3:
-    THERE appears and more junk comes from the right.
-  */
+    THERE
+    */
 
   setTimeout(() => {
     here.style.opacity = "0";
     there.style.opacity = "1";
 
-    createJunk("right");
-  }, 2300);
+    createJunk("right", 0);
+  }, 2800);
 
   /*
-    STEP 4:
-    After everything is inside,
-    switch to the special top-down tape shot.
-  */
+    Close box after the second batch.
+    */
+
+  setTimeout(() => {
+    box.classList.remove("open");
+  }, 4500);
+
+  /*
+    Tape shot.
+    */
 
   setTimeout(() => {
     box.style.display = "none";
@@ -254,19 +307,18 @@
 
     setTimeout(() => {
       tape.classList.add("done");
-    }, 400);
-  }, 4100);
+    }, 300);
+
+  }, 5300);
 
   /*
-    STEP 5:
-    Eventually this will become the BLANKBOX
-    PRESS ENTER screen.
-  */
+    Final launcher text.
+    */
 
   setTimeout(() => {
     document.getElementById("status").textContent =
       "BLANKBOX — PRESS ENTER";
-  }, 5000);
+  }, 6200);
 </script>
 </body>
 </html>
