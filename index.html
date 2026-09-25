@@ -114,9 +114,11 @@
     </div>
   </main>
 
-  
-   <script>
+  <script>
   const scene = document.getElementById("scene");
+  const box = document.getElementById("box");
+  const here = document.getElementById("here");
+  const there = document.getElementById("there");
 
   const junk = [
     "◆",
@@ -129,13 +131,20 @@
     "✚"
   ];
 
+  const boxRect = box.getBoundingClientRect();
+  const sceneRect = scene.getBoundingClientRect();
+
+  const boxX = boxRect.left - sceneRect.left + boxRect.width / 2;
+  const boxY = boxRect.top - sceneRect.top + boxRect.height / 2;
+
   junk.forEach((shape, index) => {
     const item = document.createElement("div");
 
     item.textContent = shape;
+
     item.style.position = "absolute";
-    item.style.left = "-100px";
-    item.style.top = `${20 + Math.random() * 60}%`;
+    item.style.left = "-80px";
+    item.style.top = `${25 + Math.random() * 50}%`;
     item.style.fontSize = `${25 + Math.random() * 35}px`;
     item.style.fontWeight = "900";
     item.style.color = "#111";
@@ -143,9 +152,9 @@
 
     scene.appendChild(item);
 
-    const delay = index * 180;
-
     setTimeout(() => {
+      const startY = item.offsetTop;
+
       item.animate(
         [
           {
@@ -153,18 +162,22 @@
             opacity: 0
           },
           {
-            transform: `translateX(${20 + Math.random() * 25}vw) rotate(${180 + Math.random() * 360}deg)`,
+            transform: `translateX(${boxX + 80}px) translateY(${boxY - startY}px) rotate(${360 + Math.random() * 360}deg) scale(0.2)`,
             opacity: 1
           }
         ],
         {
-          duration: 900,
+          duration: 1400,
           easing: "cubic-bezier(.2,.8,.2,1)",
           fill: "forwards"
         }
       );
-    }, delay);
+    }, index * 180);
   });
+
+  // Keep HERE and THERE above the junk.
+  here.style.zIndex = "30";
+  there.style.zIndex = "30";
 </script>
 </body>
 </html>
