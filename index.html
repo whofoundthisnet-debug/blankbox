@@ -5,90 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BlankBox</title>
   <style>
-  #box {
+    #box {
   position: absolute;
   left: 50%;
-  top: 68%;
+  top: 70%;
   width: min(520px, 65vw);
-  height: min(360px, 45vw);
+  height: min(330px, 42vw);
   transform: translate(-50%, -50%);
   z-index: 10;
 }
 
-/* DARK INTERIOR */
-.box-inside {
+/* SOLID CARDBOARD BODY */
+.box-body {
   position: absolute;
-  left: 8%;
-  top: 8%;
-  width: 84%;
-  height: 42%;
-  background: #5b3a1d;
-  border: 6px solid #70491f;
-  z-index: 1;
-}
-
-/* BACK WALL */
-.box-back {
-  position: absolute;
-  left: 8%;
-  top: 8%;
-  width: 84%;
-  height: 18%;
-  background: #c9924d;
-  border: 6px solid #9b6b35;
-  z-index: 2;
-}
-
-/* FRONT WALL */
-.box-front {
-  position: absolute;
-  left: 5%;
-  bottom: 5%;
-  width: 90%;
-  height: 55%;
-  background: #d7a35d;
-  border: 6px solid #9b6b35;
-  z-index: 6;
-}
-
-/* SIDE WALLS */
-.box-side {
-  position: absolute;
-  top: 25%;
-  width: 12%;
-  height: 60%;
-  background: #bd8242;
-  border: 6px solid #9b6b35;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 78%;
+  background: #c98f4d;
+  border: 7px solid #8f602f;
+  border-radius: 3px;
   z-index: 5;
 }
 
-.box-side.left {
-  left: 0;
+/* THE ACTUAL OPENING */
+.box-opening {
+  position: absolute;
+  left: 6%;
+  top: 8%;
+  width: 88%;
+  height: 24%;
+  background: #4a2d17;
+  border: 7px solid #8f602f;
+  z-index: 2;
 }
 
-.box-side.right {
-  right: 0;
-}
-
-/* THE TWO OPEN FLAPS */
+/* OPEN CARDBOARD FLAPS */
 .box-flap {
   position: absolute;
-  top: -5%;
+  top: 0;
   width: 42%;
-  height: 7%;
-  background: #d7a35d;
-  border: 5px solid #9b6b35;
+  height: 12%;
+  background: #d6a15b;
+  border: 6px solid #8f602f;
   z-index: 8;
 }
 
-.box-flap-left {
-  left: 8%;
-  transform: rotate(-7deg);
+.left-flap {
+  left: 6%;
+  transform: rotate(-10deg);
+  transform-origin: bottom right;
 }
 
-.box-flap-right {
-  right: 8%;
-  transform: rotate(7deg);
+.right-flap {
+  right: 6%;
+  transform: rotate(10deg);
+  transform-origin: bottom left;
 }
     </style>
 </head>
