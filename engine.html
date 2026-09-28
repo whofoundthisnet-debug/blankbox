@@ -350,29 +350,83 @@
       renderObject(object);
       selectObject(object);
     }
+function renderObject(object) {
+  const element = document.createElement("div");
 
-   function renderObject(object) {
-      const element = document.createElement("div");
+  element.classList.add(
+    "gameObject",
+    object.type
+  );
 
-      element.classList.add(
-        "gameObject",
-        object.type
-      );
+  element.style.left = `${object.x}px`;
+  element.style.top = `${object.y}px`;
 
-      element.style.left = `${object.x}px`;
-      element.style.top = `${object.y}px`;
+  element.dataset.id = object.id;
 
-      element.dataset.id = object.id;
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
 
-      element.addEventListener("click", (event) => {
-        event.stopPropagation();
-        selectObject(object);
-      });
+  element.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      object.element = element;
+    selectObject(object);
 
-      workspace.appendChild(element);
+    dragging = true;
+
+    const rect = element.getBoundingClientRect();
+
+    offsetX = event.clientX - rect.left;
+    offsetY = event.clientY - rect.top;
+
+    element.setPointerCapture(event.pointerId);
+  });
+
+  element.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+
+    const workspaceRect = workspace.getBoundingClientRect();
+
+    let newX =
+      event.clientX -
+      workspaceRect.left -
+      offsetX;
+
+    let newY =
+      event.clientY -
+      workspaceRect.top -
+      offsetY;
+
+    const maxX = workspace.clientWidth - element.offsetWidth;
+    const maxY = workspace.clientHeight - element.offsetHeight;
+
+    newX = Math.max(0, Math.min(newX, maxX));
+    newY = Math.max(0, Math.min(newY, maxY));
+
+    object.x = newX;
+    object.y = newY;
+
+    element.style.left = `${newX}px`;
+    element.style.top = `${newY}px`;
+  });
+
+  element.addEventListener("pointerup", (event) => {
+    dragging = false;
+
+    if (element.hasPointerCapture(event.pointerId)) {
+      element.releasePointerCapture(event.pointerId);
     }
+  });
+
+  element.addEventListener("pointercancel", () => {
+    dragging = false;
+  });
+
+  object.element = element;
+
+  workspace.appendChild(element);
+}
 
     function selectObject(object) {
 
