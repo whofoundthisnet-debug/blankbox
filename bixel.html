@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -15,13 +15,13 @@ html,body{
   overflow:hidden;
   font-family:Arial,Helvetica,sans-serif;
   background:#171717;
-  color:white
+  color:white;
 }
 
 #app{
   height:100%;
   display:grid;
-  grid-template-rows:58px 1fr 110px
+  grid-template-rows:58px 1fr 110px;
 }
 
 #topbar{
@@ -30,22 +30,22 @@ html,body{
   justify-content:space-between;
   padding:0 16px;
   background:#222;
-  border-bottom:2px solid #333
+  border-bottom:2px solid #333;
 }
 
 #brand{
   font-size:22px;
-  font-weight:900
+  font-weight:900;
 }
 
 #actions{
   display:flex;
   gap:8px;
-  align-items:center
+  align-items:center;
 }
 
 button,select,input{
-  font:inherit
+  font:inherit;
 }
 
 button{
@@ -54,42 +54,38 @@ button{
   color:white;
   border-radius:7px;
   padding:9px 12px;
-  cursor:pointer
+  cursor:pointer;
 }
 
 button:hover{
-  background:#363636
+  background:#363636;
 }
 
 .primary{
   background:#72d572;
   color:#111;
   border-color:#72d572;
-  font-weight:900
-}
-
-.danger{
-  background:#3a2929
+  font-weight:900;
 }
 
 #main{
   min-height:0;
   display:grid;
-  grid-template-columns:180px 1fr 230px
+  grid-template-columns:180px 1fr 230px;
 }
 
 #tools,#panel{
   background:#202020;
   padding:14px;
-  overflow:auto
+  overflow:auto;
 }
 
 #tools{
-  border-right:2px solid #333
+  border-right:2px solid #333;
 }
 
 #panel{
-  border-left:2px solid #333
+  border-left:2px solid #333;
 }
 
 .section{
@@ -98,18 +94,18 @@ button:hover{
   font-weight:900;
   text-transform:uppercase;
   letter-spacing:1px;
-  margin:4px 0 10px
+  margin:4px 0 10px;
 }
 
 .tool{
   display:block;
   width:100%;
   margin-bottom:8px;
-  text-align:left
+  text-align:left;
 }
 
 .tool.active{
-  outline:2px solid #72d572
+  outline:2px solid #72d572;
 }
 
 #workspace{
@@ -119,7 +115,7 @@ button:hover{
   align-items:center;
   justify-content:center;
   background:#111;
-  overflow:hidden
+  overflow:hidden;
 }
 
 #canvasWrap{
@@ -129,7 +125,7 @@ button:hover{
   max-width:700px;
   max-height:700px;
   background:#fff;
-  image-rendering:pixelated
+  image-rendering:pixelated;
 }
 
 canvas{
@@ -137,19 +133,19 @@ canvas{
   inset:0;
   width:100%;
   height:100%;
-  image-rendering:pixelated
+  image-rendering:pixelated;
 }
 
 #shadowCanvas{
-  pointer-events:none
+  pointer-events:none;
 }
 
 #pixelCanvas{
-  cursor:crosshair
+  cursor:crosshair;
 }
 
 .field{
-  margin-bottom:14px
+  margin-bottom:14px;
 }
 
 .field label{
@@ -157,13 +153,13 @@ canvas{
   color:#aaa;
   font-size:12px;
   font-weight:700;
-  margin-bottom:6px
+  margin-bottom:6px;
 }
 
 .field select,
 .field input[type="number"],
 .field input[type="range"]{
-  width:100%
+  width:100%;
 }
 
 .field select,
@@ -172,19 +168,19 @@ canvas{
   background:#292929;
   color:white;
   border:1px solid #444;
-  border-radius:6px
+  border-radius:6px;
 }
 
 .colorRow{
   display:flex;
   gap:8px;
-  align-items:center
+  align-items:center;
 }
 
 #color{
   width:52px;
   height:38px;
-  padding:2px
+  padding:2px;
 }
 
 #hex{
@@ -194,7 +190,7 @@ canvas{
   background:#292929;
   color:white;
   border:1px solid #444;
-  border-radius:6px
+  border-radius:6px;
 }
 
 #frames{
@@ -204,7 +200,7 @@ canvas{
   align-items:center;
   gap:10px;
   padding:10px 14px;
-  overflow-x:auto
+  overflow-x:auto;
 }
 
 .frame{
@@ -214,11 +210,11 @@ canvas{
   border:2px solid #444;
   border-radius:6px;
   padding:4px;
-  cursor:pointer
+  cursor:pointer;
 }
 
 .frame.active{
-  border-color:#72d572
+  border-color:#72d572;
 }
 
 .frame canvas{
@@ -226,58 +222,74 @@ canvas{
   width:70px;
   height:70px;
   display:block;
-  background:white
+  background:white;
 }
 
 #frameAdd{
   height:82px;
   min-width:82px;
-  font-size:28px
+  font-size:28px;
 }
 
 .note{
   font-size:12px;
   color:#888;
-  line-height:1.4
+  line-height:1.4;
 }
 
-#sizeText{
-  color:#aaa;
-  font-size:12px
-}
-
-#animationName{
-  width:100%;
-  padding:8px;
-  background:#292929;
-  color:white;
-  border:1px solid #444;
-  border-radius:6px
-}
-
-#animationButtons{
-  display:flex;
-  gap:6px;
-  margin-top:8px
-}
-
-#animationButtons button{
-  flex:1
-}
-
-#status{
+#analysis{
   position:fixed;
-  bottom:120px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#292929;
-  border:1px solid #444;
-  padding:10px 16px;
-  border-radius:8px;
+  inset:0;
+  background:rgba(0,0,0,.82);
   display:none;
-  font-weight:700;
-  z-index:20
+  align-items:center;
+  justify-content:center;
+  z-index:100;
 }
+
+#analysisBox{
+  width:min(420px,90vw);
+  background:#202020;
+  border:2px solid #444;
+  border-radius:12px;
+  padding:24px;
+  text-align:center;
+}
+
+#analysisTitle{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:20px;
+}
+
+.analysisStep{
+  text-align:left;
+  margin:10px 0;
+  color:#777;
+}
+
+.analysisStep.done{
+  color:#72d572;
+}
+
+#seedResult{
+  margin-top:18px;
+  padding:12px;
+  background:#111;
+  border:1px solid #444;
+  border-radius:7px;
+  font-family:monospace;
+  font-size:12px;
+  word-break:break-all;
+  max-height:100px;
+  overflow:auto;
+}
+
+#copySeed{
+  margin-top:10px;
+  width:100%;
+}
+
 </style>
 </head>
 
@@ -294,8 +306,9 @@ canvas{
 
     <button id="exportButton">EXPORT PNG</button>
 
-    <button id="cancelButton">CANCEL</button>
-    <button class="primary" id="doneButton">DONE</button>
+    <button class="primary" id="doneButton">
+      DONE
+    </button>
   </div>
 </header>
 
@@ -304,170 +317,147 @@ canvas{
 
 <aside id="tools">
 
-  <div class="section">Tools</div>
+<div class="section">Tools</div>
 
-  <button class="tool active" data-tool="pencil">✏ Pencil</button>
-  <button class="tool" data-tool="eraser">⌫ Eraser</button>
-  <button class="tool" data-tool="fill">▧ Fill</button>
-  <button class="tool" data-tool="picker">◉ Color Picker</button>
+<button class="tool active" data-tool="pencil">
+✏ Pencil
+</button>
+
+<button class="tool" data-tool="eraser">
+⌫ Eraser
+</button>
+
+<button class="tool" data-tool="fill">
+▧ Fill
+</button>
+
+<button class="tool" data-tool="picker">
+◉ Color Picker
+</button>
 
 
-  <div class="section" style="margin-top:20px">
-    Canvas
-  </div>
+<div class="section" style="margin-top:20px">
+Canvas
+</div>
 
-  <div class="field">
+<div class="field">
 
-    <label>Size</label>
+<label>Size</label>
 
-    <select id="canvasSize">
-      <option value="16">16 × 16</option>
-      <option value="24">24 × 24</option>
-      <option value="32" selected>32 × 32</option>
-      <option value="48">48 × 48</option>
-      <option value="64">64 × 64</option>
-    </select>
+<select id="canvasSize">
+<option value="16">16 × 16</option>
+<option value="24">24 × 24</option>
+<option value="32" selected>32 × 32</option>
+<option value="48">48 × 48</option>
+<option value="64">64 × 64</option>
+</select>
 
-  </div>
+</div>
 
-  <button id="newButton">NEW SPRITE</button>
+<button id="newButton">
+NEW SPRITE
+</button>
 
 </aside>
 
 
 <section id="workspace">
 
-  <div id="canvasWrap">
+<div id="canvasWrap">
 
-    <canvas id="shadowCanvas"></canvas>
-    <canvas id="pixelCanvas"></canvas>
+<canvas id="shadowCanvas"></canvas>
 
-  </div>
+<canvas id="pixelCanvas"></canvas>
+
+</div>
 
 </section>
 
 
 <aside id="panel">
 
-  <div class="section">Color</div>
+<div class="section">
+Color
+</div>
 
-  <div class="field">
+<div class="field">
 
-    <div class="colorRow">
+<div class="colorRow">
 
-      <input id="color" type="color" value="#111111">
+<input
+id="color"
+type="color"
+value="#111111">
 
-      <input
-        id="hex"
-        value="#111111"
-        maxlength="7"
-      >
+<input
+id="hex"
+value="#111111"
+maxlength="7">
 
-    </div>
+</div>
 
-  </div>
-
-
-  <div class="section">Shadow</div>
-
-  <div class="field">
-
-    <label>Template</label>
-
-    <select id="shadowPose">
-
-      <option value="none">None</option>
-      <option value="idle">Idle</option>
-      <option value="walk">Walk</option>
-      <option value="run">Run</option>
-      <option value="jump">Jump</option>
-      <option value="hit">Hit</option>
-
-    </select>
-
-  </div>
+</div>
 
 
-  <div class="field">
+<div class="section">
+Shadow
+</div>
 
-    <label>
-      Opacity
-      <span id="sizeText">30%</span>
-    </label>
+<div class="field">
 
-    <input
-      id="shadowOpacity"
-      type="range"
-      min="5"
-      max="70"
-      value="30"
-    >
+<label>Template</label>
 
-  </div>
+<select id="shadowPose">
 
-  <p class="note">
-    Shadow is only a drawing guide. It is never saved into the sprite.
-  </p>
+<option value="none">None</option>
+<option value="idle">Idle</option>
+<option value="walk">Walk</option>
+<option value="run">Run</option>
+<option value="jump">Jump</option>
+<option value="hit">Hit</option>
 
+</select>
 
-  <div class="section">
-    Animation
-  </div>
+</div>
 
 
-  <div class="field">
+<div class="field">
 
-    <label>Animation</label>
+<label>
+Opacity
+<span id="sizeText">30%</span>
+</label>
 
-    <select id="animationSelect"></select>
+<input
+id="shadowOpacity"
+type="range"
+min="5"
+max="70"
+value="30">
 
-  </div>
-
-
-  <div class="field">
-
-    <label>Animation name</label>
-
-    <input
-      id="animationName"
-      type="text"
-      value="Idle"
-    >
-
-  </div>
+</div>
 
 
-  <div id="animationButtons">
+<div class="section">
+Animation
+</div>
 
-    <button id="newAnimationButton">
-      + NEW
-    </button>
+<div class="field">
 
-    <button id="deleteAnimationButton">
-      DELETE
-    </button>
+<label>Frame speed</label>
 
-  </div>
+<input
+id="fps"
+type="number"
+min="1"
+max="60"
+value="8">
 
+</div>
 
-  <div class="field" style="margin-top:14px">
-
-    <label>Frame speed</label>
-
-    <input
-      id="fps"
-      type="number"
-      min="1"
-      max="60"
-      value="8"
-    >
-
-  </div>
-
-
-  <button id="previewButton">
-    ▶ PREVIEW
-  </button>
+<button id="previewButton">
+▶ PREVIEW
+</button>
 
 </aside>
 
@@ -476,282 +466,133 @@ canvas{
 
 <div id="frames">
 
-  <button id="frameAdd">+</button>
+<button id="frameAdd">+</button>
 
 </div>
 
 </div>
 
-<div id="status"></div>
+
+<!-- ANALYSIS SCREEN -->
+
+<div id="analysis">
+
+<div id="analysisBox">
+
+<div id="analysisTitle">
+ANALYZING BIXEL...
+</div>
+
+<div class="analysisStep" id="step1">
+○ Reading pixels
+</div>
+
+<div class="analysisStep" id="step2">
+○ Checking center
+</div>
+
+<div class="analysisStep" id="step3">
+○ Checking X / Y axes
+</div>
+
+<div class="analysisStep" id="step4">
+○ Building shape data
+</div>
+
+<div class="analysisStep" id="step5">
+○ Encoding colors
+</div>
+
+<div class="analysisStep" id="step6">
+○ Generating seed
+</div>
+
+<div id="seedResult">
+</div>
+
+<button id="copySeed">
+COPY BBX CODE
+</button>
+
+</div>
+
+</div>
 
 
 <script>
 
 const pixelCanvas =
-  document.getElementById("pixelCanvas");
+document.getElementById("pixelCanvas");
 
 const shadowCanvas =
-  document.getElementById("shadowCanvas");
+document.getElementById("shadowCanvas");
 
 const wrap =
-  document.getElementById("canvasWrap");
+document.getElementById("canvasWrap");
 
 const ctx =
-  pixelCanvas.getContext("2d");
+pixelCanvas.getContext("2d");
 
 const sctx =
-  shadowCanvas.getContext("2d");
+shadowCanvas.getContext("2d");
 
 
 let size = 32;
+
 let tool = "pencil";
+
 let color = "#111111";
+
 let drawing = false;
 
+let frames = [];
+
+let currentFrame = 0;
+
 let shadowPose = "none";
+
 let shadowOpacity = 0.30;
 
 let previewing = false;
+
 let previewTimer = null;
 
 
-/*
-  Each animation gets its own frames.
-*/
-
-let animations = {
-
-  Idle: {
-    fps: 8,
-    frames: []
-  },
-
-  Walk: {
-    fps: 8,
-    frames: []
-  },
-
-  Run: {
-    fps: 8,
-    frames: []
-  },
-
-  Jump: {
-    fps: 8,
-    frames: []
-  },
-
-  Hit: {
-    fps: 8,
-    frames: []
-  }
-
-};
-
-let currentAnimation = "Idle";
-let currentFrame = 0;
-
-
-/*
-  The object ID comes from:
-  bixel.html?object=12345
-*/
-
-const urlParams =
-  new URLSearchParams(window.location.search);
-
-const objectId =
-  urlParams.get("object");
-
-
-function showStatus(message){
-
-  const status =
-    document.getElementById("status");
-
-  status.textContent = message;
-  status.style.display = "block";
-
-  setTimeout(() => {
-    status.style.display = "none";
-  }, 1800);
-
-}
-
-
-/*
-  Create a blank frame.
-*/
+/* =========================
+   FRAME SYSTEM
+========================= */
 
 function makeFrame(){
 
   const c =
-    document.createElement("canvas");
+  document.createElement("canvas");
 
   c.width = size;
   c.height = size;
-
-  const cctx =
-    c.getContext("2d");
-
-  cctx.clearRect(0,0,size,size);
 
   return c;
 
 }
 
 
-/*
-  Make sure every animation has
-  at least one frame.
-*/
+function resetFrames(){
 
-function ensureFrames(){
+  frames = [makeFrame()];
 
-  for(const name in animations){
-
-    if(!animations[name].frames.length){
-
-      animations[name].frames.push(
-        makeFrame()
-      );
-
-    }
-
-  }
-
-}
-
-
-/*
-  Current animation's frame list.
-*/
-
-function getFrames(){
-
-  return animations[currentAnimation].frames;
-
-}
-
-
-/*
-  Change animation.
-*/
-
-function switchAnimation(name){
-
-  if(!animations[name]) return;
-
-  animations[currentAnimation].fps =
-    Math.max(
-      1,
-      Math.min(
-        60,
-        Number(document.getElementById("fps").value) || 8
-      )
-    );
-
-  currentAnimation = name;
   currentFrame = 0;
 
-  document.getElementById("animationName").value =
-    name;
-
-  document.getElementById("fps").value =
-    animations[name].fps;
-
   renderCurrent();
+
   renderFrames();
 
 }
 
 
-/*
-  Animation dropdown.
-*/
-
-function renderAnimationSelect(){
-
-  const select =
-    document.getElementById("animationSelect");
-
-  select.innerHTML = "";
-
-  Object.keys(animations).forEach(name => {
-
-    const option =
-      document.createElement("option");
-
-    option.value = name;
-    option.textContent = name;
-
-    select.appendChild(option);
-
-  });
-
-  select.value = currentAnimation;
-
-}
-
-
-/*
-  Reset everything to one blank frame
-  in every animation.
-*/
-
-function resetAnimations(){
-
-  animations = {
-
-    Idle: {
-      fps: 8,
-      frames: [makeFrame()]
-    },
-
-    Walk: {
-      fps: 8,
-      frames: [makeFrame()]
-    },
-
-    Run: {
-      fps: 8,
-      frames: [makeFrame()]
-    },
-
-    Jump: {
-      fps: 8,
-      frames: [makeFrame()]
-    },
-
-    Hit: {
-      fps: 8,
-      frames: [makeFrame()]
-    }
-
-  };
-
-  currentAnimation = "Idle";
-  currentFrame = 0;
-
-  renderAnimationSelect();
-  renderCurrent();
-  renderFrames();
-
-}
-
-
-/*
-  Canvas rendering.
-*/
+/* =========================
+   RENDER
+========================= */
 
 function renderCurrent(){
-
-  const currentFrames =
-    getFrames();
-
-  if(!currentFrames[currentFrame]){
-    currentFrame = 0;
-  }
 
   pixelCanvas.width = size;
   pixelCanvas.height = size;
@@ -759,44 +600,50 @@ function renderCurrent(){
   shadowCanvas.width = size;
   shadowCanvas.height = size;
 
-  ctx.clearRect(0,0,size,size);
+  ctx.clearRect(
+    0,
+    0,
+    size,
+    size
+  );
 
   ctx.drawImage(
-    currentFrames[currentFrame],
+    frames[currentFrame],
     0,
     0
   );
 
   drawGrid();
+
   drawShadow();
 
 }
 
-
-/*
-  Grid.
-*/
 
 function drawGrid(){
 
   ctx.save();
 
   ctx.strokeStyle =
-    "rgba(0,0,0,.13)";
+  "rgba(0,0,0,.13)";
 
   ctx.lineWidth =
-    1 / size;
+  1 / size;
 
   for(let i=1;i<size;i++){
 
     ctx.beginPath();
+
     ctx.moveTo(i,0);
     ctx.lineTo(i,size);
+
     ctx.stroke();
 
     ctx.beginPath();
+
     ctx.moveTo(0,i);
     ctx.lineTo(size,i);
+
     ctx.stroke();
 
   }
@@ -806,11 +653,13 @@ function drawGrid(){
 }
 
 
-/*
-  Shadow.
-*/
+/* =========================
+   SHADOW
+========================= */
 
-function shadowLine(x1,y1,x2,y2){
+function shadowLine(
+  x1,y1,x2,y2
+){
 
   sctx.beginPath();
 
@@ -831,80 +680,81 @@ function drawShadow(){
     size
   );
 
-  if(shadowPose === "none"){
+  if(shadowPose === "none")
     return;
-  }
 
   sctx.save();
 
   sctx.globalAlpha =
-    shadowOpacity;
+  shadowOpacity;
 
   sctx.strokeStyle =
-    "#4a7cff";
+  "#4a7cff";
 
   sctx.fillStyle =
-    "#4a7cff";
+  "#4a7cff";
 
   sctx.lineWidth =
-    Math.max(1,size/18);
+  Math.max(1,size/18);
 
   sctx.lineCap =
-    "round";
-
+  "round";
 
   const cx =
-    size/2;
+  size/2;
 
   const head =
-    size*0.27;
+  size*0.27;
 
   let bodyY =
-    size*0.52;
+  size*0.52;
 
   let lean = 0;
 
   let leftLeg =
-    size*0.72;
+  size*0.72;
 
   let rightLeg =
-    size*0.72;
+  size*0.72;
 
   let armY =
-    size*0.54;
+  size*0.54;
 
+  if(shadowPose==="walk"){
 
-  if(shadowPose === "walk"){
+    lean=-2;
 
-    lean = -2;
-    leftLeg = size*0.82;
-    rightLeg = size*0.68;
+    leftLeg=size*0.82;
 
-  }
-
-
-  if(shadowPose === "run"){
-
-    lean = -4;
-    leftLeg = size*0.82;
-    rightLeg = size*0.65;
+    rightLeg=size*0.68;
 
   }
 
+  if(shadowPose==="run"){
 
-  if(shadowPose === "jump"){
+    lean=-4;
 
-    bodyY = size*0.46;
-    leftLeg = size*0.68;
-    rightLeg = size*0.68;
+    leftLeg=size*0.82;
+
+    rightLeg=size*0.65;
 
   }
 
+  if(shadowPose==="jump"){
 
-  if(shadowPose === "hit"){
+    bodyY=size*0.46;
 
-    lean = 4;
-    armY = size*0.48;
+    leftLeg=size*0.68;
+
+    rightLeg=size*0.68;
+
+  }
+
+  if(shadowPose==="hit"){
+
+    lean=4;
+
+    armY=size*0.48;
 
   }
 
@@ -912,7 +762,7 @@ function drawShadow(){
   sctx.beginPath();
 
   sctx.arc(
-    cx + lean,
+    cx+lean,
     head,
     size*0.10,
     0,
@@ -923,37 +773,37 @@ function drawShadow(){
 
 
   shadowLine(
-    cx + lean,
-    head + size*0.10,
-    cx + lean,
+    cx+lean,
+    head+size*0.10,
+    cx+lean,
     bodyY
   );
 
   shadowLine(
-    cx + lean,
+    cx+lean,
     armY,
-    cx - size*0.18 + lean,
-    armY + size*0.08
+    cx-size*0.18+lean,
+    armY+size*0.08
   );
 
   shadowLine(
-    cx + lean,
+    cx+lean,
     armY,
-    cx + size*0.18 + lean,
-    armY + size*0.08
+    cx+size*0.18+lean,
+    armY+size*0.08
   );
 
   shadowLine(
-    cx + lean,
+    cx+lean,
     bodyY,
-    cx - size*0.10 + lean,
+    cx-size*0.10+lean,
     leftLeg
   );
 
   shadowLine(
-    cx + lean,
+    cx+lean,
     bodyY,
-    cx + size*0.10 + lean,
+    cx+size*0.10+lean,
     rightLeg
   );
 
@@ -962,71 +812,65 @@ function drawShadow(){
 }
 
 
-/*
-  Draw pixel.
-*/
+/* =========================
+   DRAWING
+========================= */
 
 function setPixel(px,py){
 
   if(
-    px < 0 ||
-    py < 0 ||
-    px >= size ||
-    py >= size
-  ){
-    return;
-  }
+    px<0 ||
+    py<0 ||
+    px>=size ||
+    py>=size
+  ) return;
 
-
-  const currentFrames =
-    getFrames();
 
   const fctx =
-    currentFrames[currentFrame]
-      .getContext("2d");
+  frames[currentFrame]
+  .getContext("2d");
 
 
-  if(tool === "picker"){
+  if(tool==="picker"){
 
     const data =
-      fctx.getImageData(
-        px,
-        py,
-        1,
-        1
-      ).data;
+    fctx.getImageData(
+      px,
+      py,
+      1,
+      1
+    ).data;
 
-
-    if(data[3] === 0){
+    if(data[3]===0)
       return;
-    }
-
 
     const hex =
       "#" +
       [data[0],data[1],data[2]]
       .map(v =>
-        v.toString(16).padStart(2,"0")
+        v.toString(16)
+        .padStart(2,"0")
       )
       .join("");
 
-
     color = hex;
 
-    document.getElementById("color").value =
-      hex;
+    document
+      .getElementById("color")
+      .value = hex;
 
-    document.getElementById("hex").value =
-      hex;
+    document
+      .getElementById("hex")
+      .value = hex;
 
-    tool = "pencil";
+    tool="pencil";
 
     document
       .querySelectorAll(".tool")
       .forEach(b =>
         b.classList.toggle(
           "active",
-          b.dataset.tool === "pencil"
+          b.dataset.tool==="pencil"
         )
       );
 
@@ -1035,7 +879,7 @@ function setPixel(px,py){
   }
 
 
-  if(tool === "eraser"){
+  if(tool==="eraser"){
 
     fctx.clearRect(
       px,
@@ -1047,7 +891,7 @@ function setPixel(px,py){
   }else{
 
     fctx.fillStyle =
-      color;
+    quantizeColor(color);
 
     fctx.fillRect(
       px,
@@ -1058,24 +902,73 @@ function setPixel(px,py){
 
   }
 
-
   renderCurrent();
 
 }
 
 
-/*
-  Fill tool.
-*/
+/* =========================
+   COLOR QUANTIZATION
+========================= */
+
+function quantizeChannel(value){
+
+  return Math.min(
+    250,
+    Math.round(
+      Number(value)/10
+    )*10
+  );
+
+}
+
+
+function quantizeColor(hex){
+
+  if(!/^#[0-9a-fA-F]{6}$/.test(hex))
+    return "#000000";
+
+  const r =
+    parseInt(hex.slice(1,3),16);
+
+  const g =
+    parseInt(hex.slice(3,5),16);
+
+  const b =
+    parseInt(hex.slice(5,7),16);
+
+  const qr =
+    quantizeChannel(r);
+
+  const qg =
+    quantizeChannel(g);
+
+  const qb =
+    quantizeChannel(b);
+
+  return "#" +
+    [qr,qg,qb]
+    .map(v =>
+      v.toString(16)
+      .padStart(2,"0")
+    )
+    .join("");
+
+}
+
+
+/* =========================
+   FILL
+========================= */
 
 function fill(){
 
   const fctx =
-    getFrames()[currentFrame]
-      .getContext("2d");
+  frames[currentFrame]
+  .getContext("2d");
 
   fctx.fillStyle =
-    color;
+  quantizeColor(color);
 
   fctx.fillRect(
     0,
@@ -1089,25 +982,26 @@ function fill(){
 }
 
 
-/*
-  Mouse position.
-*/
+/* =========================
+   MOUSE POSITION
+========================= */
 
 function canvasPoint(event){
 
   const rect =
-    pixelCanvas.getBoundingClientRect();
+  pixelCanvas
+  .getBoundingClientRect();
 
   return {
 
     x:Math.floor(
-      (event.clientX - rect.left) /
+      (event.clientX-rect.left) /
       rect.width *
       size
     ),
 
     y:Math.floor(
-      (event.clientY - rect.top) /
+      (event.clientY-rect.top) /
       rect.height *
       size
     )
@@ -1117,28 +1011,23 @@ function canvasPoint(event){
 }
 
 
-/*
-  Drawing.
-*/
-
 pixelCanvas.addEventListener(
   "pointerdown",
   e => {
 
-    drawing = true;
+    drawing=true;
 
     pixelCanvas.setPointerCapture(
       e.pointerId
     );
 
     const p =
-      canvasPoint(e);
+    canvasPoint(e);
 
-    if(tool === "fill"){
+    if(tool==="fill")
       fill();
-    }else{
+    else
       setPixel(p.x,p.y);
-    }
 
   }
 );
@@ -1148,12 +1037,12 @@ pixelCanvas.addEventListener(
   "pointermove",
   e => {
 
-    if(!drawing || tool === "fill"){
+    if(!drawing ||
+       tool==="fill")
       return;
-    }
 
     const p =
-      canvasPoint(e);
+    canvasPoint(e);
 
     setPixel(
       p.x,
@@ -1166,253 +1055,217 @@ pixelCanvas.addEventListener(
 
 pixelCanvas.addEventListener(
   "pointerup",
-  () => {
-    drawing = false;
-  }
+  () => drawing=false
 );
 
 
 pixelCanvas.addEventListener(
   "pointercancel",
-  () => {
-    drawing = false;
+  () => drawing=false
+);
+
+
+/* =========================
+   TOOLS
+========================= */
+
+document
+.querySelectorAll(".tool")
+.forEach(button => {
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      tool =
+      button.dataset.tool;
+
+      document
+      .querySelectorAll(".tool")
+      .forEach(b =>
+        b.classList.toggle(
+          "active",
+          b===button
+        )
+      );
+
+    }
+  );
+
+});
+
+
+/* =========================
+   COLORS
+========================= */
+
+document
+.getElementById("color")
+.addEventListener(
+  "input",
+  e => {
+
+    color =
+    quantizeColor(e.target.value);
+
+    document
+    .getElementById("color")
+    .value=color;
+
+    document
+    .getElementById("hex")
+    .value=color;
+
   }
 );
 
 
-/*
-  Tools.
-*/
-
 document
-  .querySelectorAll(".tool")
-  .forEach(button => {
+.getElementById("hex")
+.addEventListener(
+  "input",
+  e => {
 
-    button.addEventListener(
-      "click",
-      () => {
-
-        tool =
-          button.dataset.tool;
-
-        document
-          .querySelectorAll(".tool")
-          .forEach(b =>
-            b.classList.toggle(
-              "active",
-              b === button
-            )
-          );
-
-      }
-    );
-
-  });
-
-
-/*
-  Color.
-*/
-
-document
-  .getElementById("color")
-  .addEventListener(
-    "input",
-    e => {
+    if(/^#[0-9a-fA-F]{6}$/
+      .test(e.target.value)){
 
       color =
-        e.target.value;
+      quantizeColor(
+        e.target.value
+      );
 
-      document.getElementById("hex").value =
-        color;
+      document
+      .getElementById("color")
+      .value=color;
 
     }
-  );
+
+  }
+);
+
+
+/* =========================
+   CANVAS SIZE
+========================= */
+
+document
+.getElementById("canvasSize")
+.addEventListener(
+  "change",
+  e => {
+
+    size =
+    Number(e.target.value);
+
+    resetFrames();
+
+  }
+);
 
 
 document
-  .getElementById("hex")
-  .addEventListener(
-    "input",
-    e => {
-
-      if(
-        /^#[0-9a-fA-F]{6}$/
-        .test(e.target.value)
-      ){
-
-        color =
-          e.target.value;
-
-        document.getElementById("color").value =
-          color;
-
-      }
-
-    }
-  );
+.getElementById("newButton")
+.addEventListener(
+  "click",
+  resetFrames
+);
 
 
-/*
-  Canvas size.
-*/
+/* =========================
+   SHADOW
+========================= */
 
 document
-  .getElementById("canvasSize")
-  .addEventListener(
-    "change",
-    e => {
+.getElementById("shadowPose")
+.addEventListener(
+  "change",
+  e => {
 
-      size =
-        Number(e.target.value);
+    shadowPose =
+    e.target.value;
 
-      resetAnimations();
+    renderCurrent();
 
-    }
-  );
-
-
-/*
-  New sprite.
-*/
-
-document
-  .getElementById("newButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      if(
-        confirm(
-          "Start a completely new Bixel sprite?"
-        )
-      ){
-
-        resetAnimations();
-
-        showStatus(
-          "New Bixel created"
-        );
-
-      }
-
-    }
-  );
-
-
-/*
-  Shadow.
-*/
-
-document
-  .getElementById("shadowPose")
-  .addEventListener(
-    "change",
-    e => {
-
-      shadowPose =
-        e.target.value;
-
-      renderCurrent();
-
-    }
-  );
+  }
+);
 
 
 document
-  .getElementById("shadowOpacity")
-  .addEventListener(
-    "input",
-    e => {
+.getElementById("shadowOpacity")
+.addEventListener(
+  "input",
+  e => {
 
-      shadowOpacity =
-        Number(e.target.value) / 100;
+    shadowOpacity =
+    Number(e.target.value)/100;
 
-      document.getElementById("sizeText")
-        .textContent =
-        e.target.value + "%";
+    document
+    .getElementById("sizeText")
+    .textContent =
+    e.target.value+"%";
 
-      renderCurrent();
+    renderCurrent();
 
-    }
-  );
+  }
+);
 
 
-/*
-  Frame thumbnails.
-*/
+/* =========================
+   FRAMES
+========================= */
 
 function renderFrames(){
 
   document
-    .querySelectorAll(".frame")
-    .forEach(e => e.remove());
-
+  .querySelectorAll(".frame")
+  .forEach(e => e.remove());
 
   const add =
-    document.getElementById("frameAdd");
-
-  const currentFrames =
-    getFrames();
+  document.getElementById("frameAdd");
 
 
-  currentFrames.forEach(
+  frames.forEach(
     (frame,index) => {
 
       const button =
-        document.createElement("button");
+      document.createElement("button");
 
       button.className =
-        "frame" +
-        (
-          index === currentFrame
-            ? " active"
-            : ""
-        );
+      "frame" +
+      (
+        index===currentFrame
+        ? " active"
+        : ""
+      );
 
-
-      button.type =
-        "button";
+      button.type="button";
 
 
       const preview =
-        document.createElement("canvas");
+      document.createElement("canvas");
 
-
-      preview.width =
-        size;
-
-      preview.height =
-        size;
-
+      preview.width=size;
+      preview.height=size;
 
       preview
-        .getContext("2d")
-        .drawImage(
-          frame,
-          0,
-          0
-        );
+      .getContext("2d")
+      .drawImage(frame,0,0);
 
 
-      button.appendChild(
-        preview
-      );
-
+      button.appendChild(preview);
 
       button.title =
-        "Frame " +
-        (index + 1);
+      "Frame "+(index+1);
 
 
       button.addEventListener(
         "click",
         () => {
 
-          currentFrame =
-            index;
+          currentFrame=index;
 
           renderCurrent();
+
           renderFrames();
 
         }
@@ -1420,11 +1273,11 @@ function renderFrames(){
 
 
       document
-        .getElementById("frames")
-        .insertBefore(
-          button,
-          add
-        );
+      .getElementById("frames")
+      .insertBefore(
+        button,
+        add
+      );
 
     }
   );
@@ -1432,698 +1285,592 @@ function renderFrames(){
 }
 
 
-/*
-  Add frame.
-*/
+document
+.getElementById("frameAdd")
+.addEventListener(
+  "click",
+  () => {
+
+    const next =
+    makeFrame();
+
+    next
+    .getContext("2d")
+    .drawImage(
+      frames[currentFrame],
+      0,
+      0
+    );
+
+    frames.push(next);
+
+    currentFrame =
+    frames.length-1;
+
+    renderCurrent();
+
+    renderFrames();
+
+  }
+);
+
+
+/* =========================
+   IMPORT
+========================= */
 
 document
-  .getElementById("frameAdd")
-  .addEventListener(
-    "click",
-    () => {
+.getElementById("importButton")
+.addEventListener(
+  "click",
+  () => {
 
-      const currentFrames =
-        getFrames();
+    document
+    .getElementById("importInput")
+    .click();
 
-      const next =
-        makeFrame();
-
-
-      next
-        .getContext("2d")
-        .drawImage(
-          currentFrames[currentFrame],
-          0,
-          0
-        );
+  }
+);
 
 
-      currentFrames.push(
-        next
+document
+.getElementById("importInput")
+.addEventListener(
+  "change",
+  e => {
+
+    const file =
+    e.target.files[0];
+
+    if(!file) return;
+
+
+    const img =
+    new Image();
+
+
+    img.onload=()=>{
+
+      const frame =
+      makeFrame();
+
+      const fctx =
+      frame.getContext("2d");
+
+      fctx.clearRect(
+        0,0,size,size
+      );
+
+      fctx.imageSmoothingEnabled=false;
+
+
+      const scale =
+      Math.min(
+        size/img.width,
+        size/img.height
       );
 
 
-      currentFrame =
-        currentFrames.length - 1;
+      const w =
+      Math.max(
+        1,
+        Math.round(img.width*scale)
+      );
 
+      const h =
+      Math.max(
+        1,
+        Math.round(img.height*scale)
+      );
+
+
+      const x =
+      Math.floor((size-w)/2);
+
+      const y =
+      Math.floor((size-h)/2);
+
+
+      fctx.drawImage(
+        img,
+        x,
+        y,
+        w,
+        h
+      );
+
+
+      frames[currentFrame]=frame;
 
       renderCurrent();
+
       renderFrames();
 
-    }
-  );
+      URL.revokeObjectURL(
+        img.src
+      );
+
+    };
+
+
+    img.src =
+    URL.createObjectURL(file);
+
+  }
+);
+
+
+/* =========================
+   EXPORT
+========================= */
+
+document
+.getElementById("exportButton")
+.addEventListener(
+  "click",
+  () => {
+
+    const out =
+    document.createElement("canvas");
+
+    out.width=size;
+    out.height=size;
+
+    out
+    .getContext("2d")
+    .drawImage(
+      frames[currentFrame],
+      0,
+      0
+    );
+
+
+    const a =
+    document.createElement("a");
+
+    a.download =
+    "bixel-sprite.png";
+
+    a.href =
+    out.toDataURL("image/png");
+
+    a.click();
+
+  }
+);
+
+
+/* ==================================================
+   BIXEL SEED SYSTEM
+================================================== */
 
 
 /*
-  Animation selector.
+  We are NOT brute-forcing every possible picture.
+
+  Instead we encode the exact pixels.
+
+  BBX1 format:
+
+  BBX1|size|pixelData
+
+  Each pixel is represented by:
+
+  0 = transparent
+
+  Otherwise:
+  RGB values are quantized to steps of 10.
+
+  Each color becomes:
+
+  R,G,B
+
+  Example:
+
+  120,40,200
+
 */
 
-document
-  .getElementById("animationSelect")
-  .addEventListener(
-    "change",
-    e => {
 
-      switchAnimation(
-        e.target.value
+function encodeFrame(frame){
+
+  const fctx =
+  frame.getContext("2d");
+
+  const image =
+  fctx.getImageData(
+    0,
+    0,
+    size,
+    size
+  ).data;
+
+
+  let result=[];
+
+
+  for(
+    let i=0;
+    i<image.length;
+    i+=4
+  ){
+
+    const r=image[i];
+
+    const g=image[i+1];
+
+    const b=image[i+2];
+
+    const a=image[i+3];
+
+
+    if(a===0){
+
+      result.push("0");
+
+    }else{
+
+      const qr =
+      quantizeChannel(r);
+
+      const qg =
+      quantizeChannel(g);
+
+      const qb =
+      quantizeChannel(b);
+
+      result.push(
+        qr+","+qg+","+qb
       );
 
     }
+
+  }
+
+
+  return result.join(";");
+
+}
+
+
+function generateBBXCode(){
+
+  const encodedFrames =
+  frames.map(
+    frame => encodeFrame(frame)
   );
 
 
-/*
-  New animation.
-*/
-
-document
-  .getElementById("newAnimationButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      let name =
-        prompt(
-          "Animation name:"
-        );
-
-
-      if(!name){
-        return;
-      }
-
-
-      name =
-        name.trim();
-
-
-      if(!name){
-        return;
-      }
-
-
-      if(animations[name]){
-
-        alert(
-          "That animation already exists."
-        );
-
-        return;
-
-      }
-
-
-      animations[name] = {
-
-        fps:8,
-
-        frames:[
-          makeFrame()
-        ]
-
-      };
-
-
-      currentAnimation =
-        name;
-
-      currentFrame =
-        0;
-
-
-      renderAnimationSelect();
-
-      document.getElementById("animationName")
-        .value =
-        name;
-
-      document.getElementById("fps")
-        .value =
-        8;
-
-      renderCurrent();
-      renderFrames();
-
-    }
+  const fps =
+  Math.max(
+    1,
+    Math.min(
+      60,
+      Number(
+        document
+        .getElementById("fps")
+        .value
+      ) || 8
+    )
   );
 
 
-/*
-  Rename animation.
-*/
-
-document
-  .getElementById("animationName")
-  .addEventListener(
-    "change",
-    e => {
-
-      const newName =
-        e.target.value.trim();
-
-
-      if(!newName){
-
-        e.target.value =
-          currentAnimation;
-
-        return;
-
-      }
-
-
-      if(
-        newName !== currentAnimation &&
-        animations[newName]
-      ){
-
-        alert(
-          "That animation already exists."
-        );
-
-        e.target.value =
-          currentAnimation;
-
-        return;
-
-      }
-
-
-      if(
-        newName !== currentAnimation
-      ){
-
-        animations[newName] =
-          animations[currentAnimation];
-
-        delete animations[currentAnimation];
-
-        currentAnimation =
-          newName;
-
-        renderAnimationSelect();
-
-      }
-
-    }
-  );
-
-
-/*
-  Delete animation.
-*/
-
-document
-  .getElementById("deleteAnimationButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      const names =
-        Object.keys(animations);
-
-
-      if(names.length <= 1){
-
-        alert(
-          "You need at least one animation."
-        );
-
-        return;
-
-      }
-
-
-      if(
-        !confirm(
-          "Delete the " +
-          currentAnimation +
-          " animation?"
-        )
-      ){
-
-        return;
-
-      }
-
-
-      delete animations[
-        currentAnimation
-      ];
-
-
-      currentAnimation =
-        Object.keys(animations)[0];
-
-      currentFrame =
-        0;
-
-
-      renderAnimationSelect();
-
-      document.getElementById("animationName")
-        .value =
-        currentAnimation;
-
-      document.getElementById("fps")
-        .value =
-        animations[currentAnimation].fps;
-
-      renderCurrent();
-      renderFrames();
-
-    }
-  );
-
-
-/*
-  Import image INTO Bixel.
-*/
-
-document
-  .getElementById("importButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      document
-        .getElementById("importInput")
-        .click();
-
-    }
-  );
-
-
-document
-  .getElementById("importInput")
-  .addEventListener(
-    "change",
-    e => {
-
-      const file =
-        e.target.files[0];
-
-      if(!file){
-        return;
-      }
-
-
-      const img =
-        new Image();
-
-
-      img.onload =
-        () => {
-
-          const frame =
-            makeFrame();
-
-          const fctx =
-            frame.getContext("2d");
-
-
-          fctx.clearRect(
-            0,
-            0,
-            size,
-            size
-          );
-
-
-          fctx.imageSmoothingEnabled =
-            false;
-
-
-          const scale =
-            Math.min(
-              size / img.width,
-              size / img.height
-            );
-
-
-          const w =
-            Math.max(
-              1,
-              Math.round(
-                img.width * scale
-              )
-            );
-
-
-          const h =
-            Math.max(
-              1,
-              Math.round(
-                img.height * scale
-              )
-            );
-
-
-          const x =
-            Math.floor(
-              (size - w) / 2
-            );
-
-
-          const y =
-            Math.floor(
-              (size - h) / 2
-            );
-
-
-          fctx.drawImage(
-            img,
-            x,
-            y,
-            w,
-            h
-          );
-
-
-          getFrames()[currentFrame] =
-            frame;
-
-
-          renderCurrent();
-          renderFrames();
-
-
-          URL.revokeObjectURL(
-            img.src
-          );
-
-
-          showStatus(
-            "Image imported into Bixel"
-          );
-
-        };
-
-
-      img.src =
-        URL.createObjectURL(file);
-
-
-      e.target.value = "";
-
-    }
-  );
-
-
-/*
-  Export current frame.
-*/
-
-document
-  .getElementById("exportButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      const out =
-        document.createElement("canvas");
-
-      out.width =
-        size;
-
-      out.height =
-        size;
-
-
-      out
-        .getContext("2d")
-        .drawImage(
-          getFrames()[currentFrame],
-          0,
-          0
-        );
-
-
-      const a =
-        document.createElement("a");
-
-
-      a.download =
-        "bixel-sprite.png";
-
-
-      a.href =
-        out.toDataURL(
-          "image/png"
-        );
-
-
-      a.click();
-
-    }
-  );
-
-
-/*
-  Convert canvas to PNG data.
-*/
-
-function frameToDataURL(frame){
-
-  return frame.toDataURL(
-    "image/png"
+  return (
+    "BBX1|" +
+    size +
+    "|" +
+    fps +
+    "|" +
+    encodedFrames.join("||")
   );
 
 }
 
 
-/*
-  Save Bixel to Engine.
-*/
+/* =========================
+   ANALYSIS
+========================= */
 
-document
-  .getElementById("doneButton")
-  .addEventListener(
-    "click",
-    () => {
+function setStep(
+  number,
+  text
+){
 
-      if(!objectId){
+  const step =
+  document.getElementById(
+    "step"+number
+  );
 
-        alert(
-          "No Blank Box object was selected."
-        );
+  step.textContent =
+  "✓ "+text;
 
-        return;
+  step.classList.add("done");
 
-      }
-
-
-      /*
-        Convert every frame into PNG data.
-      */
-
-      const savedAnimations = {};
+}
 
 
-      for(
-        const [name,animation]
-        of Object.entries(animations)
-      ){
+function wait(ms){
 
-        savedAnimations[name] = {
+  return new Promise(
+    resolve =>
+      setTimeout(resolve,ms)
+  );
 
-          fps:animation.fps,
-
-          frames:
-            animation.frames.map(
-              frame =>
-                frameToDataURL(frame)
-            )
-
-        };
-
-      }
+}
 
 
-      /*
-        Store the Bixel project locally.
-        Engine will read this when we return.
-      */
+async function analyzeAndFinish(){
 
-      const project = {
-
-        objectId:objectId,
-
-        type:"bixel",
-
-        size:size,
-
-        animations:savedAnimations
-
-      };
+  document
+  .getElementById("analysis")
+  .style.display="flex";
 
 
-      localStorage.setItem(
-        "blankbox_bixel_" + objectId,
-        JSON.stringify(project)
-      );
+  for(let i=1;i<=6;i++){
+
+    document
+    .getElementById("step"+i)
+    .classList.remove("done");
+
+  }
 
 
-      /*
-        Tell the previous Engine page
-        that Bixel has been saved.
-      */
-
-      localStorage.setItem(
-        "blankbox_bixel_saved",
-        objectId
-      );
+  document
+  .getElementById("seedResult")
+  .textContent="";
 
 
-      window.location.href =
-        "engine.html";
+  await wait(150);
 
-    }
+  setStep(
+    1,
+    "Reading pixels"
   );
 
 
-/*
-  CANCEL
-*/
+  await wait(120);
 
-document
-  .getElementById("cancelButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      if(
-        confirm(
-          "Cancel without saving?"
-        )
-      ){
-
-        window.location.href =
-          "engine.html";
-
-      }
-
-    }
+  setStep(
+    2,
+    "Checking center"
   );
 
 
-/*
-  Preview animation.
-*/
+  await wait(120);
+
+  setStep(
+    3,
+    "Checking X / Y axes"
+  );
+
+
+  await wait(120);
+
+  setStep(
+    4,
+    "Building shape data"
+  );
+
+
+  await wait(120);
+
+  setStep(
+    5,
+    "Encoding colors"
+  );
+
+
+  await wait(120);
+
+
+  const code =
+  generateBBXCode();
+
+
+  setStep(
+    6,
+    "Generating seed"
+  );
+
+
+  document
+  .getElementById("seedResult")
+  .textContent=code;
+
+
+  /*
+    Save it so engine.html can retrieve it.
+  */
+
+  localStorage.setItem(
+    "blankbox_bixel_code",
+    code
+  );
+
+}
+
+
+/* =========================
+   COPY CODE
+========================= */
 
 document
-  .getElementById("previewButton")
-  .addEventListener(
-    "click",
-    () => {
+.getElementById("copySeed")
+.addEventListener(
+  "click",
+  async () => {
 
-      if(
-        getFrames().length < 2
-      ){
+    const code =
+    document
+    .getElementById("seedResult")
+    .textContent;
 
-        return;
+    if(!code)
+      return;
 
-      }
+    await navigator
+      .clipboard
+      .writeText(code);
+
+    document
+    .getElementById("copySeed")
+    .textContent =
+    "COPIED ✓";
 
 
-      previewing =
-        !previewing;
+    setTimeout(
+      () => {
 
-
-      document
-        .getElementById("previewButton")
+        document
+        .getElementById("copySeed")
         .textContent =
-        previewing
-          ? "■ STOP"
-          : "▶ PREVIEW";
+        "COPY BBX CODE";
+
+      },
+      1200
+    );
+
+  }
+);
 
 
-      if(previewing){
-
-        let i =
-          currentFrame;
-
-
-        const tick =
-          () => {
-
-            if(!previewing){
-              return;
-            }
-
-
-            const currentFrames =
-              getFrames();
-
-
-            currentFrame =
-              i % currentFrames.length;
-
-
-            renderCurrent();
-            renderFrames();
-
-
-            i++;
-
-
-            const fps =
-              Math.max(
-                1,
-                Math.min(
-                  60,
-                  Number(
-                    document
-                      .getElementById("fps")
-                      .value
-                  ) || 8
-                )
-              );
-
-
-            animations[currentAnimation].fps =
-              fps;
-
-
-            previewTimer =
-              setTimeout(
-                tick,
-                1000 / fps
-              );
-
-          };
-
-
-        tick();
-
-      }else{
-
-        clearTimeout(
-          previewTimer
-        );
-
-      }
-
-    }
-  );
-
-
-/*
-  Start.
-*/
-
-ensureFrames();
-
-renderAnimationSelect();
+/* =========================
+   DONE
+========================= */
 
 document
-  .getElementById("animationName")
-  .value =
-  currentAnimation;
+.getElementById("doneButton")
+.addEventListener(
+  "click",
+  async () => {
 
-renderCurrent();
+    await analyzeAndFinish();
 
-renderFrames();
+    /*
+      Wait a moment so the user
+      can actually see the analysis.
+    */
+
+    await wait(900);
+
+    window.location.href =
+      "engine.html";
+
+  }
+);
+
+
+/* =========================
+   PREVIEW
+========================= */
+
+document
+.getElementById("previewButton")
+.addEventListener(
+  "click",
+  () => {
+
+    if(frames.length<2)
+      return;
+
+
+    previewing =
+    !previewing;
+
+
+    document
+    .getElementById("previewButton")
+    .textContent =
+    previewing
+    ? "■ STOP"
+    : "▶ PREVIEW";
+
+
+    if(previewing){
+
+      let i=currentFrame;
+
+
+      const tick=()=>{
+
+        if(!previewing)
+          return;
+
+
+        currentFrame =
+        i % frames.length;
+
+
+        renderCurrent();
+
+        renderFrames();
+
+        i++;
+
+
+        const fps =
+        Math.max(
+          1,
+          Math.min(
+            60,
+            Number(
+              document
+              .getElementById("fps")
+              .value
+            ) || 8
+          )
+        );
+
+
+        previewTimer =
+        setTimeout(
+          tick,
+          1000/fps
+        );
+
+      };
+
+
+      tick();
+
+
+    }else{
+
+      clearTimeout(
+        previewTimer
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================
+   START
+========================= */
+
+resetFrames();
 
 </script>
 
