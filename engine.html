@@ -352,69 +352,6 @@
     }
 
    function renderObject(object) {
-  const element = document.createElement("div");
-
-  element.classList.add(
-    "gameObject",
-    object.type
-  );
-
-  element.style.left = `${object.x}px`;
-  element.style.top = `${object.y}px`;
-
-  element.dataset.id = object.id;
-
-  let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  element.addEventListener("pointerdown", (event) => {
-    event.stopPropagation();
-
-    selectObject(object);
-
-    dragging = true;
-
-    const rect = element.getBoundingClientRect();
-    const workspaceRect = workspace.getBoundingClientRect();
-
-    offsetX = event.clientX - rect.left;
-    offsetY = event.clientY - rect.top;
-
-    element.setPointerCapture(event.pointerId);
-  });
-
-  element.addEventListener("pointermove", (event) => {
-    if (!dragging) return;
-
-    const workspaceRect =
-      workspace.getBoundingClientRect();
-
-    object.x =
-      event.clientX -
-      workspaceRect.left -
-      offsetX;
-
-    object.y =
-      event.clientY -
-      workspaceRect.top -
-      offsetY;
-
-    element.style.left = `${object.x}px`;
-    element.style.top = `${object.y}px`;
-  });
-
-  element.addEventListener("pointerup", (event) => {
-    dragging = false;
-
-    element.releasePointerCapture(event.pointerId);
-  });
-
-  object.element = element;
-
-  workspace.appendChild(element);
-}
-
       const element = document.createElement("div");
 
       element.classList.add(
