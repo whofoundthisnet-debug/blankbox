@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlankBox Bixel Art</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#171717;color:white}
+#app{height:100%;display:grid;grid-template-rows:58px 1fr 110px}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#222;border-bottom:2px solid #333}
+#brand{font-size:22px;font-weight:900}
+#actions{display:flex;gap:8px;align-items:center}
+button,select,input{font:inherit}
+button{border:1px solid #444;background:#2b2b2b;color:white;border-radius:7px;padding:9px 12px;cursor:pointer}
+button:hover{background:#363636}
+.primary{background:#72d572;color:#111;border-color:#72d572;font-weight:900}
+#main{min-height:0;display:grid;grid-template-columns:180px 1fr 230px}
+#tools,#panel{background:#202020;padding:14px;overflow:auto}
+#tools{border-right:2px solid #333}
+#panel{border-left:2px solid #333}
+.section{font-size:12px;color:#aaa;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin:4px 0 10px}
+.tool{display:block;width:100%;margin-bottom:8px;text-align:left}
+.tool.active{outline:2px solid #72d572}
+#workspace{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;background:#111;overflow:hidden}
+#canvasWrap{position:relative;width:min(70vw,70vh);height:min(70vw,70vh);max-width:700px;max-height:700px;background:#fff;image-rendering:pixelated}
+canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+#shadowCanvas{pointer-events:none}
+#pixelCanvas{cursor:crosshair}
+.field{margin-bottom:14px}
+.field label{display:block;color:#aaa;font-size:12px;font-weight:700;margin-bottom:6px}
+.field select,.field input[type="number"],.field input[type="range"]{width:100%}
+.field select,.field input[type="number"]{padding:8px;background:#292929;color:white;border:1px solid #444;border-radius:6px}
+.colorRow{display:flex;gap:8px;align-items:center}
+#color{width:52px;height:38px;padding:2px}
+#hex{flex:1;min-width:0;padding:8px;background:#292929;color:white;border:1px solid #444;border-radius:6px}
+#frames{background:#1c1c1c;border-top:2px solid #333;display:flex;align-items:center;gap:10px;padding:10px 14px;overflow-x:auto}
+.frame{height:82px;min-width:82px;background:#111;border:2px solid #444;border-radius:6px;padding:4px;cursor:pointer}
+.frame.active{border-color:#72d572}
+.frame canvas{position:static;width:70px;height:70px;display:block;background:white}
+#frameAdd{height:82px;min-width:82px;font-size:28px}
+.note{font-size:12px;color:#888;line-height:1.4}
+#sizeText{color:#aaa;font-size:12px}
+</style>
+</head>
+<body>
+<div id="app">
+<header id="topbar">
+  <div id="brand">BIXEL ART</div>
+  <div id="actions">
+    <button id="importButton">IMPORT</button>
+    <input id="importInput" type="file" accept="image/*" hidden>
+    <button id="exportButton">EXPORT PNG</button>
+    <button class="primary" id="doneButton">DONE</button>
+  </div>
+</header>
+
+<div id="main">
+  <aside id="tools">
+    <div class="section">Tools</div>
+    <button class="tool active" data-tool="pencil">✏ Pencil</button>
+    <button class="tool" data-tool="eraser">⌫ Eraser</button>
+    <button class="tool" data-tool="fill">▧ Fill</button>
+    <button class="tool" data-tool="picker">◉ Color Picker</button>
+
+    <div class="section" style="margin-top:20px">Canvas</div>
+    <div class="field">
+      <label>Size</label>
+      <select id="canvasSize">
+        <option value="16">16 × 16</option>
+        <option value="24">24 × 24</option>
+        <option value="32" selected>32 × 32</option>
+        <option value="48">48 × 48</option>
+        <option value="64">64 × 64</option>
+      </select>
+    </div>
+    <button id="newButton">NEW SPRITE</button>
+  </aside>
+
+  <section id="workspace">
+    <div id="canvasWrap">
+      <canvas id="shadowCanvas"></canvas>
+      <canvas id="pixelCanvas"></canvas>
+    </div>
+  </section>
+
+  <aside id="panel">
+    <div class="section">Color</div>
+    <div class="field">
+      <div class="colorRow">
+        <input id="color" type="color" value="#111111">
+        <input id="hex" value="#111111" maxlength="7">
+      </div>
+    </div>
+
+    <div class="section">Shadow</div>
+    <div class="field">
+      <label>Template</label>
+      <select id="shadowPose">
+        <option value="none">None</option>
+        <option value="idle">Idle</option>
+        <option value="walk">Walk</option>
+        <option value="run">Run</option>
+        <option value="jump">Jump</option>
+        <option value="hit">Hit</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Opacity <span id="sizeText">30%</span></label>
+      <input id="shadowOpacity" type="range" min="5" max="70" value="30">
+    </div>
+    <p class="note">Shadow is only a drawing guide. It is never saved into the sprite.</p>
+
+    <div class="section">Animation</div>
+    <div class="field">
+      <label>Frame speed</label>
+      <input id="fps" type="number" min="1" max="60" value="8">
+    </div>
+    <button id="previewButton">▶ PREVIEW</button>
+</aside>
+</div>
+
+<div id="frames">
+  <button id="frameAdd">+</button>
+</div>
+</div>
+
+<script>
+const pixelCanvas = document.getElementById("pixelCanvas");
+const shadowCanvas = document.getElementById("shadowCanvas");
+const wrap = document.getElementById("canvasWrap");
+const ctx = pixelCanvas.getContext("2d");
+const sctx = shadowCanvas.getContext("2d");
+
+let size = 32;
+let tool = "pencil";
+let color = "#111111";
+let drawing = false;
+let frames = [];
+let currentFrame = 0;
+let shadowPose = "none";
+let shadowOpacity = 0.30;
+let previewing = false;
+let previewTimer = null;
+
+function makeFrame() {
+  const c = document.createElement("canvas");
+  c.width = size;
+  c.height = size;
+  const cctx = c.getContext("2d");
+  cctx.clearRect(0,0,size,size);
+  return c;
+}
+
+function resetFrames() {
+  frames = [makeFrame()];
+  currentFrame = 0;
+  renderCurrent();
+  renderFrames();
+}
+
+function renderCurrent() {
+  pixelCanvas.width = size;
+  pixelCanvas.height = size;
+  shadowCanvas.width = size;
+  shadowCanvas.height = size;
+
+  ctx.clearRect(0,0,size,size);
+  ctx.drawImage(frames[currentFrame],0,0);
+  drawGrid();
+  drawShadow();
+}
+
+function drawGrid() {
+  ctx.save();
+  ctx.strokeStyle = "rgba(0,0,0,.13)";
+  ctx.lineWidth = 1 / size;
+  for (let i=1;i<size;i++) {
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(size,i); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function shadowLine(x1,y1,x2,y2) {
+  sctx.beginPath();
+  sctx.moveTo(x1,y1);
+  sctx.lineTo(x2,y2);
+  sctx.stroke();
+}
+
+function drawShadow() {
+  sctx.clearRect(0,0,size,size);
+  if (shadowPose === "none") return;
+
+  sctx.save();
+  sctx.globalAlpha = shadowOpacity;
+  sctx.strokeStyle = "#4a7cff";
+  sctx.fillStyle = "#4a7cff";
+  sctx.lineWidth = Math.max(1, size/18);
+  sctx.lineCap = "round";
+
+  const cx = size/2;
+  const head = size*0.27;
+  let bodyY = size*0.52;
+  let lean = 0;
+  let leftLeg = size*0.72, rightLeg = size*0.72;
+  let armY = size*0.54;
+
+  if (shadowPose === "walk") { lean = -2; leftLeg = size*0.82; rightLeg = size*0.68; }
+  if (shadowPose === "run") { lean = -4; leftLeg = size*0.82; rightLeg = size*0.65; }
+  if (shadowPose === "jump") { bodyY = size*0.46; leftLeg = size*0.68; rightLeg = size*0.68; }
+  if (shadowPose === "hit") { lean = 4; armY = size*0.48; }
+
+  sctx.beginPath();
+  sctx.arc(cx + lean, head, size*0.10, 0, Math.PI*2);
+  sctx.fill();
+
+  shadowLine(cx + lean, head + size*0.10, cx + lean, bodyY);
+  shadowLine(cx + lean, armY, cx - size*0.18 + lean, armY + size*0.08);
+  shadowLine(cx + lean, armY, cx + size*0.18 + lean, armY + size*0.08);
+  shadowLine(cx + lean, bodyY, cx - size*0.10 + lean, leftLeg);
+  shadowLine(cx + lean, bodyY, cx + size*0.10 + lean, rightLeg);
+
+  sctx.restore();
+}
+
+function setPixel(px,py) {
+  if (px < 0 || py < 0 || px >= size || py >= size) return;
+  const fctx = frames[currentFrame].getContext("2d");
+  if (tool === "picker") {
+    const data = fctx.getImageData(px,py,1,1).data;
+    if (data[3] === 0) return;
+    const hex = "#" + [data[0],data[1],data[2]].map(v=>v.toString(16).padStart(2,"0")).join("");
+    color = hex;
+    document.getElementById("color").value = hex;
+    document.getElementById("hex").value = hex;
+    tool = "pencil";
+    document.querySelectorAll(".tool").forEach(b=>b.classList.toggle("active",b.dataset.tool==="pencil"));
+    return;
+  }
+
+  if (tool === "eraser") {
+    fctx.clearRect(px,py,1,1);
+  } else {
+    fctx.fillStyle = color;
+    fctx.fillRect(px,py,1,1);
+  }
+  renderCurrent();
+}
+
+function fill() {
+  const fctx = frames[currentFrame].getContext("2d");
+  const x = Math.floor(size/2), y = Math.floor(size/2);
+  fctx.fillStyle = color;
+  fctx.fillRect(0,0,size,size);
+  renderCurrent();
+}
+
+function canvasPoint(event) {
+  const rect = pixelCanvas.getBoundingClientRect();
+  return {
+    x: Math.floor((event.clientX - rect.left) / rect.width * size),
+    y: Math.floor((event.clientY - rect.top) / rect.height * size)
+  };
+}
+
+pixelCanvas.addEventListener("pointerdown", e => {
+  drawing = true;
+  pixelCanvas.setPointerCapture(e.pointerId);
+  const p = canvasPoint(e);
+  if (tool === "fill") fill(); else setPixel(p.x,p.y);
+});
+pixelCanvas.addEventListener("pointermove", e => {
+  if (!drawing || tool === "fill") return;
+  const p = canvasPoint(e);
+  setPixel(p.x,p.y);
+});
+pixelCanvas.addEventListener("pointerup", () => drawing = false);
+pixelCanvas.addEventListener("pointercancel", () => drawing = false);
+
+document.querySelectorAll(".tool").forEach(button => {
+  button.addEventListener("click", () => {
+    tool = button.dataset.tool;
+    document.querySelectorAll(".tool").forEach(b => b.classList.toggle("active",b===button));
+  });
+});
+
+document.getElementById("color").addEventListener("input", e => {
+  color = e.target.value;
+  document.getElementById("hex").value = color;
+});
+document.getElementById("hex").addEventListener("input", e => {
+  if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+    color = e.target.value;
+    document.getElementById("color").value = color;
+  }
+});
+
+document.getElementById("canvasSize").addEventListener("change", e => {
+  size = Number(e.target.value);
+  resetFrames();
+});
+
+document.getElementById("newButton").addEventListener("click", resetFrames);
+
+document.getElementById("shadowPose").addEventListener("change", e => {
+  shadowPose = e.target.value;
+  renderCurrent();
+});
+
+document.getElementById("shadowOpacity").addEventListener("input", e => {
+  shadowOpacity = Number(e.target.value)/100;
+  document.getElementById("sizeText").textContent = e.target.value + "%";
+  renderCurrent();
+});
+
+function renderFrames() {
+  document.querySelectorAll(".frame").forEach(e => e.remove());
+  const add = document.getElementById("frameAdd");
+
+  frames.forEach((frame,index) => {
+    const button = document.createElement("button");
+    button.className = "frame" + (index===currentFrame ? " active" : "");
+    button.type = "button";
+    const preview = document.createElement("canvas");
+    preview.width = size;
+    preview.height = size;
+    preview.getContext("2d").drawImage(frame,0,0);
+    button.appendChild(preview);
+    button.title = "Frame " + (index+1);
+    button.addEventListener("click", () => {
+      currentFrame = index;
+      renderCurrent();
+      renderFrames();
+    });
+    document.getElementById("frames").insertBefore(button, add);
+  });
+}
+
+document.getElementById("frameAdd").addEventListener("click", () => {
+  const next = makeFrame();
+  next.getContext("2d").drawImage(frames[currentFrame],0,0);
+  frames.push(next);
+  currentFrame = frames.length - 1;
+  renderCurrent();
+  renderFrames();
+});
+
+document.getElementById("importButton").addEventListener("click", () => {
+  document.getElementById("importInput").click();
+});
+
+document.getElementById("importInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const frame = makeFrame();
+    const fctx = frame.getContext("2d");
+    fctx.clearRect(0,0,size,size);
+    fctx.imageSmoothingEnabled = false;
+    const scale = Math.min(size/img.width, size/img.height);
+    const w = Math.max(1, Math.round(img.width*scale));
+    const h = Math.max(1, Math.round(img.height*scale));
+    const x = Math.floor((size-w)/2);
+    const y = Math.floor((size-h)/2);
+    fctx.drawImage(img,x,y,w,h);
+    frames[currentFrame] = frame;
+    renderCurrent();
+    renderFrames();
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+document.getElementById("exportButton").addEventListener("click", () => {
+  const out = document.createElement("canvas");
+  out.width = size;
+  out.height = size;
+  out.getContext("2d").drawImage(frames[currentFrame],0,0);
+  const a = document.createElement("a");
+  a.download = "bixel-sprite.png";
+  a.href = out.toDataURL("image/png");
+  a.click();
+});
+
+document.getElementById("doneButton").addEventListener("click", () => {
+  window.location.href = "engine.html";
+});
+
+document.getElementById("previewButton").addEventListener("click", () => {
+  if (frames.length < 2) return;
+  previewing = !previewing;
+  document.getElementById("previewButton").textContent = previewing ? "■ STOP" : "▶ PREVIEW";
+  if (previewing) {
+    let i = currentFrame;
+    const tick = () => {
+      if (!previewing) return;
+      currentFrame = i % frames.length;
+      renderCurrent();
+      renderFrames();
+      i++;
+      const fps = Math.max(1, Math.min(60, Number(document.getElementById("fps").value) || 8));
+      previewTimer = setTimeout(tick, 1000/fps);
+    };
+    tick();
+  } else {
+    clearTimeout(previewTimer);
+  }
+});
+
+resetFrames();
+</script>
+</body>
+</html>
