@@ -426,11 +426,13 @@ function renderObject(object) {
     // Keep the object selected after dragging.
     selectObject(object);
   });
-
   element.addEventListener("pointercancel", () => {
-    dragging = false;
-  });
-
+  dragging = false;
+});
+element.addEventListener("click", (event) => {
+  event.stopPropagation();
+  selectObject(object);
+});
   object.element = element;
 
   workspace.appendChild(element);
