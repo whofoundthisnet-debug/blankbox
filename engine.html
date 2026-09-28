@@ -373,12 +373,12 @@ function renderObject(object) {
 
     selectObject(object);
 
-    dragging = true;
-
     const rect = element.getBoundingClientRect();
 
     offsetX = event.clientX - rect.left;
     offsetY = event.clientY - rect.top;
+
+    dragging = true;
 
     element.setPointerCapture(event.pointerId);
   });
@@ -398,8 +398,13 @@ function renderObject(object) {
       workspaceRect.top -
       offsetY;
 
-    const maxX = workspace.clientWidth - element.offsetWidth;
-    const maxY = workspace.clientHeight - element.offsetHeight;
+    const maxX =
+      workspace.clientWidth -
+      element.offsetWidth;
+
+    const maxY =
+      workspace.clientHeight -
+      element.offsetHeight;
 
     newX = Math.max(0, Math.min(newX, maxX));
     newY = Math.max(0, Math.min(newY, maxY));
@@ -417,6 +422,9 @@ function renderObject(object) {
     if (element.hasPointerCapture(event.pointerId)) {
       element.releasePointerCapture(event.pointerId);
     }
+
+    // Keep the object selected after dragging.
+    selectObject(object);
   });
 
   element.addEventListener("pointercancel", () => {
@@ -427,7 +435,6 @@ function renderObject(object) {
 
   workspace.appendChild(element);
 }
-
     function selectObject(object) {
 
       if (selected && selected.element) {
