@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlankBox Engine</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #171717;
+      color: white;
+    }
+
+    #engine {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 220px 1fr 260px;
+      grid-template-rows: 60px 1fr;
+    }
+
+    /* TOP BAR */
+
+    #topbar {
+      grid-column: 1 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: #222;
+      border-bottom: 2px solid #333;
+    }
+
+    #logo {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    #playButton {
+      padding: 10px 28px;
+      border: 0;
+      border-radius: 8px;
+      background: #72d572;
+      color: #111;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    #playButton:hover {
+      filter: brightness(1.08);
+    }
+
+    /* LEFT SIDEBAR */
+
+    #sidebar {
+      background: #202020;
+      border-right: 2px solid #333;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .panelTitle {
+      margin-bottom: 14px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .objectButton {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 12px;
+      border: 1px solid #3a3a3a;
+      border-radius: 7px;
+      background: #292929;
+      color: white;
+      text-align: left;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .objectButton:hover {
+      background: #333;
+    }
+
+    /* WORKSPACE */
+
+    #workspace {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(#242424 1px, transparent 1px),
+        linear-gradient(90deg, #242424 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    #workspaceHint {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #555;
+      font-size: 22px;
+      font-weight: 900;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* RIGHT PROPERTIES */
+
+    #properties {
+      background: #202020;
+      border-left: 2px solid #333;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    #selectedObject {
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .property {
+      margin-bottom: 14px;
+    }
+
+    .property label {
+      display: block;
+      margin-bottom: 6px;
+      color: #aaa;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .property input,
+    .property select {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #292929;
+      color: white;
+      font-size: 14px;
+    }
+
+    #emptyProperties {
+      color: #777;
+      line-height: 1.5;
+    }
+
+    /* OBJECTS IN THE WORLD */
+
+    .gameObject {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border: 3px solid white;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .player {
+      background: #5b8cff;
+    }
+
+    .enemy {
+      background: #e85b5b;
+    }
+
+    .platform {
+      background: #9a9a9a;
+      border-radius: 4px;
+    }
+
+    .selected {
+      outline: 3px solid #ffffff;
+      outline-offset: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main id="engine">
+
+    <header id="topbar">
+      <div id="logo">BLANKBOX</div>
+
+      <button id="playButton">
+        ▶ PLAY
+      </button>
+    </header>
+
+    <aside id="sidebar">
+
+      <div class="panelTitle">
+        CREATE
+      </div>
+
+      <button class="objectButton" data-type="player">
+        + Player
+      </button>
+
+      <button class="objectButton" data-type="enemy">
+        + Enemy
+      </button>
+
+      <button class="objectButton" data-type="platform">
+        + Platform
+      </button>
+
+      <button class="objectButton" data-type="weapon">
+        + Weapon
+      </button>
+
+      <button class="objectButton" data-type="npc">
+        + NPC
+      </button>
+
+      <button class="objectButton" data-type="item">
+        + Item
+      </button>
+
+    </aside>
+
+    <section id="workspace">
+
+      <div id="workspaceHint">
+        YOUR GAME GOES HERE
+      </div>
+
+    </section>
+
+    <aside id="properties">
+
+      <div class="panelTitle">
+        PROPERTIES
+      </div>
+
+      <div id="emptyProperties">
+        Select an object to edit its properties.
+      </div>
+
+      <div id="propertyEditor" hidden>
+
+        <div id="selectedObject"></div>
+
+        <div class="property">
+          <label>Name</label>
+          <input id="nameInput" type="text">
+        </div>
+
+        <div class="property">
+          <label>Health</label>
+          <input id="healthInput" type="number">
+        </div>
+
+        <div class="property">
+          <label>Speed</label>
+          <input id="speedInput" type="number">
+        </div>
+
+      </div>
+
+    </aside>
+
+  </main>
+
+  <script>
+    const workspace = document.getElementById("workspace");
+    const workspaceHint = document.getElementById("workspaceHint");
+
+    const emptyProperties =
+      document.getElementById("emptyProperties");
+
+    const propertyEditor =
+      document.getElementById("propertyEditor");
+
+    const selectedObject =
+      document.getElementById("selectedObject");
+
+    const nameInput =
+      document.getElementById("nameInput");
+
+    const healthInput =
+      document.getElementById("healthInput");
+
+    const speedInput =
+      document.getElementById("speedInput");
+
+    let objects = [];
+    let selected = null;
+
+    function createObject(type) {
+
+      workspaceHint.style.display = "none";
+
+      const object = {
+        id: Date.now(),
+        type: type,
+        name: type.charAt(0).toUpperCase() + type.slice(1),
+        health: 100,
+        speed: 5,
+        x: 100 + Math.random() * 300,
+        y: 100 + Math.random() * 200
+      };
+
+      objects.push(object);
+
+      renderObject(object);
+      selectObject(object);
+    }
+
+    function renderObject(object) {
+
+      const element = document.createElement("div");
+
+      element.classList.add(
+        "gameObject",
+        object.type
+      );
+
+      element.style.left = `${object.x}px`;
+      element.style.top = `${object.y}px`;
+
+      element.dataset.id = object.id;
+
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        selectObject(object);
+      });
+
+      object.element = element;
+
+      workspace.appendChild(element);
+    }
+
+    function selectObject(object) {
+
+      if (selected && selected.element) {
+        selected.element.classList.remove("selected");
+      }
+
+      selected = object;
+
+      selected.element.classList.add("selected");
+
+      emptyProperties.hidden = true;
+      propertyEditor.hidden = false;
+
+      selectedObject.textContent =
+        object.type.toUpperCase();
+
+      nameInput.value = object.name;
+      healthInput.value = object.health;
+      speedInput.value = object.speed;
+    }
+
+    nameInput.addEventListener("input", () => {
+
+      if (!selected) return;
+
+      selected.name = nameInput.value;
+    });
+
+    healthInput.addEventListener("input", () => {
+
+      if (!selected) return;
+
+      selected.health =
+        Number(healthInput.value) || 0;
+    });
+
+    speedInput.addEventListener("input", () => {
+
+      if (!selected) return;
+
+      selected.speed =
+        Number(speedInput.value) || 0;
+    });
+
+    document
+      .querySelectorAll(".objectButton")
+      .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+          createObject(button.dataset.type);
+
+        });
+
+      });
+
+    workspace.addEventListener("click", () => {
+
+      if (selected && selected.element) {
+        selected.element.classList.remove("selected");
+      }
+
+      selected = null;
+
+      emptyProperties.hidden = false;
+      propertyEditor.hidden = true;
+
+    });
+
+    document
+      .getElementById("playButton")
+      .addEventListener("click", () => {
+
+        alert("PLAY mode coming next.");
+
+      });
+  </script>
+
+</body>
+</html>
