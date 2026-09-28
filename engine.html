@@ -25,7 +25,7 @@
       width: 100%;
       height: 100%;
       display: grid;
-      grid-template-columns: 220px 1fr 260px;
+      grid-template-columns: 220px 1fr 300px;
       grid-template-rows: 60px 1fr;
     }
 
@@ -136,7 +136,7 @@
     }
 
     .property {
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     .property label {
@@ -163,7 +163,7 @@
       line-height: 1.5;
     }
 
-    /* OBJECTS IN THE WORLD */
+    /* OBJECTS */
 
     .gameObject {
       touch-action: none;
@@ -174,6 +174,12 @@
       border-radius: 8px;
       cursor: pointer;
       user-select: none;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
     }
 
     .player {
@@ -189,363 +195,1314 @@
       border-radius: 4px;
     }
 
+    .weapon {
+      background: #d49a4a;
+    }
+
+    .npc {
+      background: #a96be8;
+    }
+
+    .item {
+      background: #62c77a;
+    }
+
     .selected {
       outline: 3px solid #ffffff;
       outline-offset: 4px;
+    }
+
+    .gameObject img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      pointer-events: none;
+    }
+
+    /* SPRITE SECTION */
+
+    .spriteBox {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      background: #292929;
+    }
+
+    .spritePreview {
+      width: 100%;
+      height: 120px;
+      margin-bottom: 10px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        linear-gradient(45deg, #333 25%, transparent 25%),
+        linear-gradient(-45deg, #333 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #333 75%),
+        linear-gradient(-45deg, transparent 75%, #333 75%);
+
+      background-size: 20px 20px;
+      background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0;
+
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .spritePreview img {
+      max-width: 90%;
+      max-height: 90%;
+      image-rendering: pixelated;
+    }
+
+    .noSprite {
+      color: #777;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .spriteButtons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .spriteButton {
+      padding: 9px 6px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .spriteButton:hover {
+      background: #3d3d3d;
+    }
+
+    .spriteButton.full {
+      grid-column: 1 / 3;
+    }
+
+    .linkedText {
+      margin-top: 8px;
+      color: #72d572;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* BEHAVIOR CHECKBOXES */
+
+    .behaviorLabel {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+      font-size: 13px;
+    }
+
+    .behaviorLabel input {
+      width: auto;
+      margin-right: 7px;
+    }
+
+    /* HIDDEN FILE INPUT */
+
+    #spriteFileInput {
+      display: none;
+    }
+
+    /* TOAST */
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 25px;
+      transform: translateX(-50%);
+
+      padding: 12px 18px;
+      border-radius: 8px;
+      background: #292929;
+      border: 1px solid #555;
+
+      color: white;
+      font-weight: 700;
+
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+
+      z-index: 1000;
+    }
+
+    #toast.show {
+      opacity: 1;
     }
   </style>
 </head>
 
 <body>
 
-  <main id="engine">
+<main id="engine">
 
-    <header id="topbar">
-      <div id="logo">BLANKBOX</div>
+  <!-- TOP BAR -->
 
-      <button id="playButton">
-        ▶ PLAY
-      </button>
-    </header>
+  <header id="topbar">
 
-    <aside id="sidebar">
+    <div id="logo">
+      BLANKBOX
+    </div>
 
-      <div class="panelTitle">
-        CREATE
+    <button id="playButton">
+      ▶ PLAY
+    </button>
+
+  </header>
+
+
+  <!-- LEFT SIDEBAR -->
+
+  <aside id="sidebar">
+
+    <div class="panelTitle">
+      CREATE
+    </div>
+
+    <button class="objectButton" data-type="player">
+      + Player
+    </button>
+
+    <button class="objectButton" data-type="enemy">
+      + Enemy
+    </button>
+
+    <button class="objectButton" data-type="platform">
+      + Platform
+    </button>
+
+    <button class="objectButton" data-type="weapon">
+      + Weapon
+    </button>
+
+    <button class="objectButton" data-type="npc">
+      + NPC
+    </button>
+
+    <button class="objectButton" data-type="item">
+      + Item
+    </button>
+
+  </aside>
+
+
+  <!-- WORKSPACE -->
+
+  <section id="workspace">
+
+    <div id="workspaceHint">
+      YOUR GAME GOES HERE
+    </div>
+
+  </section>
+
+
+  <!-- PROPERTIES -->
+
+  <aside id="properties">
+
+    <div class="panelTitle">
+      PROPERTIES
+    </div>
+
+    <div id="emptyProperties">
+      Select an object to edit its properties.
+    </div>
+
+
+    <div id="propertyEditor" hidden>
+
+      <div id="selectedObject"></div>
+
+
+      <!-- BASIC PROPERTIES -->
+
+      <div class="property">
+
+        <label>
+          Name
+        </label>
+
+        <input
+          id="nameInput"
+          type="text"
+        >
+
       </div>
 
-      <button class="objectButton" data-type="player">
-        + Player
-      </button>
 
-      <button class="objectButton" data-type="enemy">
-        + Enemy
-      </button>
+      <div class="property">
 
-      <button class="objectButton" data-type="platform">
-        + Platform
-      </button>
+        <label>
+          Health
+        </label>
 
-      <button class="objectButton" data-type="weapon">
-        + Weapon
-      </button>
+        <input
+          id="healthInput"
+          type="number"
+        >
 
-      <button class="objectButton" data-type="npc">
-        + NPC
-      </button>
-
-      <button class="objectButton" data-type="item">
-        + Item
-      </button>
-
-    </aside>
-
-    <section id="workspace">
-
-      <div id="workspaceHint">
-        YOUR GAME GOES HERE
       </div>
 
-    </section>
 
-    <aside id="properties">
+      <div class="property">
 
-      <div class="panelTitle">
-        PROPERTIES
+        <label>
+          Speed
+        </label>
+
+        <input
+          id="speedInput"
+          type="number"
+        >
+
       </div>
 
-      <div id="emptyProperties">
-        Select an object to edit its properties.
+
+      <!-- BEHAVIORS -->
+
+      <div class="property">
+
+        <label>
+          Behaviors
+        </label>
+
+        <div id="behaviors"></div>
+
       </div>
 
-      <div id="propertyEditor" hidden>
 
-        <div id="selectedObject"></div>
+      <!-- SPRITE -->
 
-        <div class="property">
-          <label>Name</label>
-          <input id="nameInput" type="text">
+      <div class="property">
+
+        <label>
+          SPRITE
+        </label>
+
+        <div class="spriteBox">
+
+          <div
+            id="spritePreview"
+            class="spritePreview"
+          ></div>
+
+
+          <div class="spriteButtons">
+
+            <button
+              id="createBixelButton"
+              class="spriteButton"
+            >
+              + Create Bixel
+            </button>
+
+            <button
+              id="importSpriteButton"
+              class="spriteButton"
+            >
+              Import
+            </button>
+
+            <button
+              id="editBixelButton"
+              class="spriteButton full"
+              hidden
+            >
+              ✏ Edit Bixel
+            </button>
+
+            <button
+              id="removeSpriteButton"
+              class="spriteButton full"
+              hidden
+            >
+              Remove Sprite
+            </button>
+
+          </div>
+
+
+          <div
+            id="linkedText"
+            class="linkedText"
+            hidden
+          >
+            ● Bixel linked
+          </div>
+
         </div>
 
-        <div class="property">
-          <label>Health</label>
-          <input id="healthInput" type="number">
-        </div>
+      </div>
 
-        <div class="property">
-          <label>Speed</label>
-          <input id="speedInput" type="number">
-        </div>
-        <div class="property">
-          <label>Behaviors</label>
-          <div id="behaviors"></div>
-        </div>
+
+      <!-- ANIMATION -->
+
+      <div class="property">
+
+        <label>
+          Animation
+        </label>
+
+        <select id="animationInput">
+
+          <option value="Idle">
+            Idle
+          </option>
+
+          <option value="Walk">
+            Walk
+          </option>
+
+          <option value="Run">
+            Run
+          </option>
+
+          <option value="Jump">
+            Jump
+          </option>
+
+          <option value="Hit">
+            Hit
+          </option>
+
+        </select>
 
       </div>
 
-    </aside>
+    </div>
 
-  </main>
+  </aside>
 
-  <script>
-    const workspace = document.getElementById("workspace");
-    const workspaceHint = document.getElementById("workspaceHint");
-    const behaviors =
-      document.getElementById("behaviors");
-   
-    const emptyProperties =
-      document.getElementById("emptyProperties");
+</main>
 
-    const propertyEditor =
-      document.getElementById("propertyEditor");
 
-    const selectedObject =
-      document.getElementById("selectedObject");
+<input
+  type="file"
+  id="spriteFileInput"
+  accept="image/*"
+>
 
-    const nameInput =
-      document.getElementById("nameInput");
 
-    const healthInput =
-      document.getElementById("healthInput");
+<div id="toast"></div>
 
-    const speedInput =
-      document.getElementById("speedInput");
 
-    let objects = [];
-    let selected = null;
+<script>
 
-    function createObject(type) {
+  /* =========================================
+     ELEMENTS
+  ========================================= */
 
-      workspaceHint.style.display = "none";
+  const workspace =
+    document.getElementById("workspace");
 
-      const object = {
-  id: Date.now(),
-  type: type,
-  name: type.charAt(0).toUpperCase() + type.slice(1),
+  const workspaceHint =
+    document.getElementById("workspaceHint");
 
-  health: 100,
-  speed: 5,
+  const behaviors =
+    document.getElementById("behaviors");
 
-  behaviors: {
-    movement: type === "player",
-    jumping: type === "player",
+  const emptyProperties =
+    document.getElementById("emptyProperties");
 
-    chasePlayer: type === "enemy",
-    contactDamage: type === "enemy",
+  const propertyEditor =
+    document.getElementById("propertyEditor");
 
-    solid: type === "platform",
+  const selectedObjectTitle =
+    document.getElementById("selectedObject");
 
-    ranged: type === "weapon",
+  const nameInput =
+    document.getElementById("nameInput");
 
-    dialogue: type === "npc",
+  const healthInput =
+    document.getElementById("healthInput");
 
-    pickup: type === "item"
-  },
+  const speedInput =
+    document.getElementById("speedInput");
 
-  x: 100 + Math.random() * 300,
-  y: 100 + Math.random() * 200
-};
-      objects.push(object);
+  const spritePreview =
+    document.getElementById("spritePreview");
 
-      renderObject(object);
-      selectObject(object);
-    }
-function renderObject(object) {
-  const element = document.createElement("div");
+  const linkedText =
+    document.getElementById("linkedText");
 
-  element.classList.add(
-    "gameObject",
-    object.type
-  );
+  const createBixelButton =
+    document.getElementById("createBixelButton");
 
-  element.style.left = `${object.x}px`;
-  element.style.top = `${object.y}px`;
+  const editBixelButton =
+    document.getElementById("editBixelButton");
 
-  element.dataset.id = object.id;
+  const importSpriteButton =
+    document.getElementById("importSpriteButton");
 
-  let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+  const removeSpriteButton =
+    document.getElementById("removeSpriteButton");
 
-  element.addEventListener("pointerdown", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+  const spriteFileInput =
+    document.getElementById("spriteFileInput");
+
+  const animationInput =
+    document.getElementById("animationInput");
+
+  const toast =
+    document.getElementById("toast");
+
+
+  /* =========================================
+     OBJECT DATA
+  ========================================= */
+
+  let objects = [];
+
+  let selected = null;
+
+
+  /* =========================================
+     TOAST
+  ========================================= */
+
+  function showToast(message) {
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+      toast.classList.remove("show");
+
+    }, 1800);
+
+  }
+
+
+  /* =========================================
+     CREATE OBJECT
+  ========================================= */
+
+  function createObject(type) {
+
+    workspaceHint.style.display = "none";
+
+
+    const object = {
+
+      id: Date.now() + Math.random(),
+
+      type: type,
+
+      name:
+        type.charAt(0).toUpperCase()
+        + type.slice(1),
+
+      health: 100,
+
+      speed: 5,
+
+
+      behaviors: {
+
+        movement:
+          type === "player",
+
+        jumping:
+          type === "player",
+
+        chasePlayer:
+          type === "enemy",
+
+        contactDamage:
+          type === "enemy",
+
+        solid:
+          type === "platform",
+
+        ranged:
+          type === "weapon",
+
+        dialogue:
+          type === "npc",
+
+        pickup:
+          type === "item"
+
+      },
+
+
+      /*
+        THIS IS THE IMPORTANT PART.
+
+        Every object gets its own sprite
+        and animation data.
+      */
+
+      sprite: null,
+
+      animations: {
+
+        Idle: [],
+
+        Walk: [],
+
+        Run: [],
+
+        Jump: [],
+
+        Hit: []
+
+      },
+
+      currentAnimation: "Idle",
+
+
+      x:
+        100 + Math.random() * 300,
+
+      y:
+        100 + Math.random() * 200
+
+    };
+
+
+    objects.push(object);
+
+    renderObject(object);
 
     selectObject(object);
 
-    const rect = element.getBoundingClientRect();
+  }
 
-    offsetX = event.clientX - rect.left;
-    offsetY = event.clientY - rect.top;
 
-    dragging = true;
+  /* =========================================
+     RENDER OBJECT
+  ========================================= */
 
-    element.setPointerCapture(event.pointerId);
-  });
+  function renderObject(object) {
 
-  element.addEventListener("pointermove", (event) => {
-    if (!dragging) return;
+    const element =
+      document.createElement("div");
 
-    const workspaceRect = workspace.getBoundingClientRect();
 
-    let newX =
-      event.clientX -
-      workspaceRect.left -
-      offsetX;
+    element.classList.add(
+      "gameObject",
+      object.type
+    );
 
-    let newY =
-      event.clientY -
-      workspaceRect.top -
-      offsetY;
 
-    const maxX =
-      workspace.clientWidth -
-      element.offsetWidth;
+    element.style.left =
+      `${object.x}px`;
 
-    const maxY =
-      workspace.clientHeight -
-      element.offsetHeight;
+    element.style.top =
+      `${object.y}px`;
 
-    newX = Math.max(0, Math.min(newX, maxX));
-    newY = Math.max(0, Math.min(newY, maxY));
 
-    object.x = newX;
-    object.y = newY;
+    element.dataset.id =
+      object.id;
 
-    element.style.left = `${newX}px`;
-    element.style.top = `${newY}px`;
-  });
 
-  element.addEventListener("pointerup", (event) => {
-    dragging = false;
+    /*
+      If the object has a sprite,
+      show it instead of the colored box.
+    */
 
-    if (element.hasPointerCapture(event.pointerId)) {
-      element.releasePointerCapture(event.pointerId);
-    }
+    updateObjectVisual(object);
 
-    // Keep the object selected after dragging.
-    selectObject(object);
-  });
-  element.addEventListener("pointercancel", () => {
-  dragging = false;
-});
-element.addEventListener("click", (event) => {
-  event.stopPropagation();
-  selectObject(object);
-});
-  object.element = element;
 
-  workspace.appendChild(element);
-}
-    function selectObject(object) {
+    /* DRAGGING */
 
-      if (selected && selected.element) {
-        selected.element.classList.remove("selected");
+    let dragging = false;
+
+    let offsetX = 0;
+
+    let offsetY = 0;
+
+
+    element.addEventListener(
+      "pointerdown",
+      (event) => {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+
+        selectObject(object);
+
+
+        const rect =
+          element.getBoundingClientRect();
+
+
+        offsetX =
+          event.clientX - rect.left;
+
+        offsetY =
+          event.clientY - rect.top;
+
+
+        dragging = true;
+
+
+        element.setPointerCapture(
+          event.pointerId
+        );
+
       }
+    );
 
-      selected = object;
 
-      selected.element.classList.add("selected");
+    element.addEventListener(
+      "pointermove",
+      (event) => {
 
-      emptyProperties.hidden = true;
-      propertyEditor.hidden = false;
+        if (!dragging) return;
 
-      selectedObject.textContent =
-        object.type.toUpperCase();
 
-      nameInput.value = object.name;
-      healthInput.value = object.health;
-      speedInput.value = object.speed;
-      behaviors.innerHTML = "";
+        const workspaceRect =
+          workspace.getBoundingClientRect();
 
-for (const [behavior, enabled] of
-  Object.entries(object.behaviors)) {
 
-  const label = document.createElement("label");
+        let newX =
+          event.clientX
+          - workspaceRect.left
+          - offsetX;
 
-  label.style.display = "block";
-  label.style.marginBottom = "8px";
 
-  const checkbox = document.createElement("input");
+        let newY =
+          event.clientY
+          - workspaceRect.top
+          - offsetY;
 
-  checkbox.type = "checkbox";
-  checkbox.checked = enabled;
 
-  checkbox.addEventListener("change", () => {
-    object.behaviors[behavior] =
-      checkbox.checked;
-  });
+        const maxX =
+          workspace.clientWidth
+          - element.offsetWidth;
 
-  label.appendChild(checkbox);
 
-  label.append(
-    " " +
-    behavior.replace(
-      /([A-Z])/g,
-      " $1"
-    )
-  );
+        const maxY =
+          workspace.clientHeight
+          - element.offsetHeight;
 
-  behaviors.appendChild(label);
-}
+
+        newX =
+          Math.max(
+            0,
+            Math.min(newX, maxX)
+          );
+
+
+        newY =
+          Math.max(
+            0,
+            Math.min(newY, maxY)
+          );
+
+
+        object.x = newX;
+
+        object.y = newY;
+
+
+        element.style.left =
+          `${newX}px`;
+
+        element.style.top =
+          `${newY}px`;
+
+      }
+    );
+
+
+    element.addEventListener(
+      "pointerup",
+      (event) => {
+
+        dragging = false;
+
+
+        if (
+          element.hasPointerCapture(
+            event.pointerId
+          )
+        ) {
+
+          element.releasePointerCapture(
+            event.pointerId
+          );
+
+        }
+
+
+        selectObject(object);
+
+      }
+    );
+
+
+    element.addEventListener(
+      "pointercancel",
+      () => {
+
+        dragging = false;
+
+      }
+    );
+
+
+    element.addEventListener(
+      "click",
+      (event) => {
+
+        event.stopPropagation();
+
+        selectObject(object);
+
+      }
+    );
+
+
+    object.element = element;
+
+
+    workspace.appendChild(element);
+
+  }
+
+
+  /* =========================================
+     UPDATE OBJECT VISUAL
+  ========================================= */
+
+  function updateObjectVisual(object) {
+
+    if (!object.element) return;
+
+
+    object.element.innerHTML = "";
+
+
+    if (object.sprite) {
+
+      const image =
+        document.createElement("img");
+
+
+      image.src =
+        object.sprite;
+
+
+      object.element.appendChild(image);
+
     }
 
-    nameInput.addEventListener("input", () => {
+  }
+
+
+  /* =========================================
+     SELECT OBJECT
+  ========================================= */
+
+  function selectObject(object) {
+
+    if (
+      selected &&
+      selected.element
+    ) {
+
+      selected.element.classList.remove(
+        "selected"
+      );
+
+    }
+
+
+    selected = object;
+
+
+    selected.element.classList.add(
+      "selected"
+    );
+
+
+    emptyProperties.hidden = true;
+
+    propertyEditor.hidden = false;
+
+
+    selectedObjectTitle.textContent =
+      object.type.toUpperCase();
+
+
+    nameInput.value =
+      object.name;
+
+
+    healthInput.value =
+      object.health;
+
+
+    speedInput.value =
+      object.speed;
+
+
+    animationInput.value =
+      object.currentAnimation;
+
+
+    renderBehaviors();
+
+    renderSpriteSection();
+
+  }
+
+
+  /* =========================================
+     BEHAVIORS
+  ========================================= */
+
+  function renderBehaviors() {
+
+    behaviors.innerHTML = "";
+
+
+    if (!selected) return;
+
+
+    for (
+      const [behavior, enabled]
+      of Object.entries(selected.behaviors)
+    ) {
+
+      const label =
+        document.createElement("label");
+
+
+      label.className =
+        "behaviorLabel";
+
+
+      const checkbox =
+        document.createElement("input");
+
+
+      checkbox.type =
+        "checkbox";
+
+
+      checkbox.checked =
+        enabled;
+
+
+      checkbox.addEventListener(
+        "change",
+        () => {
+
+          selected.behaviors[behavior] =
+            checkbox.checked;
+
+        }
+      );
+
+
+      label.appendChild(checkbox);
+
+
+      label.append(
+        behavior.replace(
+          /([A-Z])/g,
+          " $1"
+        )
+      );
+
+
+      behaviors.appendChild(label);
+
+    }
+
+  }
+
+
+  /* =========================================
+     SPRITE SECTION
+  ========================================= */
+
+  function renderSpriteSection() {
+
+    if (!selected) return;
+
+
+    spritePreview.innerHTML = "";
+
+
+    if (selected.sprite) {
+
+      const image =
+        document.createElement("img");
+
+
+      image.src =
+        selected.sprite;
+
+
+      spritePreview.appendChild(image);
+
+
+      linkedText.hidden = false;
+
+      editBixelButton.hidden = false;
+
+      removeSpriteButton.hidden = false;
+
+      createBixelButton.textContent =
+        "Change Bixel";
+
+    } else {
+
+      const text =
+        document.createElement("div");
+
+
+      text.className =
+        "noSprite";
+
+
+      text.textContent =
+        "No Sprite Linked";
+
+
+      spritePreview.appendChild(text);
+
+
+      linkedText.hidden = true;
+
+      editBixelButton.hidden = true;
+
+      removeSpriteButton.hidden = true;
+
+      createBixelButton.textContent =
+        "+ Create Bixel";
+
+    }
+
+  }
+
+
+  /* =========================================
+     NAME
+  ========================================= */
+
+  nameInput.addEventListener(
+    "input",
+    () => {
 
       if (!selected) return;
 
-      selected.name = nameInput.value;
-    });
 
-    healthInput.addEventListener("input", () => {
+      selected.name =
+        nameInput.value;
+
+    }
+  );
+
+
+  /* =========================================
+     HEALTH
+  ========================================= */
+
+  healthInput.addEventListener(
+    "input",
+    () => {
 
       if (!selected) return;
+
 
       selected.health =
         Number(healthInput.value) || 0;
-    });
 
-    speedInput.addEventListener("input", () => {
+    }
+  );
+
+
+  /* =========================================
+     SPEED
+  ========================================= */
+
+  speedInput.addEventListener(
+    "input",
+    () => {
 
       if (!selected) return;
 
+
       selected.speed =
         Number(speedInput.value) || 0;
+
+    }
+  );
+
+
+  /* =========================================
+     ANIMATION
+  ========================================= */
+
+  animationInput.addEventListener(
+    "change",
+    () => {
+
+      if (!selected) return;
+
+
+      selected.currentAnimation =
+        animationInput.value;
+
+    }
+  );
+
+
+  /* =========================================
+     CREATE / EDIT BIXEL
+  ========================================= */
+
+  function openBixelEditor() {
+
+    if (!selected) return;
+
+
+    /*
+      We use the selected object's ID
+      so Bixel knows WHO is being edited.
+    */
+
+    const objectId =
+      encodeURIComponent(selected.id);
+
+
+    /*
+      Change this filename if your Bixel
+      editor has a different filename.
+    */
+
+    window.location.href =
+      "bixel.html?object=" + objectId;
+
+  }
+
+
+  createBixelButton.addEventListener(
+    "click",
+    openBixelEditor
+  );
+
+
+  editBixelButton.addEventListener(
+    "click",
+    openBixelEditor
+  );
+
+
+  /* =========================================
+     IMPORT SPRITE
+  ========================================= */
+
+  importSpriteButton.addEventListener(
+    "click",
+    () => {
+
+      if (!selected) return;
+
+
+      spriteFileInput.click();
+
+    }
+  );
+
+
+  spriteFileInput.addEventListener(
+    "change",
+    (event) => {
+
+      const file =
+        event.target.files[0];
+
+
+      if (!file || !selected) return;
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        (loadEvent) => {
+
+          selected.sprite =
+            loadEvent.target.result;
+
+
+          /*
+            Imported images are also stored
+            as the first Idle frame.
+          */
+
+          selected.animations.Idle = [
+            selected.sprite
+          ];
+
+
+          updateObjectVisual(selected);
+
+          renderSpriteSection();
+
+
+          showToast(
+            "Sprite linked to object."
+          );
+
+        };
+
+
+      reader.readAsDataURL(file);
+
+
+      /*
+        Allows importing the same file again.
+      */
+
+      event.target.value = "";
+
+    }
+  );
+
+
+  /* =========================================
+     REMOVE SPRITE
+  ========================================= */
+
+  removeSpriteButton.addEventListener(
+    "click",
+    () => {
+
+      if (!selected) return;
+
+
+      selected.sprite = null;
+
+
+      selected.animations = {
+
+        Idle: [],
+
+        Walk: [],
+
+        Run: [],
+
+        Jump: [],
+
+        Hit: []
+
+      };
+
+
+      updateObjectVisual(selected);
+
+      renderSpriteSection();
+
+
+      showToast(
+        "Sprite removed."
+      );
+
+    }
+  );
+
+
+  /* =========================================
+     OBJECT BUTTONS
+  ========================================= */
+
+  document
+    .querySelectorAll(".objectButton")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          createObject(
+            button.dataset.type
+          );
+
+        }
+      );
+
     });
 
-    document
-      .querySelectorAll(".objectButton")
-      .forEach(button => {
 
-        button.addEventListener("click", () => {
+  /* =========================================
+     CLICK EMPTY WORKSPACE
+  ========================================= */
 
-          createObject(button.dataset.type);
+  workspace.addEventListener(
+    "click",
+    () => {
 
-        });
+      if (
+        selected &&
+        selected.element
+      ) {
 
-      });
+        selected.element.classList.remove(
+          "selected"
+        );
 
-    workspace.addEventListener("click", () => {
-
-      if (selected && selected.element) {
-        selected.element.classList.remove("selected");
       }
+
 
       selected = null;
 
+
       emptyProperties.hidden = false;
+
       propertyEditor.hidden = true;
 
-    });
+    }
+  );
 
-    document
-      .getElementById("playButton")
-      .addEventListener("click", () => {
 
-        alert("PLAY mode coming next.");
+  /* =========================================
+     PLAY
+  ========================================= */
 
-      });
-  </script>
+  document
+    .getElementById("playButton")
+    .addEventListener(
+      "click",
+      () => {
+
+        alert(
+          "PLAY mode coming next."
+        );
+
+      }
+    );
+
+</script>
 
 </body>
 </html>
