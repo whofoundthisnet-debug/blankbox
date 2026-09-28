@@ -1017,7 +1017,36 @@
   /* =========================================
      SELECT OBJECT
   ========================================= */
+function loadBixelForObject(object) {
 
+  const saved =
+    localStorage.getItem(
+      "blankbox_bixel_" + object.id
+    );
+
+  if (!saved) return;
+
+  try {
+
+    const project =
+      JSON.parse(saved);
+
+    object.sprite = {
+      type: "bixel",
+      size: project.size,
+      animations: project.animations
+    };
+
+  } catch (error) {
+
+    console.error(
+      "Could not load Bixel:",
+      error
+    );
+
+  }
+
+}
   function selectObject(object) {
 
     if (
@@ -1033,7 +1062,7 @@
 
 
     selected = object;
-
+    loadBixelForObject(object);
 
     selected.element.classList.add(
       "selected"
