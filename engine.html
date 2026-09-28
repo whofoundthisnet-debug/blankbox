@@ -166,6 +166,7 @@
     /* OBJECTS IN THE WORLD */
 
     .gameObject {
+      touch-action: none;
       position: absolute;
       width: 80px;
       height: 80px;
@@ -275,6 +276,10 @@
           <label>Speed</label>
           <input id="speedInput" type="number">
         </div>
+        <div class="property">
+          <label>Behaviors</label>
+          <div id="behaviors"></div>
+        </div>
 
       </div>
 
@@ -285,7 +290,9 @@
   <script>
     const workspace = document.getElementById("workspace");
     const workspaceHint = document.getElementById("workspaceHint");
-
+    const behaviors =
+      document.getElementById("behaviors");
+   
     const emptyProperties =
       document.getElementById("emptyProperties");
 
@@ -312,22 +319,101 @@
       workspaceHint.style.display = "none";
 
       const object = {
-        id: Date.now(),
-        type: type,
-        name: type.charAt(0).toUpperCase() + type.slice(1),
-        health: 100,
-        speed: 5,
-        x: 100 + Math.random() * 300,
-        y: 100 + Math.random() * 200
-      };
+  id: Date.now(),
+  type: type,
+  name: type.charAt(0).toUpperCase() + type.slice(1),
 
+  health: 100,
+  speed: 5,
+
+  behaviors: {
+    movement: type === "player",
+    jumping: type === "player",
+
+    chasePlayer: type === "enemy",
+    contactDamage: type === "enemy",
+
+    solid: type === "platform",
+
+    ranged: type === "weapon",
+
+    dialogue: type === "npc",
+
+    pickup: type === "item"
+  },
+
+  x: 100 + Math.random() * 300,
+  y: 100 + Math.random() * 200
+};
       objects.push(object);
 
       renderObject(object);
       selectObject(object);
     }
 
-    function renderObject(object) {
+   function renderObject(object) {
+  const element = document.createElement("div");
+
+  element.classList.add(
+    "gameObject",
+    object.type
+  );
+
+  element.style.left = `${object.x}px`;
+  element.style.top = `${object.y}px`;
+
+  element.dataset.id = object.id;
+
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  element.addEventListener("pointerdown", (event) => {
+    event.stopPropagation();
+
+    selectObject(object);
+
+    dragging = true;
+
+    const rect = element.getBoundingClientRect();
+    const workspaceRect = workspace.getBoundingClientRect();
+
+    offsetX = event.clientX - rect.left;
+    offsetY = event.clientY - rect.top;
+
+    element.setPointerCapture(event.pointerId);
+  });
+
+  element.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+
+    const workspaceRect =
+      workspace.getBoundingClientRect();
+
+    object.x =
+      event.clientX -
+      workspaceRect.left -
+      offsetX;
+
+    object.y =
+      event.clientY -
+      workspaceRect.top -
+      offsetY;
+
+    element.style.left = `${object.x}px`;
+    element.style.top = `${object.y}px`;
+  });
+
+  element.addEventListener("pointerup", (event) => {
+    dragging = false;
+
+    element.releasePointerCapture(event.pointerId);
+  });
+
+  object.element = element;
+
+  workspace.appendChild(element);
+}
 
       const element = document.createElement("div");
 
@@ -370,6 +456,38 @@
       nameInput.value = object.name;
       healthInput.value = object.health;
       speedInput.value = object.speed;
+      behaviors.innerHTML = "";
+
+for (const [behavior, enabled] of
+  Object.entries(object.behaviors)) {
+
+  const label = document.createElement("label");
+
+  label.style.display = "block";
+  label.style.marginBottom = "8px";
+
+  const checkbox = document.createElement("input");
+
+  checkbox.type = "checkbox";
+  checkbox.checked = enabled;
+
+  checkbox.addEventListener("change", () => {
+    object.behaviors[behavior] =
+      checkbox.checked;
+  });
+
+  label.appendChild(checkbox);
+
+  label.append(
+    " " +
+    behavior.replace(
+      /([A-Z])/g,
+      " $1"
+    )
+  );
+
+  behaviors.appendChild(label);
+}
     }
 
     nameInput.addEventListener("input", () => {
