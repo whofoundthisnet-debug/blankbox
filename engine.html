@@ -2288,15 +2288,14 @@ function physicsLoop() {
     playerObject.velocityY;
 
 
-  /* Update the player's visual position */
+  /* Update the actual rendered object */
 
-  if (playerObject.el) {
+  if (
+    playerObject.element
+  ) {
 
-    playerObject.el.style.left =
-      playerObject.x + "px";
-
-    playerObject.el.style.top =
-      playerObject.y + "px";
+    playerObject.element.style.top =
+      `${playerObject.y}px`;
 
   }
 
