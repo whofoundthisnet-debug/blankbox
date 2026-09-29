@@ -2175,7 +2175,6 @@ const MAX_FALL_SPEED = 15;
 /* ---------------------------------------------------------
    FIND PLAYER
    --------------------------------------------------------- */
-
 function findPlayer() {
 
   playerObject =
@@ -2184,8 +2183,32 @@ function findPlayer() {
         object.type === "Player"
     ) || null;
 
-}
 
+  if (!playerObject) {
+
+    console.warn(
+      "BLANK BOX: No Player object found."
+    );
+
+    return false;
+
+  }
+
+
+  /* Make sure the Player has a rendered element */
+
+  if (!playerObject.element) {
+
+    renderObject(
+      playerObject
+    );
+
+  }
+
+
+  return true;
+
+}
 
 /* ---------------------------------------------------------
    START PHYSICS
@@ -2193,17 +2216,8 @@ function findPlayer() {
 
 function startPhysics() {
 
-  findPlayer();
-
-  if (!playerObject) {
-
-    console.warn(
-      "No Player object exists."
-    );
-
+  if (!findPlayer())
     return;
-
-  }
 
 
   physicsRunning = true;
