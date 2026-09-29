@@ -1909,6 +1909,48 @@ workspace.addEventListener(
 
 function saveEngine() {
 
+  const projectID =
+    localStorage.getItem(
+      "blankbox_current_project"
+    );
+
+  if (!projectID) {
+
+    console.warn(
+      "No current Blank Box project selected."
+    );
+
+    return;
+
+  }
+
+
+  const projects =
+    JSON.parse(
+      localStorage.getItem(
+        "blankbox_projects"
+      )
+    ) || [];
+
+
+  const projectIndex =
+    projects.findIndex(
+      project =>
+        project.id === projectID
+    );
+
+
+  if (projectIndex === -1) {
+
+    console.warn(
+      "Current Blank Box project could not be found."
+    );
+
+    return;
+
+  }
+
+
   const cleanObjects =
     objects.map(
       object => ({
@@ -1945,10 +1987,18 @@ function saveEngine() {
     );
 
 
+  projects[projectIndex].objects =
+    cleanObjects;
+
+
+  projects[projectIndex].modified =
+    Date.now();
+
+
   localStorage.setItem(
-    "blankbox_engine_objects",
+    "blankbox_projects",
     JSON.stringify(
-      cleanObjects
+      projects
     )
   );
 
@@ -1961,69 +2011,88 @@ function saveEngine() {
 
 function loadEngine() {
 
-  const saved =
+  const projectID =
     localStorage.getItem(
-      "blankbox_engine_objects"
+      "blankbox_current_project"
     );
 
 
-  if (!saved)
+  if (!projectID) {
+
+    console.warn(
+      "No current Blank Box project selected."
+    );
+
     return;
-
-
-  try {
-
-    const loaded =
-      JSON.parse(saved);
-
-
-    if (
-      !Array.isArray(
-        loaded
-      )
-    )
-      return;
-
-
-    for (
-      const object
-      of loaded
-    ) {
-
-      objects.push(
-        object
-      );
-
-
-      renderObject(
-        object
-      );
-
-    }
-
-
-    if (
-      objects.length > 0
-    ) {
-
-      workspaceHint.style.display =
-        "none";
-
-    }
 
   }
 
-  catch (error) {
 
-    console.error(
-      "Could not load Blank Box:",
-      error
+  const projects =
+    JSON.parse(
+      localStorage.getItem(
+        "blankbox_projects"
+      )
+    ) || [];
+
+
+  const project =
+    projects.find(
+      project =>
+        project.id === projectID
     );
+
+
+  if (!project) {
+
+    console.warn(
+      "Current Blank Box project could not be found."
+    );
+
+    return;
+
+  }
+
+
+  const saved =
+    project.objects;
+
+
+  if (
+    !Array.isArray(
+      saved
+    )
+  )
+    return;
+
+
+  for (
+    const object
+    of saved
+  ) {
+
+    objects.push(
+      object
+    );
+
+
+    renderObject(
+      object
+    );
+
+  }
+
+
+  if (
+    objects.length > 0
+  ) {
+
+    workspaceHint.style.display =
+      "none";
 
   }
 
 }
-
 
 /* =========================================================
    RECEIVE BIXEL SPRITE
