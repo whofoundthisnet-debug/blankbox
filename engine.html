@@ -2159,7 +2159,141 @@ function receiveBixelSprite() {
 
 }
 
+/* =========================================================
+   PLAY MODE PHYSICS
+   ========================================================= */
 
+let playerObject = null;
+
+let physicsRunning = false;
+let physicsFrame = null;
+
+const GRAVITY = 0.6;
+const MAX_FALL_SPEED = 15;
+
+
+/* ---------------------------------------------------------
+   FIND PLAYER
+   --------------------------------------------------------- */
+
+function findPlayer() {
+
+  playerObject =
+    objects.find(
+      object =>
+        object.type === "Player"
+    ) || null;
+
+}
+
+
+/* ---------------------------------------------------------
+   START PHYSICS
+   --------------------------------------------------------- */
+
+function startPhysics() {
+
+  findPlayer();
+
+  if (!playerObject) {
+
+    console.warn(
+      "No Player object exists."
+    );
+
+    return;
+
+  }
+
+
+  physicsRunning = true;
+
+  physicsLoop();
+
+}
+
+
+/* ---------------------------------------------------------
+   STOP PHYSICS
+   --------------------------------------------------------- */
+
+function stopPhysics() {
+
+  physicsRunning = false;
+
+
+  if (physicsFrame) {
+
+    cancelAnimationFrame(
+      physicsFrame
+    );
+
+    physicsFrame = null;
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   PHYSICS LOOP
+   --------------------------------------------------------- */
+
+function physicsLoop() {
+
+  if (!physicsRunning)
+    return;
+
+
+  if (!playerObject) {
+
+    physicsFrame =
+      requestAnimationFrame(
+        physicsLoop
+      );
+
+    return;
+
+  }
+
+
+  /* Gravity */
+
+  if (
+    typeof playerObject.velocityY !==
+    "number"
+  ) {
+
+    playerObject.velocityY = 0;
+
+  }
+
+
+  playerObject.velocityY +=
+    GRAVITY;
+
+
+  if (
+    playerObject.velocityY >
+    MAX_FALL_SPEED
+  ) {
+
+    playerObject.velocityY =
+      MAX_FALL_SPEED;
+
+  }
+
+
+  playerObject.y +=
+    playerObject.velocityY;
+
+
+  physicsFrame =
+    requestAnimationFrame(
+      physicsLoop
+    );
+
+}
 /* =========================================================
    ENTER PLAY MODE
    ========================================================= */
@@ -2226,7 +2360,7 @@ function enterPlayMode() {
   notify(
     "PLAY MODE"
   );
-
+startPhysics();
 }
 
 
@@ -2235,7 +2369,7 @@ function enterPlayMode() {
    ========================================================= */
 
 function exitPlayMode() {
-
+stopPhysics();
   if (!playMode)
     return;
 
