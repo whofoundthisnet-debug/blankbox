@@ -28,13 +28,19 @@
       grid-template-rows: 60px 1fr;
     }
 
-    /* TOP BAR */
+    /* =========================================================
+       TOP BAR
+       ========================================================= */
+
     #topbar {
       grid-column: 1 / 4;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       padding: 0 20px;
+
       background: #222;
       border-bottom: 2px solid #333;
     }
@@ -45,58 +51,93 @@
       letter-spacing: -1px;
     }
 
-    #playButton {
+    #topButtons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #playButton,
+    #stopButton {
       padding: 10px 28px;
+
       border: 0;
       border-radius: 8px;
-      background: #72d572;
-      color: #111;
+
       font-size: 16px;
       font-weight: 900;
+
       cursor: pointer;
     }
 
-    #playButton:hover {
+    #playButton {
+      background: #72d572;
+      color: #111;
+    }
+
+    #stopButton {
+      display: none;
+
+      background: #e85b5b;
+      color: white;
+    }
+
+    #playButton:hover,
+    #stopButton:hover {
       filter: brightness(1.08);
     }
 
-    /* SIDEBAR */
+    /* =========================================================
+       SIDEBAR
+       ========================================================= */
+
     #sidebar {
       background: #202020;
       border-right: 2px solid #333;
+
       padding: 16px;
+
       overflow-y: auto;
     }
 
     .panelTitle {
       margin-bottom: 14px;
+
       font-size: 13px;
       font-weight: 900;
+
       color: #aaa;
+
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-    .objectButton,
-    .spriteButton {
+    .objectButton {
       width: 100%;
+
       margin-bottom: 8px;
       padding: 12px;
+
       border: 1px solid #3a3a3a;
       border-radius: 7px;
+
       background: #292929;
       color: white;
+
       text-align: left;
       font-weight: 700;
+
       cursor: pointer;
     }
 
-    .objectButton:hover,
-    .spriteButton:hover {
+    .objectButton:hover {
       background: #333;
     }
 
-    /* WORKSPACE */
+    /* =========================================================
+       WORKSPACE
+       ========================================================= */
+
     #workspace {
       position: relative;
       overflow: hidden;
@@ -110,11 +151,14 @@
 
     #workspaceHint {
       position: absolute;
+
       left: 50%;
       top: 50%;
+
       transform: translate(-50%, -50%);
 
       color: #555;
+
       font-size: 22px;
       font-weight: 900;
 
@@ -122,16 +166,22 @@
       user-select: none;
     }
 
-    /* PROPERTIES */
+    /* =========================================================
+       PROPERTIES
+       ========================================================= */
+
     #properties {
       background: #202020;
       border-left: 2px solid #333;
+
       padding: 16px;
+
       overflow-y: auto;
     }
 
     #selectedObject {
       margin-bottom: 20px;
+
       font-size: 20px;
       font-weight: 900;
     }
@@ -142,8 +192,11 @@
 
     .property label {
       display: block;
+
       margin-bottom: 6px;
+
       color: #aaa;
+
       font-size: 13px;
       font-weight: 700;
     }
@@ -151,6 +204,7 @@
     .property input,
     .property select {
       width: 100%;
+
       padding: 9px;
 
       border: 1px solid #444;
@@ -167,7 +221,10 @@
       line-height: 1.5;
     }
 
-    /* OBJECTS */
+    /* =========================================================
+       OBJECTS
+       ========================================================= */
+
     .gameObject {
       touch-action: none;
 
@@ -215,9 +272,13 @@
       outline-offset: 4px;
     }
 
-    /* SPRITE */
+    /* =========================================================
+       SPRITE
+       ========================================================= */
+
     .spriteCanvas {
       position: absolute;
+
       inset: 0;
 
       width: 100%;
@@ -229,12 +290,16 @@
       pointer-events: none;
     }
 
-    /* SPRITE PANEL */
+    /* =========================================================
+       SPRITE PANEL
+       ========================================================= */
+
     #spritePreview {
       width: 100%;
       height: 150px;
 
       display: flex;
+
       align-items: center;
       justify-content: center;
 
@@ -250,7 +315,12 @@
         linear-gradient(-45deg, transparent 75%, #252525 75%);
 
       background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+
+      background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0;
 
       overflow: hidden;
     }
@@ -265,22 +335,26 @@
 
     #spriteStatus {
       color: #777;
+
       font-size: 12px;
       line-height: 1.4;
+
       margin-bottom: 10px;
     }
 
     #openBixelButton {
       width: 100%;
+
       padding: 11px;
 
       border: 0;
       border-radius: 7px;
 
-      background: #ffffff;
+      background: white;
       color: #111;
 
       font-weight: 900;
+
       cursor: pointer;
     }
 
@@ -290,6 +364,7 @@
 
     #removeSpriteButton {
       width: 100%;
+
       padding: 9px;
       margin-top: 8px;
 
@@ -300,6 +375,7 @@
       color: #ccc;
 
       font-weight: 700;
+
       cursor: pointer;
     }
 
@@ -307,14 +383,19 @@
       background: #333;
     }
 
-    /* NOTIFICATION */
+    /* =========================================================
+       NOTIFICATION
+       ========================================================= */
+
     #notification {
       position: fixed;
 
       left: 50%;
       bottom: 25px;
 
-      transform: translateX(-50%) translateY(20px);
+      transform:
+        translateX(-50%)
+        translateY(20px);
 
       padding: 12px 18px;
 
@@ -324,77 +405,64 @@
       border: 1px solid #444;
 
       color: white;
+
       font-weight: 700;
 
       opacity: 0;
       pointer-events: none;
 
       transition: 0.2s;
+
       z-index: 1000;
     }
 
     #notification.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+
+      transform:
+        translateX(-50%)
+        translateY(0);
     }
+
     /* =========================================================
-   PLAY MODE
-   ========================================================= */
+       PLAY MODE
+       ========================================================= */
 
-body.playMode #sidebar,
-body.playMode #properties {
-  display: none;
-}
+    body.playMode #sidebar,
+    body.playMode #properties {
+      display: none;
+    }
 
-body.playMode #engine {
-  grid-template-columns: 1fr;
-}
+    body.playMode #engine {
+      grid-template-columns: 1fr;
+    }
 
-body.playMode #topbar {
-  grid-column: 1;
-}
+    body.playMode #topbar {
+      grid-column: 1;
+    }
 
-body.playMode #workspace {
-  grid-column: 1;
-  grid-row: 2;
-  background: #111;
-}
+    body.playMode #workspace {
+      grid-column: 1;
+      grid-row: 2;
 
-body.playMode #workspaceHint {
-  display: none !important;
-}
+      background: #111;
+    }
 
-body.playMode .gameObject {
-  cursor: default;
-}
+    body.playMode #workspaceHint {
+      display: none;
+    }
 
-#stopButton {
-  display: none;
+    body.playMode .gameObject {
+      cursor: default;
+    }
 
-  padding: 10px 28px;
-  border: 0;
-  border-radius: 8px;
+    body.playMode #playButton {
+      display: none;
+    }
 
-  background: #e85b5b;
-  color: white;
-
-  font-size: 16px;
-  font-weight: 900;
-
-  cursor: pointer;
-}
-
-#stopButton:hover {
-  filter: brightness(1.08);
-}
-
-body.playMode #playButton {
-  display: none;
-}
-
-body.playMode #stopButton {
-  display: block;
-}
+    body.playMode #stopButton {
+      display: block;
+    }
   </style>
 </head>
 
@@ -402,20 +470,34 @@ body.playMode #stopButton {
 
 <main id="engine">
 
+  <!-- =======================================================
+       TOP BAR
+       ======================================================== -->
+
   <header id="topbar">
-    <div id="logo">BLANKBOX</div>
 
-    <div style="display:flex; gap:10px; align-items:center;">
+    <div id="logo">
+      BLANKBOX
+    </div>
 
-  <button id="playButton">
-    ▶ PLAY
-  </button>
+    <div id="topButtons">
 
-  <button id="stopButton">
-    ■ EDIT
-  </button>
+      <button id="playButton">
+        ▶ PLAY
+      </button>
 
-</div>
+      <button id="stopButton">
+        ■ EDIT
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       SIDEBAR
+       ======================================================== -->
 
   <aside id="sidebar">
 
@@ -423,32 +505,54 @@ body.playMode #stopButton {
       CREATE
     </div>
 
-    <button class="objectButton" data-type="player">
+    <button
+      class="objectButton"
+      data-type="player"
+    >
       + Player
     </button>
 
-    <button class="objectButton" data-type="enemy">
+    <button
+      class="objectButton"
+      data-type="enemy"
+    >
       + Enemy
     </button>
 
-    <button class="objectButton" data-type="platform">
+    <button
+      class="objectButton"
+      data-type="platform"
+    >
       + Platform
     </button>
 
-    <button class="objectButton" data-type="weapon">
+    <button
+      class="objectButton"
+      data-type="weapon"
+    >
       + Weapon
     </button>
 
-    <button class="objectButton" data-type="npc">
+    <button
+      class="objectButton"
+      data-type="npc"
+    >
       + NPC
     </button>
 
-    <button class="objectButton" data-type="item">
+    <button
+      class="objectButton"
+      data-type="item"
+    >
       + Item
     </button>
 
   </aside>
 
+
+  <!-- =======================================================
+       WORKSPACE
+       ======================================================== -->
 
   <section id="workspace">
 
@@ -459,6 +563,10 @@ body.playMode #stopButton {
   </section>
 
 
+  <!-- =======================================================
+       PROPERTIES
+       ======================================================== -->
+
   <aside id="properties">
 
     <div class="panelTitle">
@@ -468,7 +576,6 @@ body.playMode #stopButton {
     <div id="emptyProperties">
       Select an object to edit its properties.
     </div>
-
 
     <div id="propertyEditor" hidden>
 
@@ -535,9 +642,11 @@ body.playMode #stopButton {
         </label>
 
         <div id="spritePreview">
+
           <span style="color:#666;">
             No sprite
           </span>
+
         </div>
 
         <div id="spriteStatus">
@@ -612,10 +721,18 @@ const removeSpriteButton =
 const notification =
   document.getElementById("notification");
 
+const playButton =
+  document.getElementById("playButton");
+
+const stopButton =
+  document.getElementById("stopButton");
+
 
 let objects = [];
 
 let selected = null;
+
+let playMode = false;
 
 
 /* =========================================================
@@ -624,13 +741,18 @@ let selected = null;
 
 function notify(message) {
 
-  notification.textContent = message;
+  notification.textContent =
+    message;
 
-  notification.classList.add("show");
+  notification.classList.add(
+    "show"
+  );
 
   setTimeout(() => {
 
-    notification.classList.remove("show");
+    notification.classList.remove(
+      "show"
+    );
 
   }, 2200);
 }
@@ -642,13 +764,21 @@ function notify(message) {
 
 function createObject(type) {
 
-  workspaceHint.style.display = "none";
+  if (playMode)
+    return;
+
+
+  workspaceHint.style.display =
+    "none";
+
 
   const object = {
 
     id:
       Date.now() +
-      Math.floor(Math.random() * 10000),
+      Math.floor(
+        Math.random() * 10000
+      ),
 
     type: type,
 
@@ -700,11 +830,21 @@ function createObject(type) {
 
   };
 
-  objects.push(object);
 
-  renderObject(object);
+  objects.push(
+    object
+  );
 
-  selectObject(object);
+
+  renderObject(
+    object
+  );
+
+
+  selectObject(
+    object
+  );
+
 
   saveEngine();
 
@@ -718,12 +858,16 @@ function createObject(type) {
 function renderObject(object) {
 
   const element =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   element.classList.add(
     "gameObject",
     object.type
   );
+
 
   element.style.left =
     `${object.x}px`;
@@ -731,31 +875,33 @@ function renderObject(object) {
   element.style.top =
     `${object.y}px`;
 
+
   element.dataset.id =
     object.id;
 
 
-  /*
-    SPRITE CANVAS
-  */
+  /* SPRITE CANVAS */
 
   const spriteCanvas =
-    document.createElement("canvas");
+    document.createElement(
+      "canvas"
+    );
+
 
   spriteCanvas.className =
     "spriteCanvas";
 
+
   spriteCanvas.width = 1;
   spriteCanvas.height = 1;
+
 
   element.appendChild(
     spriteCanvas
   );
 
 
-  /*
-    DRAGGING
-  */
+  /* DRAGGING */
 
   let dragging = false;
 
@@ -767,15 +913,23 @@ function renderObject(object) {
     "pointerdown",
     (event) => {
 
+      if (playMode)
+        return;
+
+
       event.preventDefault();
 
       event.stopPropagation();
 
-      selectObject(object);
+
+      selectObject(
+        object
+      );
 
 
       const rect =
         element.getBoundingClientRect();
+
 
       offsetX =
         event.clientX -
@@ -787,6 +941,7 @@ function renderObject(object) {
 
 
       dragging = true;
+
 
       element.setPointerCapture(
         event.pointerId
@@ -800,7 +955,10 @@ function renderObject(object) {
     "pointermove",
     (event) => {
 
-      if (!dragging)
+      if (
+        !dragging ||
+        playMode
+      )
         return;
 
 
@@ -850,8 +1008,11 @@ function renderObject(object) {
         );
 
 
-      object.x = newX;
-      object.y = newY;
+      object.x =
+        newX;
+
+      object.y =
+        newY;
 
 
       element.style.left =
@@ -884,9 +1045,15 @@ function renderObject(object) {
       }
 
 
-      selectObject(object);
+      if (!playMode) {
 
-      saveEngine();
+        selectObject(
+          object
+        );
+
+        saveEngine();
+
+      }
 
     }
   );
@@ -906,9 +1073,15 @@ function renderObject(object) {
     "click",
     (event) => {
 
+      if (playMode)
+        return;
+
+
       event.stopPropagation();
 
-      selectObject(object);
+      selectObject(
+        object
+      );
 
     }
   );
@@ -925,11 +1098,6 @@ function renderObject(object) {
     element
   );
 
-
-  /*
-    If object already has
-    a sprite, rebuild it.
-  */
 
   if (object.spriteCode) {
 
@@ -949,6 +1117,14 @@ function renderObject(object) {
 function selectObject(object) {
 
   if (
+    playMode ||
+    !object ||
+    !object.element
+  )
+    return;
+
+
+  if (
     selected &&
     selected.element
   ) {
@@ -960,7 +1136,8 @@ function selectObject(object) {
   }
 
 
-  selected = object;
+  selected =
+    object;
 
 
   selected.element.classList.add(
@@ -989,9 +1166,7 @@ function selectObject(object) {
     object.speed;
 
 
-  /*
-    BEHAVIORS
-  */
+  /* BEHAVIORS */
 
   behaviors.innerHTML = "";
 
@@ -1011,6 +1186,7 @@ function selectObject(object) {
         "label"
       );
 
+
     label.style.display =
       "block";
 
@@ -1022,6 +1198,7 @@ function selectObject(object) {
       document.createElement(
         "input"
       );
+
 
     checkbox.type =
       "checkbox";
@@ -1066,10 +1243,6 @@ function selectObject(object) {
   }
 
 
-  /*
-    SPRITE
-  */
-
   updateSpritePanel();
 
 }
@@ -1085,20 +1258,21 @@ function updateSpritePanel() {
     return;
 
 
-  spritePreview.innerHTML = "";
+  spritePreview.innerHTML =
+    "";
 
 
-  if (
-    !selected.spriteCode
-  ) {
+  if (!selected.spriteCode) {
 
     spritePreview.innerHTML =
       `<span style="color:#666;">
         No sprite
       </span>`;
 
+
     spriteStatus.textContent =
       "This object has no Bixel sprite yet.";
+
 
     return;
 
@@ -1118,8 +1292,10 @@ function updateSpritePanel() {
         Invalid BBX
       </span>`;
 
+
     spriteStatus.textContent =
       "The sprite code could not be decoded.";
+
 
     return;
 
@@ -1228,9 +1404,7 @@ function decodeBBX(code) {
       of frameData
     ) {
 
-      if (
-        !encodedFrame
-      )
+      if (!encodedFrame)
         continue;
 
 
@@ -1248,6 +1422,7 @@ function decodeBBX(code) {
           pixels.length,
           size * size
         );
+
 
         return null;
 
@@ -1267,11 +1442,15 @@ function decodeBBX(code) {
         ) {
 
           frame.push({
+
             transparent: true,
+
             r: 0,
             g: 0,
             b: 0
+
           });
+
 
           continue;
 
@@ -1279,9 +1458,9 @@ function decodeBBX(code) {
 
 
         const rgb =
-          pixel.split(",").map(
-            Number
-          );
+          pixel
+            .split(",")
+            .map(Number);
 
 
         if (
@@ -1323,7 +1502,9 @@ function decodeBBX(code) {
       }
 
 
-      frames.push(frame);
+      frames.push(
+        frame
+      );
 
     }
 
@@ -1357,6 +1538,7 @@ function decodeBBX(code) {
       "BBX decode error:",
       error
     );
+
 
     return null;
 
@@ -1430,17 +1612,10 @@ function drawFrame(
       pixel.transparent
     ) {
 
-      image.data[index] =
-        0;
-
-      image.data[index + 1] =
-        0;
-
-      image.data[index + 2] =
-        0;
-
-      image.data[index + 3] =
-        0;
+      image.data[index] = 0;
+      image.data[index + 1] = 0;
+      image.data[index + 2] = 0;
+      image.data[index + 3] = 0;
 
     }
 
@@ -1473,7 +1648,7 @@ function drawFrame(
 
 
 /* =========================================================
-   RENDER SPRITE ON OBJECT
+   RENDER SPRITE
    ========================================================= */
 
 function renderSprite(
@@ -1518,14 +1693,12 @@ openBixelButton.addEventListener(
   "click",
   () => {
 
-    if (!selected)
+    if (
+      !selected ||
+      playMode
+    )
       return;
 
-
-    /*
-      Tell Bixel which Blank Box
-      object we're editing.
-    */
 
     localStorage.setItem(
       "blankbox_bixel_target",
@@ -1533,16 +1706,8 @@ openBixelButton.addEventListener(
     );
 
 
-    /*
-      Save engine first.
-    */
-
     saveEngine();
 
-
-    /*
-      Open Bixel.
-    */
 
     window.location.href =
       "bixel.html";
@@ -1559,7 +1724,10 @@ removeSpriteButton.addEventListener(
   "click",
   () => {
 
-    if (!selected)
+    if (
+      !selected ||
+      playMode
+    )
       return;
 
 
@@ -1567,19 +1735,23 @@ removeSpriteButton.addEventListener(
       null;
 
 
-    selected.spriteCanvas
-      .getContext("2d")
-      .clearRect(
-        0,
-        0,
-        selected.spriteCanvas.width,
-        selected.spriteCanvas.height
-      );
+    const ctx =
+      selected.spriteCanvas
+        .getContext("2d");
+
+
+    ctx.clearRect(
+      0,
+      0,
+      selected.spriteCanvas.width,
+      selected.spriteCanvas.height
+    );
 
 
     updateSpritePanel();
 
     saveEngine();
+
 
     notify(
       "Sprite removed."
@@ -1685,6 +1857,10 @@ workspace.addEventListener(
   "click",
   () => {
 
+    if (playMode)
+      return;
+
+
     if (
       selected &&
       selected.element
@@ -1716,33 +1892,37 @@ workspace.addEventListener(
 
 function saveEngine() {
 
-  /*
-    Remove DOM references before saving.
-  */
-
   const cleanObjects =
     objects.map(
       object => ({
 
-        id: object.id,
+        id:
+          object.id,
 
-        type: object.type,
+        type:
+          object.type,
 
-        name: object.name,
+        name:
+          object.name,
 
-        health: object.health,
+        health:
+          object.health,
 
-        speed: object.speed,
+        speed:
+          object.speed,
 
         behaviors:
           object.behaviors,
 
-        x: object.x,
+        x:
+          object.x,
 
-        y: object.y,
+        y:
+          object.y,
 
         spriteCode:
-          object.spriteCode || null
+          object.spriteCode ||
+          null
 
       })
     );
@@ -1865,47 +2045,24 @@ function receiveBixelSprite() {
     return;
 
 
-  /*
-    Give the object the sprite.
-  */
-
   target.spriteCode =
     code;
 
-
-  /*
-    Draw it.
-  */
 
   renderSprite(
     target
   );
 
 
-  /*
-    Select it so the user
-    immediately sees the sprite.
-  */
-
   selectObject(
     target
   );
 
 
-  /*
-    Clear the target so
-    it doesn't get assigned
-    again on every reload.
-  */
-
   localStorage.removeItem(
     "blankbox_bixel_target"
   );
 
-
-  /*
-    Keep the sprite code.
-  */
 
   saveEngine();
 
@@ -1918,19 +2075,6 @@ function receiveBixelSprite() {
 
 
 /* =========================================================
-   PLAY MODE
-   ========================================================= */
-
-const playButton =
-  document.getElementById("playButton");
-
-const stopButton =
-  document.getElementById("stopButton");
-
-let playMode = false;
-
-
-/* =========================================================
    ENTER PLAY MODE
    ========================================================= */
 
@@ -1939,15 +2083,18 @@ function enterPlayMode() {
   if (playMode)
     return;
 
+
   playMode = true;
 
-  document.body.classList.add("playMode");
 
   /*
-    Stop selecting objects.
+    Remove editor selection.
   */
 
-  if (selected && selected.element) {
+  if (
+    selected &&
+    selected.element
+  ) {
 
     selected.element.classList.remove(
       "selected"
@@ -1955,27 +2102,44 @@ function enterPlayMode() {
 
   }
 
+
   selected = null;
 
-  emptyProperties.hidden = false;
 
-  propertyEditor.hidden = true;
+  emptyProperties.hidden =
+    false;
+
+  propertyEditor.hidden =
+    true;
+
 
   /*
-    Disable dragging while playing.
+    Make every object
+    non-interactive.
   */
 
-  objects.forEach(object => {
+  objects.forEach(
+    object => {
 
-    if (!object.element)
-      return;
+      if (!object.element)
+        return;
 
-    object.element.style.pointerEvents =
-      "none";
 
-  });
+      object.element.style.pointerEvents =
+        "none";
 
-  notify("PLAY MODE");
+    }
+  );
+
+
+  document.body.classList.add(
+    "playMode"
+  );
+
+
+  notify(
+    "PLAY MODE"
+  );
 
 }
 
@@ -1989,123 +2153,32 @@ function exitPlayMode() {
   if (!playMode)
     return;
 
+
   playMode = false;
+
 
   document.body.classList.remove(
     "playMode"
   );
 
-  /*
-    Enable objects again.
-  */
 
-  objects.forEach(object => {
+  objects.forEach(
+    object => {
 
-    if (!object.element)
-      return;
-
-    object.element.style.pointerEvents =
-      "auto";
-
-  });
-
-  notify("EDIT MODE");
-
-}
-
-/* =========================================================
-   PLAY MODE
-   ========================================================= */
-
-const playButton =
-  document.getElementById("playButton");
-
-const stopButton =
-  document.getElementById("stopButton");
-
-let playMode = false;
+      if (!object.element)
+        return;
 
 
-/* =========================================================
-   ENTER PLAY MODE
-   ========================================================= */
+      object.element.style.pointerEvents =
+        "auto";
 
-function enterPlayMode() {
-
-  if (playMode)
-    return;
-
-  playMode = true;
-
-  document.body.classList.add("playMode");
-
-  /*
-    Stop selecting objects.
-  */
-
-  if (selected && selected.element) {
-
-    selected.element.classList.remove(
-      "selected"
-    );
-
-  }
-
-  selected = null;
-
-  emptyProperties.hidden = false;
-
-  propertyEditor.hidden = true;
-
-  /*
-    Disable dragging while playing.
-  */
-
-  objects.forEach(object => {
-
-    if (!object.element)
-      return;
-
-    object.element.style.pointerEvents =
-      "none";
-
-  });
-
-  notify("PLAY MODE");
-
-}
-
-
-/* =========================================================
-   EXIT PLAY MODE
-   ========================================================= */
-
-function exitPlayMode() {
-
-  if (!playMode)
-    return;
-
-  playMode = false;
-
-  document.body.classList.remove(
-    "playMode"
+    }
   );
 
-  /*
-    Enable objects again.
-  */
 
-  objects.forEach(object => {
-
-    if (!object.element)
-      return;
-
-    object.element.style.pointerEvents =
-      "auto";
-
-  });
-
-  notify("EDIT MODE");
+  notify(
+    "EDIT MODE"
+  );
 
 }
 
@@ -2116,11 +2189,7 @@ function exitPlayMode() {
 
 playButton.addEventListener(
   "click",
-  () => {
-
-    enterPlayMode();
-
-  }
+  enterPlayMode
 );
 
 
@@ -2130,12 +2199,17 @@ playButton.addEventListener(
 
 stopButton.addEventListener(
   "click",
-  () => {
-
-    exitPlayMode();
-
-  }
+  exitPlayMode
 );
+
+
+/* =========================================================
+   START ENGINE
+   ========================================================= */
+
+loadEngine();
+
+receiveBixelSprite();
 
 </script>
 
