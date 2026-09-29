@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Blank Box — Projects</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #101010;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* TOP BAR */
+
+header {
+    height: 76px;
+    padding: 0 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #151515;
+    border-bottom: 1px solid #292929;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    opacity: 0.4;
+}
+
+#newProject {
+    border: none;
+    background: white;
+    color: black;
+
+    padding: 12px 18px;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#newProject:hover {
+    background: #dddddd;
+}
+
+/* MAIN */
+
+main {
+    width: min(1100px, 92%);
+    margin: 45px auto;
+}
+
+h1 {
+    margin: 0;
+    font-size: 38px;
+}
+
+.subtitle {
+    margin-top: 8px;
+    color: #888;
+}
+
+/* PROJECT GRID */
+
+#projectGrid {
+
+    margin-top: 35px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(280px, 1fr));
+
+    gap: 20px;
+}
+
+/* PROJECT CARD */
+
+.projectCard {
+
+    background: #181818;
+
+    border: 1px solid #292929;
+
+    border-radius: 12px;
+
+    padding: 22px;
+
+    min-height: 190px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: space-between;
+}
+
+.projectCard:hover {
+    border-color: #444;
+}
+
+.projectName {
+    font-size: 22px;
+    font-weight: bold;
+
+    margin-bottom: 12px;
+}
+
+.projectInfo {
+    color: #999;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+.projectActions {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+.openButton,
+.deleteButton {
+
+    border: none;
+
+    padding: 9px 14px;
+
+    border-radius: 6px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.openButton {
+
+    background: white;
+
+    color: black;
+
+    flex: 1;
+}
+
+.deleteButton {
+
+    background: #292929;
+
+    color: #aaa;
+}
+
+.deleteButton:hover {
+    background: #3a3a3a;
+}
+
+/* EMPTY */
+
+#empty {
+
+    margin-top: 35px;
+
+    border: 1px dashed #333;
+
+    border-radius: 12px;
+
+    padding: 55px 20px;
+
+    text-align: center;
+
+    color: #777;
+}
+
+#empty h2 {
+
+    margin-top: 0;
+
+    color: white;
+}
+
+#empty button {
+
+    margin-top: 15px;
+
+    border: none;
+
+    background: white;
+
+    color: black;
+
+    padding: 11px 18px;
+
+    border-radius: 7px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<header>
+
+    <div class="logo">
+        BLANK<span>BOX</span>
+    </div>
+
+    <button id="newProject">
+        + NEW PROJECT
+    </button>
+
+</header>
+
+
+<main>
+
+    <h1>Your Projects</h1>
+
+    <div class="subtitle">
+        Pick a project or create something new.
+    </div>
+
+
+    <div id="projectGrid"></div>
+
+
+    <div id="empty">
+
+        <h2>No projects yet.</h2>
+
+        Create your first game to get started.
+
+        <br>
+
+        <button id="emptyNewProject">
+            + CREATE PROJECT
+        </button>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const projectGrid =
+    document.getElementById("projectGrid");
+
+const empty =
+    document.getElementById("empty");
+
+const newProject =
+    document.getElementById("newProject");
+
+const emptyNewProject =
+    document.getElementById("emptyNewProject");
+
+
+/* -------------------------
+   GET PROJECTS
+------------------------- */
+
+function getProjects() {
+
+    try {
+
+        const saved =
+            localStorage.getItem("blankbox_projects");
+
+        if (!saved) {
+            return [];
+        }
+
+        const projects =
+            JSON.parse(saved);
+
+        return Array.isArray(projects)
+            ? projects
+            : [];
+
+    } catch {
+
+        return [];
+
+    }
+
+}
+
+
+/* -------------------------
+   SAVE PROJECTS
+------------------------- */
+
+function saveProjects(projects) {
+
+    localStorage.setItem(
+        "blankbox_projects",
+        JSON.stringify(projects)
+    );
+
+}
+
+
+/* -------------------------
+   NEW PROJECT
+------------------------- */
+
+function createProject() {
+
+    window.location.href =
+        "new-project.html";
+
+}
+
+
+newProject.addEventListener(
+    "click",
+    createProject
+);
+
+
+emptyNewProject.addEventListener(
+    "click",
+    createProject
+);
+
+
+/* -------------------------
+   OPEN PROJECT
+------------------------- */
+
+function openProject(id) {
+
+    localStorage.setItem(
+        "blankbox_current_project",
+        id
+    );
+
+    window.location.href =
+        "engine.html";
+
+}
+
+
+/* -------------------------
+   DELETE PROJECT
+------------------------- */
+
+function deleteProject(id) {
+
+    const projects =
+        getProjects();
+
+    const updated =
+        projects.filter(
+            project => project.id !== id
+        );
+
+    saveProjects(updated);
+
+    renderProjects();
+
+}
+
+
+/* -------------------------
+   RENDER PROJECTS
+------------------------- */
+
+function renderProjects() {
+
+    const projects =
+        getProjects();
+
+    projectGrid.innerHTML = "";
+
+
+    if (projects.length === 0) {
+
+        empty.style.display =
+            "block";
+
+        return;
+
+    }
+
+
+    empty.style.display =
+        "none";
+
+
+    projects.forEach(project => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "projectCard";
+
+
+        const top =
+            document.createElement("div");
+
+
+        const name =
+            document.createElement("div");
+
+        name.className =
+            "projectName";
+
+        name.textContent =
+            project.name || "Untitled Game";
+
+
+        const info =
+            document.createElement("div");
+
+        info.className =
+            "projectInfo";
+
+        info.textContent =
+            `${project.mode || "Single Player"} • ${
+                project.dimension || "2D"
+            }`;
+
+
+        if (project.description) {
+
+            info.textContent +=
+                `\n${project.description}`;
+
+        }
+
+
+        top.appendChild(name);
+        top.appendChild(info);
+
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "projectActions";
+
+
+        const open =
+            document.createElement("button");
+
+        open.className =
+            "openButton";
+
+        open.textContent =
+            "OPEN";
+
+
+        open.addEventListener(
+            "click",
+            () => openProject(project.id)
+        );
+
+
+        const remove =
+            document.createElement("button");
+
+        remove.className =
+            "deleteButton";
+
+        remove.textContent =
+            "DELETE";
+
+
+        remove.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    confirm(
+                        `Delete "${project.name}"?`
+                    )
+                ) {
+
+                    deleteProject(
+                        project.id
+                    );
+
+                }
+
+            }
+        );
+
+
+        actions.appendChild(open);
+        actions.appendChild(remove);
+
+
+        card.appendChild(top);
+        card.appendChild(actions);
+
+
+        projectGrid.appendChild(card);
+
+    });
+
+}
+
+
+/* -------------------------
+   START
+------------------------- */
+
+renderProjects();
+
+</script>
+
+</body>
+</html>
