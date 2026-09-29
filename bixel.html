@@ -294,7 +294,34 @@ canvas{
 </head>
 
 <body>
+<div id="animationControls">
 
+  <div id="frameCounter">
+    1 / 1
+  </div>
+
+  <button id="addFrame">
+    + FRAME
+  </button>
+
+  <button id="deleteFrame">
+    DELETE FRAME
+  </button>
+
+  <label>
+    FPS
+    <input
+      id="fps"
+      type="number"
+      min="1"
+      max="60"
+      value="8"
+    >
+  </label>
+
+</div>
+
+<div id="frames"></div>
 <div id="app">
 
 <header id="topbar">
@@ -521,1358 +548,948 @@ COPY BBX CODE
 
 <script>
 
-const pixelCanvas =
-document.getElementById("pixelCanvas");
+/* =========================================================
+   BIXEL
+   ========================================================= */
 
-const shadowCanvas =
-document.getElementById("shadowCanvas");
-
-const wrap =
-document.getElementById("canvasWrap");
+const canvas =
+  document.getElementById("canvas");
 
 const ctx =
-pixelCanvas.getContext("2d");
+  canvas.getContext("2d");
 
-const sctx =
-shadowCanvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 
 
-let size = 32;
+/* =========================================================
+   SETTINGS
+   ========================================================= */
 
-let tool = "pencil";
+let canvasSize = 16;
 
-let color = "#111111";
+let fps = 8;
 
-let drawing = false;
+const MAX_FRAMES = 16;
+
+
+/* =========================================================
+   FRAMES
+   ========================================================= */
 
 let frames = [];
 
 let currentFrame = 0;
 
-let shadowPose = "none";
 
-let shadowOpacity = 0.30;
+/*
+  Each frame stores:
 
-let previewing = false;
-
-let previewTimer = null;
-
-
-/* =========================
-   FRAME SYSTEM
-========================= */
-
-function makeFrame(){
-
-  const c =
-  document.createElement("canvas");
-
-  c.width = size;
-  c.height = size;
-
-  return c;
-
-}
-
-
-function resetFrames(){
-
-  frames = [makeFrame()];
-
-  currentFrame = 0;
-
-  renderCurrent();
-
-  renderFrames();
-
-}
-
-
-/* =========================
-   RENDER
-========================= */
-
-function renderCurrent(){
-
-  pixelCanvas.width = size;
-  pixelCanvas.height = size;
-
-  shadowCanvas.width = size;
-  shadowCanvas.height = size;
-
-  ctx.clearRect(
-    0,
-    0,
-    size,
-    size
-  );
-
-  ctx.drawImage(
-    frames[currentFrame],
-    0,
-    0
-  );
-
-  drawGrid();
-
-  drawShadow();
-
-}
-
-
-function drawGrid(){
-
-  ctx.save();
-
-  ctx.strokeStyle =
-  "rgba(0,0,0,.13)";
-
-  ctx.lineWidth =
-  1 / size;
-
-  for(let i=1;i<size;i++){
-
-    ctx.beginPath();
-
-    ctx.moveTo(i,0);
-    ctx.lineTo(i,size);
-
-    ctx.stroke();
-
-    ctx.beginPath();
-
-    ctx.moveTo(0,i);
-    ctx.lineTo(size,i);
-
-    ctx.stroke();
-
+  {
+    pixels: [...],
+    shadow: [...]
   }
+*/
 
-  ctx.restore();
 
-}
-
-
-/* =========================
-   SHADOW
-========================= */
-
-function shadowLine(
-  x1,y1,x2,y2
-){
-
-  sctx.beginPath();
-
-  sctx.moveTo(x1,y1);
-  sctx.lineTo(x2,y2);
-
-  sctx.stroke();
-
-}
-
-
-function drawShadow(){
-
-  sctx.clearRect(
-    0,
-    0,
-    size,
-    size
-  );
-
-  if(shadowPose === "none")
-    return;
-
-  sctx.save();
-
-  sctx.globalAlpha =
-  shadowOpacity;
-
-  sctx.strokeStyle =
-  "#4a7cff";
-
-  sctx.fillStyle =
-  "#4a7cff";
-
-  sctx.lineWidth =
-  Math.max(1,size/18);
-
-  sctx.lineCap =
-  "round";
-
-  const cx =
-  size/2;
-
-  const head =
-  size*0.27;
-
-  let bodyY =
-  size*0.52;
-
-  let lean = 0;
-
-  let leftLeg =
-  size*0.72;
-
-  let rightLeg =
-  size*0.72;
-
-  let armY =
-  size*0.54;
-
-  if(shadowPose==="walk"){
-
-    lean=-2;
-
-    leftLeg=size*0.82;
-
-    rightLeg=size*0.68;
-
-  }
-
-  if(shadowPose==="run"){
-
-    lean=-4;
-
-    leftLeg=size*0.82;
-
-    rightLeg=size*0.65;
-
-  }
-
-  if(shadowPose==="jump"){
-
-    bodyY=size*0.46;
-
-    leftLeg=size*0.68;
-
-    rightLeg=size*0.68;
-
-  }
-
-  if(shadowPose==="hit"){
-
-    lean=4;
-
-    armY=size*0.48;
-
-  }
-
-
-  sctx.beginPath();
-
-  sctx.arc(
-    cx+lean,
-    head,
-    size*0.10,
-    0,
-    Math.PI*2
-  );
-
-  sctx.fill();
-
-
-  shadowLine(
-    cx+lean,
-    head+size*0.10,
-    cx+lean,
-    bodyY
-  );
-
-  shadowLine(
-    cx+lean,
-    armY,
-    cx-size*0.18+lean,
-    armY+size*0.08
-  );
-
-  shadowLine(
-    cx+lean,
-    armY,
-    cx+size*0.18+lean,
-    armY+size*0.08
-  );
-
-  shadowLine(
-    cx+lean,
-    bodyY,
-    cx-size*0.10+lean,
-    leftLeg
-  );
-
-  shadowLine(
-    cx+lean,
-    bodyY,
-    cx+size*0.10+lean,
-    rightLeg
-  );
-
-  sctx.restore();
-
-}
-
-
-/* =========================
-   DRAWING
-========================= */
-
-function setPixel(px,py){
-
-  if(
-    px<0 ||
-    py<0 ||
-    px>=size ||
-    py>=size
-  ) return;
-
-
-  const fctx =
-  frames[currentFrame]
-  .getContext("2d");
-
-
-  if(tool==="picker"){
-
-    const data =
-    fctx.getImageData(
-      px,
-      py,
-      1,
-      1
-    ).data;
-
-    if(data[3]===0)
-      return;
-
-    const hex =
-      "#" +
-      [data[0],data[1],data[2]]
-      .map(v =>
-        v.toString(16)
-        .padStart(2,"0")
-      )
-      .join("");
-
-    color = hex;
-
-    document
-      .getElementById("color")
-      .value = hex;
-
-    document
-      .getElementById("hex")
-      .value = hex;
-
-    tool="pencil";
-
-    document
-      .querySelectorAll(".tool")
-      .forEach(b =>
-        b.classList.toggle(
-          "active",
-          b.dataset.tool==="pencil"
-        )
-      );
-
-    return;
-
-  }
-
-
-  if(tool==="eraser"){
-
-    fctx.clearRect(
-      px,
-      py,
-      1,
-      1
-    );
-
-  }else{
-
-    fctx.fillStyle =
-    quantizeColor(color);
-
-    fctx.fillRect(
-      px,
-      py,
-      1,
-      1
-    );
-
-  }
-
-  renderCurrent();
-
-}
-
-
-/* =========================
-   COLOR QUANTIZATION
-========================= */
-
-function quantizeChannel(value){
-
-  return Math.min(
-    250,
-    Math.round(
-      Number(value)/10
-    )*10
-  );
-
-}
-
-
-function quantizeColor(hex){
-
-  if(!/^#[0-9a-fA-F]{6}$/.test(hex))
-    return "#000000";
-
-  const r =
-    parseInt(hex.slice(1,3),16);
-
-  const g =
-    parseInt(hex.slice(3,5),16);
-
-  const b =
-    parseInt(hex.slice(5,7),16);
-
-  const qr =
-    quantizeChannel(r);
-
-  const qg =
-    quantizeChannel(g);
-
-  const qb =
-    quantizeChannel(b);
-
-  return "#" +
-    [qr,qg,qb]
-    .map(v =>
-      v.toString(16)
-      .padStart(2,"0")
-    )
-    .join("");
-
-}
-
-
-/* =========================
-   FILL
-========================= */
-
-function fill(){
-
-  const fctx =
-  frames[currentFrame]
-  .getContext("2d");
-
-  fctx.fillStyle =
-  quantizeColor(color);
-
-  fctx.fillRect(
-    0,
-    0,
-    size,
-    size
-  );
-
-  renderCurrent();
-
-}
-
-
-/* =========================
-   MOUSE POSITION
-========================= */
-
-function canvasPoint(event){
-
-  const rect =
-  pixelCanvas
-  .getBoundingClientRect();
+function createBlankFrame() {
 
   return {
 
-    x:Math.floor(
-      (event.clientX-rect.left) /
-      rect.width *
-      size
-    ),
+    pixels:
+      new Array(
+        canvasSize * canvasSize
+      ).fill(null),
 
-    y:Math.floor(
-      (event.clientY-rect.top) /
-      rect.height *
-      size
-    )
+    shadow: null
 
   };
 
 }
 
 
-pixelCanvas.addEventListener(
-  "pointerdown",
-  e => {
+/* =========================================================
+   CREATE FIRST FRAME
+   ========================================================= */
 
-    drawing=true;
+function initializeFrames() {
 
-    pixelCanvas.setPointerCapture(
-      e.pointerId
-    );
+  frames = [
+    createBlankFrame()
+  ];
 
-    const p =
-    canvasPoint(e);
+  currentFrame = 0;
 
-    if(tool==="fill")
-      fill();
-    else
-      setPixel(p.x,p.y);
+  renderFrameList();
 
-  }
-);
+  loadCurrentFrame();
+
+}
 
 
-pixelCanvas.addEventListener(
-  "pointermove",
-  e => {
+/* =========================================================
+   FRAME PIXEL INDEX
+   ========================================================= */
 
-    if(!drawing ||
-       tool==="fill")
-      return;
+function pixelIndex(x, y) {
 
-    const p =
-    canvasPoint(e);
-
-    setPixel(
-      p.x,
-      p.y
-    );
-
-  }
-);
-
-
-pixelCanvas.addEventListener(
-  "pointerup",
-  () => drawing=false
-);
-
-
-pixelCanvas.addEventListener(
-  "pointercancel",
-  () => drawing=false
-);
-
-
-/* =========================
-   TOOLS
-========================= */
-
-document
-.querySelectorAll(".tool")
-.forEach(button => {
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      tool =
-      button.dataset.tool;
-
-      document
-      .querySelectorAll(".tool")
-      .forEach(b =>
-        b.classList.toggle(
-          "active",
-          b===button
-        )
-      );
-
-    }
+  return (
+    y * canvasSize +
+    x
   );
 
-});
+}
 
 
-/* =========================
-   COLORS
-========================= */
+/* =========================================================
+   DRAW FRAME TO CANVAS
+   ========================================================= */
 
-document
-.getElementById("color")
-.addEventListener(
-  "input",
-  e => {
+function loadCurrentFrame() {
 
-    color =
-    quantizeColor(e.target.value);
+  const frame =
+    frames[currentFrame];
 
-    document
-    .getElementById("color")
-    .value=color;
-
-    document
-    .getElementById("hex")
-    .value=color;
-
-  }
-);
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
 
-document
-.getElementById("hex")
-.addEventListener(
-  "input",
-  e => {
+  const pixelSize =
+    canvas.width /
+    canvasSize;
 
-    if(/^#[0-9a-fA-F]{6}$/
-      .test(e.target.value)){
 
-      color =
-      quantizeColor(
-        e.target.value
+  for (
+    let y = 0;
+    y < canvasSize;
+    y++
+  ) {
+
+    for (
+      let x = 0;
+      x < canvasSize;
+      x++
+    ) {
+
+      const color =
+        frame.pixels[
+          pixelIndex(x, y)
+        ];
+
+
+      if (!color)
+        continue;
+
+
+      ctx.fillStyle =
+        color;
+
+
+      ctx.fillRect(
+        x * pixelSize,
+        y * pixelSize,
+        pixelSize,
+        pixelSize
       );
-
-      document
-      .getElementById("color")
-      .value=color;
 
     }
 
   }
-);
+
+}
 
 
-/* =========================
-   CANVAS SIZE
-========================= */
+/* =========================================================
+   FRAME THUMBNAILS
+   ========================================================= */
 
-document
-.getElementById("canvasSize")
-.addEventListener(
-  "change",
-  e => {
+function renderFrameList() {
 
-    size =
-    Number(e.target.value);
-
-    resetFrames();
-
-  }
-);
+  const frameList =
+    document.getElementById(
+      "frames"
+    );
 
 
-document
-.getElementById("newButton")
-.addEventListener(
-  "click",
-  resetFrames
-);
+  if (!frameList)
+    return;
 
 
-/* =========================
-   SHADOW
-========================= */
-
-document
-.getElementById("shadowPose")
-.addEventListener(
-  "change",
-  e => {
-
-    shadowPose =
-    e.target.value;
-
-    renderCurrent();
-
-  }
-);
-
-
-document
-.getElementById("shadowOpacity")
-.addEventListener(
-  "input",
-  e => {
-
-    shadowOpacity =
-    Number(e.target.value)/100;
-
-    document
-    .getElementById("sizeText")
-    .textContent =
-    e.target.value+"%";
-
-    renderCurrent();
-
-  }
-);
-
-
-/* =========================
-   FRAMES
-========================= */
-
-function renderFrames(){
-
-  document
-  .querySelectorAll(".frame")
-  .forEach(e => e.remove());
-
-  const add =
-  document.getElementById("frameAdd");
+  frameList.innerHTML = "";
 
 
   frames.forEach(
-    (frame,index) => {
+    (frame, index) => {
 
       const button =
-      document.createElement("button");
+        document.createElement(
+          "button"
+        );
+
 
       button.className =
-      "frame" +
-      (
-        index===currentFrame
-        ? " active"
-        : ""
-      );
-
-      button.type="button";
+        "frameButton";
 
 
-      const preview =
-      document.createElement("canvas");
+      if (
+        index === currentFrame
+      ) {
 
-      preview.width=size;
-      preview.height=size;
+        button.classList.add(
+          "active"
+        );
 
-      preview
-      .getContext("2d")
-      .drawImage(frame,0,0);
+      }
 
 
-      button.appendChild(preview);
-
-      button.title =
-      "Frame "+(index+1);
+      button.textContent =
+        index + 1;
 
 
       button.addEventListener(
         "click",
         () => {
 
-          currentFrame=index;
+          saveCurrentFrame();
 
-          renderCurrent();
+          currentFrame =
+            index;
 
-          renderFrames();
+          loadCurrentFrame();
+
+          renderFrameList();
 
         }
       );
 
 
-      document
-      .getElementById("frames")
-      .insertBefore(
-        button,
-        add
+      frameList.appendChild(
+        button
       );
 
     }
   );
-
-}
-
-
-document
-.getElementById("frameAdd")
-.addEventListener(
-  "click",
-  () => {
-
-    const next =
-    makeFrame();
-
-    next
-    .getContext("2d")
-    .drawImage(
-      frames[currentFrame],
-      0,
-      0
-    );
-
-    frames.push(next);
-
-    currentFrame =
-    frames.length-1;
-
-    renderCurrent();
-
-    renderFrames();
-
-  }
-);
-
-
-/* =========================
-   IMPORT
-========================= */
-
-document
-.getElementById("importButton")
-.addEventListener(
-  "click",
-  () => {
-
-    document
-    .getElementById("importInput")
-    .click();
-
-  }
-);
-
-
-document
-.getElementById("importInput")
-.addEventListener(
-  "change",
-  e => {
-
-    const file =
-    e.target.files[0];
-
-    if(!file) return;
-
-
-    const img =
-    new Image();
-
-
-    img.onload=()=>{
-
-      const frame =
-      makeFrame();
-
-      const fctx =
-      frame.getContext("2d");
-
-      fctx.clearRect(
-        0,0,size,size
-      );
-
-      fctx.imageSmoothingEnabled=false;
-
-
-      const scale =
-      Math.min(
-        size/img.width,
-        size/img.height
-      );
-
-
-      const w =
-      Math.max(
-        1,
-        Math.round(img.width*scale)
-      );
-
-      const h =
-      Math.max(
-        1,
-        Math.round(img.height*scale)
-      );
-
-
-      const x =
-      Math.floor((size-w)/2);
-
-      const y =
-      Math.floor((size-h)/2);
-
-
-      fctx.drawImage(
-        img,
-        x,
-        y,
-        w,
-        h
-      );
-
-
-      frames[currentFrame]=frame;
-
-      renderCurrent();
-
-      renderFrames();
-
-      URL.revokeObjectURL(
-        img.src
-      );
-
-    };
-
-
-    img.src =
-    URL.createObjectURL(file);
-
-  }
-);
-
-
-/* =========================
-   EXPORT
-========================= */
-
-document
-.getElementById("exportButton")
-.addEventListener(
-  "click",
-  () => {
-
-    const out =
-    document.createElement("canvas");
-
-    out.width=size;
-    out.height=size;
-
-    out
-    .getContext("2d")
-    .drawImage(
-      frames[currentFrame],
-      0,
-      0
-    );
-
-
-    const a =
-    document.createElement("a");
-
-    a.download =
-    "bixel-sprite.png";
-
-    a.href =
-    out.toDataURL("image/png");
-
-    a.click();
-
-  }
-);
-
-
-/* ==================================================
-   BIXEL SEED SYSTEM
-================================================== */
-
-
-/*
-  We are NOT brute-forcing every possible picture.
-
-  Instead we encode the exact pixels.
-
-  BBX1 format:
-
-  BBX1|size|pixelData
-
-  Each pixel is represented by:
-
-  0 = transparent
-
-  Otherwise:
-  RGB values are quantized to steps of 10.
-
-  Each color becomes:
-
-  R,G,B
-
-  Example:
-
-  120,40,200
-
-*/
-
-
-function encodeFrame(frame){
-
-  const fctx =
-  frame.getContext("2d");
-
-  const image =
-  fctx.getImageData(
-    0,
-    0,
-    size,
-    size
-  ).data;
-
-
-  let result=[];
-
-
-  for(
-    let i=0;
-    i<image.length;
-    i+=4
-  ){
-
-    const r=image[i];
-
-    const g=image[i+1];
-
-    const b=image[i+2];
-
-    const a=image[i+3];
-
-
-    if(a===0){
-
-      result.push("0");
-
-    }else{
-
-      const qr =
-      quantizeChannel(r);
-
-      const qg =
-      quantizeChannel(g);
-
-      const qb =
-      quantizeChannel(b);
-
-      result.push(
-        qr+","+qg+","+qb
-      );
-
-    }
-
-  }
-
-
-  return result.join(";");
-
-}
-
-
-function generateBBXCode(){
-
-  const encodedFrames =
-  frames.map(
-    frame => encodeFrame(frame)
-  );
-
-
-  const fps =
-  Math.max(
-    1,
-    Math.min(
-      60,
-      Number(
-        document
-        .getElementById("fps")
-        .value
-      ) || 8
-    )
-  );
-
-
-  return (
-    "BBX1|" +
-    size +
-    "|" +
-    fps +
-    "|" +
-    encodedFrames.join("||")
-  );
-
-}
-
-
-/* =========================
-   ANALYSIS
-========================= */
-
-function setStep(
-  number,
-  text
-){
-
-  const step =
-  document.getElementById(
-    "step"+number
-  );
-
-  step.textContent =
-  "✓ "+text;
-
-  step.classList.add("done");
-
-}
-
-
-function wait(ms){
-
-  return new Promise(
-    resolve =>
-      setTimeout(resolve,ms)
-  );
-
-}
-
-
-async function analyzeAndFinish(){
-
-  document
-  .getElementById("analysis")
-  .style.display="flex";
-
-
-  for(let i=1;i<=6;i++){
-
-    document
-    .getElementById("step"+i)
-    .classList.remove("done");
-
-  }
-
-
-  document
-  .getElementById("seedResult")
-  .textContent="";
-
-
-  await wait(150);
-
-  setStep(
-    1,
-    "Reading pixels"
-  );
-
-
-  await wait(120);
-
-  setStep(
-    2,
-    "Checking center"
-  );
-
-
-  await wait(120);
-
-  setStep(
-    3,
-    "Checking X / Y axes"
-  );
-
-
-  await wait(120);
-
-  setStep(
-    4,
-    "Building shape data"
-  );
-
-
-  await wait(120);
-
-  setStep(
-    5,
-    "Encoding colors"
-  );
-
-
-  await wait(120);
-
-
-  const code =
-  generateBBXCode();
-
-
-  setStep(
-    6,
-    "Generating seed"
-  );
-
-
-  document
-  .getElementById("seedResult")
-  .textContent=code;
 
 
   /*
-    Save it so engine.html can retrieve it.
+    Update frame counter
   */
 
-  localStorage.setItem(
-    "blankbox_bixel_code",
-    code
-  );
+  const counter =
+    document.getElementById(
+      "frameCounter"
+    );
+
+
+  if (counter) {
+
+    counter.textContent =
+      `${currentFrame + 1} / ${frames.length}`;
+
+  }
 
 }
 
 
-/* =========================
-   COPY CODE
-========================= */
+/* =========================================================
+   SAVE CURRENT FRAME
+   ========================================================= */
 
-document
-.getElementById("copySeed")
-.addEventListener(
-  "click",
-  async () => {
+function saveCurrentFrame() {
 
-    const code =
-    document
-    .getElementById("seedResult")
-    .textContent;
-
-    if(!code)
-      return;
-
-    await navigator
-      .clipboard
-      .writeText(code);
-
-    document
-    .getElementById("copySeed")
-    .textContent =
-    "COPIED ✓";
+  const frame =
+    frames[currentFrame];
 
 
-    setTimeout(
-      () => {
+  if (!frame)
+    return;
 
-        document
-        .getElementById("copySeed")
-        .textContent =
-        "COPY BBX CODE";
 
-      },
-      1200
+  /*
+    Read the canvas pixel-by-pixel.
+  */
+
+  const image =
+    ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
     );
 
+
+  const pixelSize =
+    canvas.width /
+    canvasSize;
+
+
+  for (
+    let y = 0;
+    y < canvasSize;
+    y++
+  ) {
+
+    for (
+      let x = 0;
+      x < canvasSize;
+      x++
+    ) {
+
+      const sampleX =
+        Math.floor(
+          x * pixelSize +
+          pixelSize / 2
+        );
+
+
+      const sampleY =
+        Math.floor(
+          y * pixelSize +
+          pixelSize / 2
+        );
+
+
+      const index =
+        (
+          sampleY *
+          canvas.width +
+          sampleX
+        ) * 4;
+
+
+      const r =
+        image.data[index];
+
+      const g =
+        image.data[index + 1];
+
+      const b =
+        image.data[index + 2];
+
+      const a =
+        image.data[index + 3];
+
+
+      if (a === 0) {
+
+        frame.pixels[
+          pixelIndex(x, y)
+        ] = null;
+
+      }
+
+      else {
+
+        frame.pixels[
+          pixelIndex(x, y)
+        ] =
+          `rgb(${r},${g},${b})`;
+
+      }
+
+    }
+
   }
-);
+
+}
 
 
-/* =========================
-   DONE
-========================= */
+/* =========================================================
+   ADD FRAME
+   ========================================================= */
 
-document
-.getElementById("doneButton")
-.addEventListener(
-  "click",
-  async () => {
+function addFrame() {
 
-    await analyzeAndFinish();
+  if (
+    frames.length >=
+    MAX_FRAMES
+  ) {
 
-    /*
-      Wait a moment so the user
-      can actually see the analysis.
-    */
+    alert(
+      "Bixel animations can have a maximum of 16 frames."
+    );
 
-    await wait(900);
-
-    window.location.href =
-      "engine.html";
+    return;
 
   }
-);
 
 
-/* =========================
-   PREVIEW
-========================= */
-
-document
-.getElementById("previewButton")
-.addEventListener(
-  "click",
-  () => {
-
-    if(frames.length<2)
-      return;
+  saveCurrentFrame();
 
 
-    previewing =
-    !previewing;
+  const newFrame =
+    createBlankFrame();
 
 
-    document
-    .getElementById("previewButton")
-    .textContent =
-    previewing
-    ? "■ STOP"
-    : "▶ PREVIEW";
+  /*
+    New frame is inserted
+    AFTER the current frame.
+  */
+
+  frames.splice(
+    currentFrame + 1,
+    0,
+    newFrame
+  );
 
 
-    if(previewing){
-
-      let i=currentFrame;
+  currentFrame++;
 
 
-      const tick=()=>{
+  loadCurrentFrame();
 
-        if(!previewing)
-          return;
+  renderFrameList();
 
-
-        currentFrame =
-        i % frames.length;
+}
 
 
-        renderCurrent();
+/* =========================================================
+   DELETE FRAME
+   ========================================================= */
 
-        renderFrames();
+function deleteFrame() {
 
-        i++;
+  if (
+    frames.length <= 1
+  ) {
+
+    alert(
+      "You need at least one frame."
+    );
+
+    return;
+
+  }
 
 
-        const fps =
+  frames.splice(
+    currentFrame,
+    1
+  );
+
+
+  if (
+    currentFrame >=
+    frames.length
+  ) {
+
+    currentFrame =
+      frames.length - 1;
+
+  }
+
+
+  loadCurrentFrame();
+
+  renderFrameList();
+
+}
+
+
+/* =========================================================
+   CANVAS SIZE
+   ========================================================= */
+
+function setCanvasSize(size) {
+
+  saveCurrentFrame();
+
+
+  canvasSize =
+    Number(size);
+
+
+  canvas.width =
+    canvasSize * 20;
+
+  canvas.height =
+    canvasSize * 20;
+
+
+  frames = [
+    createBlankFrame()
+  ];
+
+  currentFrame = 0;
+
+
+  loadCurrentFrame();
+
+  renderFrameList();
+
+}
+
+
+/* =========================================================
+   FPS
+   ========================================================= */
+
+const fpsInput =
+  document.getElementById(
+    "fps"
+  );
+
+
+if (fpsInput) {
+
+  fpsInput.addEventListener(
+    "input",
+    () => {
+
+      fps =
         Math.max(
           1,
           Math.min(
             60,
             Number(
-              document
-              .getElementById("fps")
-              .value
+              fpsInput.value
             ) || 8
           )
         );
 
-
-        previewTimer =
-        setTimeout(
-          tick,
-          1000/fps
-        );
-
-      };
-
-
-      tick();
-
-
-    }else{
-
-      clearTimeout(
-        previewTimer
-      );
-
     }
+  );
+
+}
+
+
+/* =========================================================
+   TOOLS
+   ========================================================= */
+
+let currentTool =
+  "pencil";
+
+let currentColor =
+  "#ffffff";
+
+
+function paintPixel(x, y) {
+
+  if (
+    x < 0 ||
+    y < 0 ||
+    x >= canvasSize ||
+    y >= canvasSize
+  )
+    return;
+
+
+  const frame =
+    frames[currentFrame];
+
+
+  const index =
+    pixelIndex(x, y);
+
+
+  if (
+    currentTool ===
+    "eraser"
+  ) {
+
+    frame.pixels[index] =
+      null;
+
+  }
+
+  else {
+
+    frame.pixels[index] =
+      currentColor;
+
+  }
+
+
+  loadCurrentFrame();
+
+}
+
+
+/* =========================================================
+   CANVAS MOUSE
+   ========================================================= */
+
+let drawing = false;
+
+
+function getPixelFromMouse(event) {
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  const x =
+    Math.floor(
+      (
+        event.clientX -
+        rect.left
+      ) /
+      rect.width *
+      canvasSize
+    );
+
+
+  const y =
+    Math.floor(
+      (
+        event.clientY -
+        rect.top
+      ) /
+      rect.height *
+      canvasSize
+    );
+
+
+  return {
+    x,
+    y
+  };
+
+}
+
+
+canvas.addEventListener(
+  "pointerdown",
+  event => {
+
+    drawing = true;
+
+    canvas.setPointerCapture(
+      event.pointerId
+    );
+
+
+    const {
+      x,
+      y
+    } =
+      getPixelFromMouse(event);
+
+
+    paintPixel(x, y);
 
   }
 );
 
 
-/* =========================
-   START
-========================= */
+canvas.addEventListener(
+  "pointermove",
+  event => {
 
-resetFrames();
+    if (!drawing)
+      return;
+
+
+    const {
+      x,
+      y
+    } =
+      getPixelFromMouse(event);
+
+
+    paintPixel(x, y);
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointerup",
+  () => {
+
+    drawing = false;
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointercancel",
+  () => {
+
+    drawing = false;
+
+  }
+);
+
+
+/* =========================================================
+   COLOR INPUT
+   ========================================================= */
+
+const colorInput =
+  document.getElementById(
+    "color"
+  );
+
+
+if (colorInput) {
+
+  colorInput.addEventListener(
+    "input",
+    () => {
+
+      currentColor =
+        colorInput.value;
+
+      currentTool =
+        "pencil";
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   TOOL BUTTONS
+   ========================================================= */
+
+const pencilButton =
+  document.getElementById(
+    "pencil"
+  );
+
+
+const eraserButton =
+  document.getElementById(
+    "eraser"
+  );
+
+
+if (pencilButton) {
+
+  pencilButton.addEventListener(
+    "click",
+    () => {
+
+      currentTool =
+        "pencil";
+
+    }
+  );
+
+}
+
+
+if (eraserButton) {
+
+  eraserButton.addEventListener(
+    "click",
+    () => {
+
+      currentTool =
+        "eraser";
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BBX ENCODING
+   ========================================================= */
+
+function colorToBBX(color) {
+
+  if (!color)
+    return "0";
+
+
+  /*
+    rgb(r,g,b)
+  */
+
+  const match =
+    color.match(
+      /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/
+    );
+
+
+  if (!match)
+    return "0";
+
+
+  let r =
+    Number(match[1]);
+
+  let g =
+    Number(match[2]);
+
+  let b =
+    Number(match[3]);
+
+
+  /*
+    Quantize to nearest 10.
+  */
+
+  r =
+    Math.min(
+      250,
+      Math.round(r / 10) * 10
+    );
+
+  g =
+    Math.min(
+      250,
+      Math.round(g / 10) * 10
+    );
+
+  b =
+    Math.min(
+      250,
+      Math.round(b / 10) * 10
+    );
+
+
+  return `${r},${g},${b}`;
+
+}
+
+
+/* =========================================================
+   MAKE BBX
+   ========================================================= */
+
+function createBBX() {
+
+  saveCurrentFrame();
+
+
+  const encodedFrames =
+    frames.map(
+      frame => {
+
+        return frame.pixels
+          .map(
+            color =>
+              colorToBBX(
+                color
+              )
+          )
+          .join(";");
+
+      }
+    );
+
+
+  return (
+    "BBX1|" +
+    canvasSize +
+    "|" +
+    fps +
+    "|" +
+    encodedFrames.join(
+      "||"
+    )
+  );
+
+}
+
+
+/* =========================================================
+   DONE
+   ========================================================= */
+
+const doneButton =
+  document.getElementById(
+    "done"
+  );
+
+
+if (doneButton) {
+
+  doneButton.addEventListener(
+    "click",
+    () => {
+
+      saveCurrentFrame();
+
+
+      const code =
+        createBBX();
+
+
+      /*
+        Save the animation.
+      */
+
+      localStorage.setItem(
+        "blankbox_bixel_code",
+        code
+      );
+
+
+      /*
+        Make sure target object
+        remains intact.
+      */
+
+      /*
+        Go back to Blank Box.
+      */
+
+      window.location.href =
+        "engine.html";
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ADD FRAME BUTTON
+   ========================================================= */
+
+const addFrameButton =
+  document.getElementById(
+    "addFrame"
+  );
+
+
+if (addFrameButton) {
+
+  addFrameButton.addEventListener(
+    "click",
+    addFrame
+  );
+
+}
+
+
+/* =========================================================
+   DELETE FRAME BUTTON
+   ========================================================= */
+
+const deleteFrameButton =
+  document.getElementById(
+    "deleteFrame"
+  );
+
+
+if (deleteFrameButton) {
+
+  deleteFrameButton.addEventListener(
+    "click",
+    deleteFrame
+  );
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+initializeFrames();
 
 </script>
-
 </body>
 </html>
