@@ -124,7 +124,7 @@ button:hover{
   height:min(70vw,70vh);
   max-width:700px;
   max-height:700px;
-  background:#fff;
+  background:white;
   image-rendering:pixelated;
 }
 
@@ -231,6 +231,20 @@ canvas{
   font-size:28px;
 }
 
+#frameDelete{
+  height:82px;
+  min-width:82px;
+  font-size:12px;
+}
+
+#frameCounter{
+  min-width:70px;
+  text-align:center;
+  color:#aaa;
+  font-size:12px;
+  font-weight:900;
+}
+
 .note{
   font-size:12px;
   color:#888;
@@ -290,26 +304,281 @@ canvas{
   width:100%;
 }
 
+#previewOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:90;
+}
+
+#previewBox{
+  width:min(500px,90vw);
+  text-align:center;
+}
+
+#previewCanvas{
+  width:400px;
+  height:400px;
+  max-width:80vw;
+  max-height:60vh;
+  background:white;
+  image-rendering:pixelated;
+}
+
+#stopPreview{
+  margin-top:15px;
+}
+
 </style>
 </head>
 
 <body>
-<div id="animationControls">
 
-  <div id="frameCounter">
-    1 / 1
+<div id="app">
+
+<header id="topbar">
+
+  <div id="brand">
+    BIXEL ART
   </div>
 
-  <button id="addFrame">
-    + FRAME
+  <div id="actions">
+
+    <button id="importButton">
+      IMPORT
+    </button>
+
+    <input
+      id="importInput"
+      type="file"
+      accept="image/*"
+      hidden
+    >
+
+    <button id="exportButton">
+      EXPORT PNG
+    </button>
+
+    <button
+      class="primary"
+      id="doneButton"
+    >
+      DONE
+    </button>
+
+  </div>
+
+</header>
+
+
+<div id="main">
+
+
+<aside id="tools">
+
+  <div class="section">
+    Tools
+  </div>
+
+  <button
+    class="tool active"
+    data-tool="pencil"
+  >
+    ✏ Pencil
   </button>
 
-  <button id="deleteFrame">
-    DELETE FRAME
+  <button
+    class="tool"
+    data-tool="eraser"
+  >
+    ⌫ Eraser
   </button>
 
-  <label>
-    FPS
+  <button
+    class="tool"
+    data-tool="fill"
+  >
+    ▧ Fill
+  </button>
+
+  <button
+    class="tool"
+    data-tool="picker"
+  >
+    ◉ Color Picker
+  </button>
+
+
+  <div
+    class="section"
+    style="margin-top:20px"
+  >
+    Canvas
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Size
+    </label>
+
+    <select id="canvasSize">
+
+      <option value="16">
+        16 × 16
+      </option>
+
+      <option value="24">
+        24 × 24
+      </option>
+
+      <option
+        value="32"
+        selected
+      >
+        32 × 32
+      </option>
+
+      <option value="48">
+        48 × 48
+      </option>
+
+      <option value="64">
+        64 × 64
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <button id="newButton">
+    NEW SPRITE
+  </button>
+
+</aside>
+
+
+<section id="workspace">
+
+  <div id="canvasWrap">
+
+    <canvas id="shadowCanvas"></canvas>
+
+    <canvas id="pixelCanvas"></canvas>
+
+  </div>
+
+</section>
+
+
+<aside id="panel">
+
+  <div class="section">
+    Color
+  </div>
+
+  <div class="field">
+
+    <div class="colorRow">
+
+      <input
+        id="color"
+        type="color"
+        value="#111111"
+      >
+
+      <input
+        id="hex"
+        value="#111111"
+        maxlength="7"
+      >
+
+    </div>
+
+  </div>
+
+
+  <div class="section">
+    Shadow
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Template
+    </label>
+
+    <select id="shadowPose">
+
+      <option value="none">
+        None
+      </option>
+
+      <option value="idle">
+        Idle
+      </option>
+
+      <option value="walk">
+        Walk
+      </option>
+
+      <option value="run">
+        Run
+      </option>
+
+      <option value="jump">
+        Jump
+      </option>
+
+      <option value="hit">
+        Hit
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>
+
+      Opacity
+
+      <span id="sizeText">
+        30%
+      </span>
+
+    </label>
+
+    <input
+      id="shadowOpacity"
+      type="range"
+      min="5"
+      max="70"
+      value="30"
+    >
+
+  </div>
+
+
+  <div class="section">
+    Animation
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Frame speed
+    </label>
+
     <input
       id="fps"
       type="number"
@@ -317,231 +586,118 @@ canvas{
       max="60"
       value="8"
     >
-  </label>
 
-</div>
-
-<div id="frames"></div>
-<div id="app">
-
-<header id="topbar">
-  <div id="brand">BIXEL ART</div>
-
-  <div id="actions">
-    <button id="importButton">IMPORT</button>
-    <input id="importInput" type="file" accept="image/*" hidden>
-
-    <button id="exportButton">EXPORT PNG</button>
-
-    <button class="primary" id="doneButton">
-      DONE
-    </button>
   </div>
-</header>
 
 
-<div id="main">
-
-<aside id="tools">
-
-<div class="section">Tools</div>
-
-<button class="tool active" data-tool="pencil">
-✏ Pencil
-</button>
-
-<button class="tool" data-tool="eraser">
-⌫ Eraser
-</button>
-
-<button class="tool" data-tool="fill">
-▧ Fill
-</button>
-
-<button class="tool" data-tool="picker">
-◉ Color Picker
-</button>
-
-
-<div class="section" style="margin-top:20px">
-Canvas
-</div>
-
-<div class="field">
-
-<label>Size</label>
-
-<select id="canvasSize">
-<option value="16">16 × 16</option>
-<option value="24">24 × 24</option>
-<option value="32" selected>32 × 32</option>
-<option value="48">48 × 48</option>
-<option value="64">64 × 64</option>
-</select>
-
-</div>
-
-<button id="newButton">
-NEW SPRITE
-</button>
-
-</aside>
-
-
-<section id="workspace">
-
-<div id="canvasWrap">
-
-<canvas id="shadowCanvas"></canvas>
-
-<canvas id="pixelCanvas"></canvas>
-
-</div>
-
-</section>
-
-
-<aside id="panel">
-
-<div class="section">
-Color
-</div>
-
-<div class="field">
-
-<div class="colorRow">
-
-<input
-id="color"
-type="color"
-value="#111111">
-
-<input
-id="hex"
-value="#111111"
-maxlength="7">
-
-</div>
-
-</div>
-
-
-<div class="section">
-Shadow
-</div>
-
-<div class="field">
-
-<label>Template</label>
-
-<select id="shadowPose">
-
-<option value="none">None</option>
-<option value="idle">Idle</option>
-<option value="walk">Walk</option>
-<option value="run">Run</option>
-<option value="jump">Jump</option>
-<option value="hit">Hit</option>
-
-</select>
-
-</div>
-
-
-<div class="field">
-
-<label>
-Opacity
-<span id="sizeText">30%</span>
-</label>
-
-<input
-id="shadowOpacity"
-type="range"
-min="5"
-max="70"
-value="30">
-
-</div>
-
-
-<div class="section">
-Animation
-</div>
-
-<div class="field">
-
-<label>Frame speed</label>
-
-<input
-id="fps"
-type="number"
-min="1"
-max="60"
-value="8">
-
-</div>
-
-<button id="previewButton">
-▶ PREVIEW
-</button>
+  <button id="previewButton">
+    ▶ PREVIEW
+  </button>
 
 </aside>
 
 </div>
 
+
+<!-- FRAME BAR -->
 
 <div id="frames">
 
-<button id="frameAdd">+</button>
+  <div id="frameCounter">
+    1 / 1
+  </div>
+
+  <button id="frameAdd">
+    +
+  </button>
+
+  <button id="frameDelete">
+    −
+  </button>
 
 </div>
 
 </div>
 
 
-<!-- ANALYSIS SCREEN -->
+<!-- ANALYSIS -->
 
 <div id="analysis">
 
-<div id="analysisBox">
+  <div id="analysisBox">
 
-<div id="analysisTitle">
-ANALYZING BIXEL...
+    <div id="analysisTitle">
+      ANALYZING BIXEL...
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step1"
+    >
+      ○ Reading pixels
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step2"
+    >
+      ○ Checking center
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step3"
+    >
+      ○ Checking X / Y axes
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step4"
+    >
+      ○ Building shape data
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step5"
+    >
+      ○ Encoding colors
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step6"
+    >
+      ○ Generating seed
+    </div>
+
+    <div id="seedResult"></div>
+
+    <button id="copySeed">
+      COPY BBX CODE
+    </button>
+
+  </div>
+
 </div>
 
-<div class="analysisStep" id="step1">
-○ Reading pixels
-</div>
 
-<div class="analysisStep" id="step2">
-○ Checking center
-</div>
+<!-- PREVIEW -->
 
-<div class="analysisStep" id="step3">
-○ Checking X / Y axes
-</div>
+<div id="previewOverlay">
 
-<div class="analysisStep" id="step4">
-○ Building shape data
-</div>
+  <div id="previewBox">
 
-<div class="analysisStep" id="step5">
-○ Encoding colors
-</div>
+    <canvas id="previewCanvas"></canvas>
 
-<div class="analysisStep" id="step6">
-○ Generating seed
-</div>
+    <br>
 
-<div id="seedResult">
-</div>
+    <button id="stopPreview">
+      STOP PREVIEW
+    </button>
 
-<button id="copySeed">
-COPY BBX CODE
-</button>
-
-</div>
+  </div>
 
 </div>
 
@@ -549,58 +705,68 @@ COPY BBX CODE
 <script>
 
 /* =========================================================
-   BIXEL
+   BIXEL ENGINE
    ========================================================= */
 
 const canvas =
-  document.getElementById("canvas");
+  document.getElementById(
+    "pixelCanvas"
+  );
 
 const ctx =
   canvas.getContext("2d");
 
-ctx.imageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled =
+  false;
+
+
+const shadowCanvas =
+  document.getElementById(
+    "shadowCanvas"
+  );
+
+const shadowCtx =
+  shadowCanvas.getContext("2d");
+
+shadowCtx.imageSmoothingEnabled =
+  false;
 
 
 /* =========================================================
    SETTINGS
    ========================================================= */
 
-let canvasSize = 16;
+let canvasSize = 32;
 
 let fps = 8;
 
 const MAX_FRAMES = 16;
 
-
-/* =========================================================
-   FRAMES
-   ========================================================= */
-
 let frames = [];
 
 let currentFrame = 0;
 
+let currentTool = "pencil";
 
-/*
-  Each frame stores:
+let currentColor = "#111111";
 
-  {
-    pixels: [...],
-    shadow: [...]
-  }
-*/
+let drawing = false;
+
+let previewTimer = null;
 
 
-function createBlankFrame() {
+/* =========================================================
+   FRAME CREATION
+   ========================================================= */
+
+function createBlankFrame(){
 
   return {
 
     pixels:
       new Array(
         canvasSize * canvasSize
-      ).fill(null),
-
-    shadow: null
+      ).fill(null)
 
   };
 
@@ -608,18 +774,22 @@ function createBlankFrame() {
 
 
 /* =========================================================
-   CREATE FIRST FRAME
+   CANVAS SETUP
    ========================================================= */
 
-function initializeFrames() {
+function resizeCanvas(){
 
-  frames = [
-    createBlankFrame()
-  ];
+  canvas.width =
+    canvasSize * 20;
 
-  currentFrame = 0;
+  canvas.height =
+    canvasSize * 20;
 
-  renderFrameList();
+  shadowCanvas.width =
+    canvas.width;
+
+  shadowCanvas.height =
+    canvas.height;
 
   loadCurrentFrame();
 
@@ -627,10 +797,10 @@ function initializeFrames() {
 
 
 /* =========================================================
-   FRAME PIXEL INDEX
+   PIXEL INDEX
    ========================================================= */
 
-function pixelIndex(x, y) {
+function pixelIndex(x,y){
 
   return (
     y * canvasSize +
@@ -641,13 +811,10 @@ function pixelIndex(x, y) {
 
 
 /* =========================================================
-   DRAW FRAME TO CANVAS
+   DRAW CURRENT FRAME
    ========================================================= */
 
-function loadCurrentFrame() {
-
-  const frame =
-    frames[currentFrame];
+function loadCurrentFrame(){
 
   ctx.clearRect(
     0,
@@ -657,30 +824,37 @@ function loadCurrentFrame() {
   );
 
 
+  const frame =
+    frames[currentFrame];
+
+  if(!frame)
+    return;
+
+
   const pixelSize =
     canvas.width /
     canvasSize;
 
 
-  for (
-    let y = 0;
-    y < canvasSize;
+  for(
+    let y=0;
+    y<canvasSize;
     y++
-  ) {
+  ){
 
-    for (
-      let x = 0;
-      x < canvasSize;
+    for(
+      let x=0;
+      x<canvasSize;
       x++
-    ) {
+    ){
 
       const color =
         frame.pixels[
-          pixelIndex(x, y)
+          pixelIndex(x,y)
         ];
 
 
-      if (!color)
+      if(!color)
         continue;
 
 
@@ -699,59 +873,207 @@ function loadCurrentFrame() {
 
   }
 
+
+  drawShadow();
+
 }
 
 
 /* =========================================================
-   FRAME THUMBNAILS
+   SHADOW
    ========================================================= */
 
-function renderFrameList() {
+function drawShadow(){
 
-  const frameList =
+  shadowCtx.clearRect(
+    0,
+    0,
+    shadowCanvas.width,
+    shadowCanvas.height
+  );
+
+
+  const pose =
+    document.getElementById(
+      "shadowPose"
+    ).value;
+
+
+  if(pose === "none")
+    return;
+
+
+  const opacity =
+    Number(
+      document.getElementById(
+        "shadowOpacity"
+      ).value
+    ) / 100;
+
+
+  shadowCtx.globalAlpha =
+    opacity;
+
+
+  /*
+    Simple center guide/template.
+    This is intentionally lightweight.
+  */
+
+  shadowCtx.strokeStyle =
+    "#72d572";
+
+  shadowCtx.lineWidth =
+    Math.max(
+      2,
+      canvas.width / 100
+    );
+
+
+  shadowCtx.beginPath();
+
+  shadowCtx.moveTo(
+    canvas.width / 2,
+    canvas.height * 0.15
+  );
+
+  shadowCtx.lineTo(
+    canvas.width / 2,
+    canvas.height * 0.85
+  );
+
+  shadowCtx.moveTo(
+    canvas.width * 0.25,
+    canvas.height / 2
+  );
+
+  shadowCtx.lineTo(
+    canvas.width * 0.75,
+    canvas.height / 2
+  );
+
+  shadowCtx.stroke();
+
+
+  shadowCtx.globalAlpha =
+    1;
+
+}
+
+
+/* =========================================================
+   FRAME LIST
+   ========================================================= */
+
+function renderFrameList(){
+
+  const framesBar =
     document.getElementById(
       "frames"
     );
 
 
-  if (!frameList)
-    return;
+  /*
+    Keep the first three controls.
+  */
 
-
-  frameList.innerHTML = "";
+  framesBar
+    .querySelectorAll(
+      ".frame"
+    )
+    .forEach(
+      element =>
+        element.remove()
+    );
 
 
   frames.forEach(
-    (frame, index) => {
+    (frame,index)=>{
 
-      const button =
+      const frameButton =
         document.createElement(
-          "button"
+          "div"
         );
 
 
-      button.className =
-        "frameButton";
+      frameButton.className =
+        "frame";
 
 
-      if (
+      if(
         index === currentFrame
-      ) {
+      ){
 
-        button.classList.add(
+        frameButton.classList.add(
           "active"
         );
 
       }
 
 
-      button.textContent =
-        index + 1;
+      const thumb =
+        document.createElement(
+          "canvas"
+        );
 
 
-      button.addEventListener(
+      thumb.width =
+        canvasSize;
+
+      thumb.height =
+        canvasSize;
+
+
+      const thumbCtx =
+        thumb.getContext("2d");
+
+      thumbCtx.imageSmoothingEnabled =
+        false;
+
+
+      const pixelSize =
+        1;
+
+
+      frame.pixels.forEach(
+        (color,i)=>{
+
+          if(!color)
+            return;
+
+
+          const x =
+            i % canvasSize;
+
+          const y =
+            Math.floor(
+              i / canvasSize
+            );
+
+
+          thumbCtx.fillStyle =
+            color;
+
+
+          thumbCtx.fillRect(
+            x,
+            y,
+            pixelSize,
+            pixelSize
+          );
+
+        }
+      );
+
+
+      frameButton.appendChild(
+        thumb
+      );
+
+
+      frameButton.addEventListener(
         "click",
-        () => {
+        ()=>{
 
           saveCurrentFrame();
 
@@ -766,30 +1088,18 @@ function renderFrameList() {
       );
 
 
-      frameList.appendChild(
-        button
+      framesBar.appendChild(
+        frameButton
       );
 
     }
   );
 
 
-  /*
-    Update frame counter
-  */
-
-  const counter =
-    document.getElementById(
-      "frameCounter"
-    );
-
-
-  if (counter) {
-
-    counter.textContent =
-      `${currentFrame + 1} / ${frames.length}`;
-
-  }
+  document.getElementById(
+    "frameCounter"
+  ).textContent =
+    `${currentFrame + 1} / ${frames.length}`;
 
 }
 
@@ -798,19 +1108,14 @@ function renderFrameList() {
    SAVE CURRENT FRAME
    ========================================================= */
 
-function saveCurrentFrame() {
+function saveCurrentFrame(){
 
   const frame =
     frames[currentFrame];
 
-
-  if (!frame)
+  if(!frame)
     return;
 
-
-  /*
-    Read the canvas pixel-by-pixel.
-  */
 
   const image =
     ctx.getImageData(
@@ -826,17 +1131,17 @@ function saveCurrentFrame() {
     canvasSize;
 
 
-  for (
-    let y = 0;
-    y < canvasSize;
+  for(
+    let y=0;
+    y<canvasSize;
     y++
-  ) {
+  ){
 
-    for (
-      let x = 0;
-      x < canvasSize;
+    for(
+      let x=0;
+      x<canvasSize;
       x++
-    ) {
+    ){
 
       const sampleX =
         Math.floor(
@@ -860,33 +1165,26 @@ function saveCurrentFrame() {
         ) * 4;
 
 
-      const r =
-        image.data[index];
-
-      const g =
-        image.data[index + 1];
-
-      const b =
-        image.data[index + 2];
-
       const a =
         image.data[index + 3];
 
 
-      if (a === 0) {
+      if(a === 0){
 
         frame.pixels[
-          pixelIndex(x, y)
+          pixelIndex(x,y)
         ] = null;
 
-      }
-
-      else {
+      }else{
 
         frame.pixels[
-          pixelIndex(x, y)
+          pixelIndex(x,y)
         ] =
-          `rgb(${r},${g},${b})`;
+          `rgb(
+            ${image.data[index]},
+            ${image.data[index+1]},
+            ${image.data[index+2]}
+          )`;
 
       }
 
@@ -901,15 +1199,14 @@ function saveCurrentFrame() {
    ADD FRAME
    ========================================================= */
 
-function addFrame() {
+function addFrame(){
 
-  if (
-    frames.length >=
-    MAX_FRAMES
-  ) {
+  if(
+    frames.length >= MAX_FRAMES
+  ){
 
     alert(
-      "Bixel animations can have a maximum of 16 frames."
+      "Bixel animations have a maximum of 16 frames."
     );
 
     return;
@@ -920,19 +1217,10 @@ function addFrame() {
   saveCurrentFrame();
 
 
-  const newFrame =
-    createBlankFrame();
-
-
-  /*
-    New frame is inserted
-    AFTER the current frame.
-  */
-
   frames.splice(
     currentFrame + 1,
     0,
-    newFrame
+    createBlankFrame()
   );
 
 
@@ -950,11 +1238,11 @@ function addFrame() {
    DELETE FRAME
    ========================================================= */
 
-function deleteFrame() {
+function deleteFrame(){
 
-  if (
+  if(
     frames.length <= 1
-  ) {
+  ){
 
     alert(
       "You need at least one frame."
@@ -971,10 +1259,9 @@ function deleteFrame() {
   );
 
 
-  if (
-    currentFrame >=
-    frames.length
-  ) {
+  if(
+    currentFrame >= frames.length
+  ){
 
     currentFrame =
       frames.length - 1;
@@ -990,86 +1277,49 @@ function deleteFrame() {
 
 
 /* =========================================================
-   CANVAS SIZE
+   MOUSE → PIXEL
    ========================================================= */
 
-function setCanvasSize(size) {
+function getPixel(event){
 
-  saveCurrentFrame();
-
-
-  canvasSize =
-    Number(size);
+  const rect =
+    canvas.getBoundingClientRect();
 
 
-  canvas.width =
-    canvasSize * 20;
+  return {
 
-  canvas.height =
-    canvasSize * 20;
+    x:
+      Math.floor(
+        (
+          event.clientX -
+          rect.left
+        ) /
+        rect.width *
+        canvasSize
+      ),
 
+    y:
+      Math.floor(
+        (
+          event.clientY -
+          rect.top
+        ) /
+        rect.height *
+        canvasSize
+      )
 
-  frames = [
-    createBlankFrame()
-  ];
-
-  currentFrame = 0;
-
-
-  loadCurrentFrame();
-
-  renderFrameList();
+  };
 
 }
 
 
 /* =========================================================
-   FPS
+   PAINT
    ========================================================= */
 
-const fpsInput =
-  document.getElementById(
-    "fps"
-  );
+function paintPixel(x,y){
 
-
-if (fpsInput) {
-
-  fpsInput.addEventListener(
-    "input",
-    () => {
-
-      fps =
-        Math.max(
-          1,
-          Math.min(
-            60,
-            Number(
-              fpsInput.value
-            ) || 8
-          )
-        );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   TOOLS
-   ========================================================= */
-
-let currentTool =
-  "pencil";
-
-let currentColor =
-  "#ffffff";
-
-
-function paintPixel(x, y) {
-
-  if (
+  if(
     x < 0 ||
     y < 0 ||
     x >= canvasSize ||
@@ -1083,20 +1333,17 @@ function paintPixel(x, y) {
 
 
   const index =
-    pixelIndex(x, y);
+    pixelIndex(x,y);
 
 
-  if (
-    currentTool ===
-    "eraser"
-  ) {
+  if(
+    currentTool === "eraser"
+  ){
 
     frame.pixels[index] =
       null;
 
-  }
-
-  else {
+  }else{
 
     frame.pixels[index] =
       currentColor;
@@ -1110,51 +1357,90 @@ function paintPixel(x, y) {
 
 
 /* =========================================================
-   CANVAS MOUSE
+   FILL
    ========================================================= */
 
-let drawing = false;
+function floodFill(x,y){
+
+  const frame =
+    frames[currentFrame];
+
+  const index =
+    pixelIndex(x,y);
+
+  const oldColor =
+    frame.pixels[index];
+
+  const newColor =
+    currentColor;
 
 
-function getPixelFromMouse(event) {
+  if(
+    oldColor === newColor
+  )
+    return;
 
-  const rect =
-    canvas.getBoundingClientRect();
+
+  const queue =
+    [[x,y]];
 
 
-  const x =
-    Math.floor(
-      (
-        event.clientX -
-        rect.left
-      ) /
-      rect.width *
-      canvasSize
+  while(queue.length){
+
+    const [
+      px,
+      py
+    ] =
+      queue.shift();
+
+
+    if(
+      px < 0 ||
+      py < 0 ||
+      px >= canvasSize ||
+      py >= canvasSize
+    )
+      continue;
+
+
+    const i =
+      pixelIndex(px,py);
+
+
+    if(
+      frame.pixels[i] !== oldColor
+    )
+      continue;
+
+
+    frame.pixels[i] =
+      newColor;
+
+
+    queue.push(
+      [px+1,py],
+      [px-1,py],
+      [px,py+1],
+      [px,py-1]
     );
 
-
-  const y =
-    Math.floor(
-      (
-        event.clientY -
-        rect.top
-      ) /
-      rect.height *
-      canvasSize
-    );
+  }
 
 
-  return {
-    x,
-    y
-  };
+  loadCurrentFrame();
 
 }
 
 
+/* =========================================================
+   POINTER EVENTS
+   ========================================================= */
+
 canvas.addEventListener(
   "pointerdown",
-  event => {
+  event=>{
+
+    event.preventDefault();
 
     drawing = true;
 
@@ -1167,10 +1453,50 @@ canvas.addEventListener(
       x,
       y
     } =
-      getPixelFromMouse(event);
+      getPixel(event);
 
 
-    paintPixel(x, y);
+    if(
+      currentTool === "fill"
+    ){
+
+      floodFill(x,y);
+
+    }else if(
+      currentTool === "picker"
+    ){
+
+      const frame =
+        frames[currentFrame];
+
+      const color =
+        frame.pixels[
+          pixelIndex(x,y)
+        ];
+
+
+      if(color){
+
+        currentColor =
+          color;
+
+        document.getElementById(
+          "color"
+        ).value =
+          rgbToHex(color);
+
+        document.getElementById(
+          "hex"
+        ).value =
+          rgbToHex(color);
+
+      }
+
+    }else{
+
+      paintPixel(x,y);
+
+    }
 
   }
 );
@@ -1178,9 +1504,16 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "pointermove",
-  event => {
+  event=>{
 
-    if (!drawing)
+    if(!drawing)
+      return;
+
+
+    if(
+      currentTool !== "pencil" &&
+      currentTool !== "eraser"
+    )
       return;
 
 
@@ -1188,10 +1521,10 @@ canvas.addEventListener(
       x,
       y
     } =
-      getPixelFromMouse(event);
+      getPixel(event);
 
 
-    paintPixel(x, y);
+    paintPixel(x,y);
 
   }
 );
@@ -1199,26 +1532,61 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "pointerup",
-  () => {
-
+  ()=>{
     drawing = false;
-
+    saveCurrentFrame();
   }
 );
 
 
 canvas.addEventListener(
   "pointercancel",
-  () => {
-
+  ()=>{
     drawing = false;
-
   }
 );
 
 
 /* =========================================================
-   COLOR INPUT
+   TOOLS
+   ========================================================= */
+
+document
+  .querySelectorAll(".tool")
+  .forEach(
+    button=>{
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          document
+            .querySelectorAll(".tool")
+            .forEach(
+              b =>
+                b.classList.remove(
+                  "active"
+                )
+            );
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          currentTool =
+            button.dataset.tool;
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   COLOR
    ========================================================= */
 
 const colorInput =
@@ -1226,84 +1594,396 @@ const colorInput =
     "color"
   );
 
+const hexInput =
+  document.getElementById(
+    "hex"
+  );
 
-if (colorInput) {
 
-  colorInput.addEventListener(
-    "input",
-    () => {
+colorInput.addEventListener(
+  "input",
+  ()=>{
+
+    currentColor =
+      colorInput.value;
+
+    hexInput.value =
+      currentColor;
+
+  }
+);
+
+
+hexInput.addEventListener(
+  "input",
+  ()=>{
+
+    if(
+      /^#[0-9a-fA-F]{6}$/
+        .test(
+          hexInput.value
+        )
+    ){
 
       currentColor =
-        colorInput.value;
+        hexInput.value;
 
-      currentTool =
-        "pencil";
+      colorInput.value =
+        currentColor;
 
     }
-  );
+
+  }
+);
+
+
+/* =========================================================
+   RGB → HEX
+   ========================================================= */
+
+function rgbToHex(rgb){
+
+  const match =
+    rgb.match(
+      /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/
+    );
+
+
+  if(!match)
+    return "#ffffff";
+
+
+  return "#" +
+    [
+      match[1],
+      match[2],
+      match[3]
+    ]
+      .map(
+        value =>
+          Number(value)
+            .toString(16)
+            .padStart(2,"0")
+      )
+      .join("");
 
 }
 
 
 /* =========================================================
-   TOOL BUTTONS
+   CANVAS SIZE
    ========================================================= */
 
-const pencilButton =
-  document.getElementById(
-    "pencil"
-  );
+document
+  .getElementById(
+    "canvasSize"
+  )
+  .addEventListener(
+    "change",
+    event=>{
+
+      canvasSize =
+        Number(
+          event.target.value
+        );
 
 
-const eraserButton =
-  document.getElementById(
-    "eraser"
-  );
+      frames = [
+        createBlankFrame()
+      ];
 
 
-if (pencilButton) {
-
-  pencilButton.addEventListener(
-    "click",
-    () => {
-
-      currentTool =
-        "pencil";
-
-    }
-  );
-
-}
+      currentFrame = 0;
 
 
-if (eraserButton) {
+      resizeCanvas();
 
-  eraserButton.addEventListener(
-    "click",
-    () => {
-
-      currentTool =
-        "eraser";
+      renderFrameList();
 
     }
   );
-
-}
 
 
 /* =========================================================
-   BBX ENCODING
+   FPS
    ========================================================= */
 
-function colorToBBX(color) {
+document
+  .getElementById(
+    "fps"
+  )
+  .addEventListener(
+    "input",
+    event=>{
 
-  if (!color)
+      fps =
+        Math.max(
+          1,
+          Math.min(
+            60,
+            Number(
+              event.target.value
+            ) || 8
+          )
+        );
+
+    }
+  );
+
+
+/* =========================================================
+   SHADOW OPACITY
+   ========================================================= */
+
+document
+  .getElementById(
+    "shadowOpacity"
+  )
+  .addEventListener(
+    "input",
+    event=>{
+
+      document.getElementById(
+        "sizeText"
+      ).textContent =
+        event.target.value +
+        "%";
+
+
+      drawShadow();
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "shadowPose"
+  )
+  .addEventListener(
+    "change",
+    drawShadow
+  );
+
+
+/* =========================================================
+   NEW SPRITE
+   ========================================================= */
+
+document
+  .getElementById(
+    "newButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      if(
+        !confirm(
+          "Start a new sprite? Your current drawing will be cleared."
+        )
+      )
+        return;
+
+
+      frames = [
+        createBlankFrame()
+      ];
+
+      currentFrame = 0;
+
+      loadCurrentFrame();
+
+      renderFrameList();
+
+    }
+  );
+
+
+/* =========================================================
+   IMPORT
+   ========================================================= */
+
+document
+  .getElementById(
+    "importButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+      document
+        .getElementById(
+          "importInput"
+        )
+        .click();
+    }
+  );
+
+
+document
+  .getElementById(
+    "importInput"
+  )
+  .addEventListener(
+    "change",
+    event=>{
+
+      const file =
+        event.target.files[0];
+
+      if(!file)
+        return;
+
+
+      const image =
+        new Image();
+
+
+      image.onload =
+        ()=>{
+
+          const temp =
+            document.createElement(
+              "canvas"
+            );
+
+
+          temp.width =
+            canvasSize;
+
+          temp.height =
+            canvasSize;
+
+
+          const tempCtx =
+            temp.getContext(
+              "2d"
+            );
+
+
+          tempCtx.imageSmoothingEnabled =
+            false;
+
+
+          tempCtx.drawImage(
+            image,
+            0,
+            0,
+            canvasSize,
+            canvasSize
+          );
+
+
+          const data =
+            tempCtx.getImageData(
+              0,
+              0,
+              canvasSize,
+              canvasSize
+            );
+
+
+          const frame =
+            createBlankFrame();
+
+
+          for(
+            let i=0;
+            i<
+            canvasSize *
+            canvasSize;
+            i++
+          ){
+
+            const p =
+              i * 4;
+
+
+            if(
+              data.data[p+3] === 0
+            ){
+
+              frame.pixels[i] =
+                null;
+
+            }else{
+
+              frame.pixels[i] =
+                `rgb(
+                  ${data.data[p]},
+                  ${data.data[p+1]},
+                  ${data.data[p+2]}
+                )`;
+
+            }
+
+          }
+
+
+          frames[currentFrame] =
+            frame;
+
+
+          loadCurrentFrame();
+
+          renderFrameList();
+
+        };
+
+
+      image.src =
+        URL.createObjectURL(file);
+
+    }
+  );
+
+
+/* =========================================================
+   EXPORT PNG
+   ========================================================= */
+
+document
+  .getElementById(
+    "exportButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      saveCurrentFrame();
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.download =
+        `bixel-frame-${currentFrame+1}.png`;
+
+
+      link.href =
+        canvas.toDataURL(
+          "image/png"
+        );
+
+
+      link.click();
+
+    }
+  );
+
+
+/* =========================================================
+   BBX COLOR
+   ========================================================= */
+
+function colorToBBX(color){
+
+  if(!color)
     return "0";
 
-
-  /*
-    rgb(r,g,b)
-  */
 
   const match =
     color.match(
@@ -1311,7 +1991,7 @@ function colorToBBX(color) {
     );
 
 
-  if (!match)
+  if(!match)
     return "0";
 
 
@@ -1325,57 +2005,52 @@ function colorToBBX(color) {
     Number(match[3]);
 
 
-  /*
-    Quantize to nearest 10.
-  */
-
   r =
     Math.min(
       250,
-      Math.round(r / 10) * 10
+      Math.round(r/10)*10
     );
 
   g =
     Math.min(
       250,
-      Math.round(g / 10) * 10
+      Math.round(g/10)*10
     );
 
   b =
     Math.min(
       250,
-      Math.round(b / 10) * 10
+      Math.round(b/10)*10
     );
 
 
-  return `${r},${g},${b}`;
+  return (
+    `${r},${g},${b}`
+  );
 
 }
 
 
 /* =========================================================
-   MAKE BBX
+   CREATE BBX
    ========================================================= */
 
-function createBBX() {
+function createBBX(){
 
   saveCurrentFrame();
 
 
   const encodedFrames =
     frames.map(
-      frame => {
-
-        return frame.pixels
+      frame =>
+        frame.pixels
           .map(
             color =>
               colorToBBX(
                 color
               )
           )
-          .join(";");
-
-      }
+          .join(";")
     );
 
 
@@ -1385,40 +2060,180 @@ function createBBX() {
     "|" +
     fps +
     "|" +
-    encodedFrames.join(
-      "||"
-    )
+    encodedFrames.join("||")
   );
 
 }
 
 
 /* =========================================================
-   DONE
+   ANALYSIS
    ========================================================= */
 
-const doneButton =
-  document.getElementById(
-    "done"
+function runAnalysis(code){
+
+  const analysis =
+    document.getElementById(
+      "analysis"
+    );
+
+
+  const seedResult =
+    document.getElementById(
+      "seedResult"
+    );
+
+
+  analysis.style.display =
+    "flex";
+
+
+  seedResult.textContent =
+    "";
+
+
+  const steps = [
+    "step1",
+    "step2",
+    "step3",
+    "step4",
+    "step5",
+    "step6"
+  ];
+
+
+  steps.forEach(
+    id=>{
+
+      document
+        .getElementById(id)
+        .classList.remove(
+          "done"
+        );
+
+      document
+        .getElementById(id)
+        .textContent =
+          document
+            .getElementById(id)
+            .textContent
+            .replace(
+              "✓",
+              "○"
+            );
+
+    }
   );
 
 
-if (doneButton) {
+  let step = 0;
 
-  doneButton.addEventListener(
+
+  function nextStep(){
+
+    if(step >= steps.length){
+
+      seedResult.textContent =
+        code;
+
+      return;
+
+    }
+
+
+    const element =
+      document.getElementById(
+        steps[step]
+      );
+
+
+    element.classList.add(
+      "done"
+    );
+
+
+    element.textContent =
+      element.textContent
+        .replace(
+          "○",
+          "✓"
+        );
+
+
+    step++;
+
+
+    setTimeout(
+      nextStep,
+      350
+    );
+
+  }
+
+
+  nextStep();
+
+}
+
+
+/* =========================================================
+   COPY BBX
+   ========================================================= */
+
+document
+  .getElementById(
+    "copySeed"
+  )
+  .addEventListener(
     "click",
-    () => {
+    async ()=>{
 
-      saveCurrentFrame();
+      const code =
+        localStorage.getItem(
+          "blankbox_bixel_code"
+        );
 
+
+      if(!code)
+        return;
+
+
+      try{
+
+        await navigator.clipboard
+          .writeText(code);
+
+        alert(
+          "BBX code copied!"
+        );
+
+      }catch{
+
+        alert(
+          "BBX code is ready in the box above."
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   DONE
+   ========================================================= */
+
+document
+  .getElementById(
+    "doneButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
 
       const code =
         createBBX();
 
-
-      /*
-        Save the animation.
-      */
 
       localStorage.setItem(
         "blankbox_bixel_code",
@@ -1426,70 +2241,196 @@ if (doneButton) {
       );
 
 
-      /*
-        Make sure target object
-        remains intact.
-      */
+      runAnalysis(code);
 
-      /*
-        Go back to Blank Box.
-      */
 
-      window.location.href =
-        "engine.html";
+      setTimeout(
+        ()=>{
+          window.location.href =
+            "engine.html";
+        },
+        2600
+      );
 
     }
   );
 
-}
-
 
 /* =========================================================
-   ADD FRAME BUTTON
+   PREVIEW
    ========================================================= */
 
-const addFrameButton =
-  document.getElementById(
-    "addFrame"
+document
+  .getElementById(
+    "previewButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      saveCurrentFrame();
+
+
+      const overlay =
+        document.getElementById(
+          "previewOverlay"
+        );
+
+
+      const previewCanvas =
+        document.getElementById(
+          "previewCanvas"
+        );
+
+
+      previewCanvas.width =
+        canvasSize;
+
+      previewCanvas.height =
+        canvasSize;
+
+
+      overlay.style.display =
+        "flex";
+
+
+      let previewFrame = 0;
+
+
+      function drawPreview(){
+
+        const frame =
+          frames[previewFrame];
+
+
+        const pctx =
+          previewCanvas
+            .getContext("2d");
+
+
+        pctx.clearRect(
+          0,
+          0,
+          canvasSize,
+          canvasSize
+        );
+
+
+        frame.pixels.forEach(
+          (color,i)=>{
+
+            if(!color)
+              return;
+
+
+            pctx.fillStyle =
+              color;
+
+
+            pctx.fillRect(
+              i % canvasSize,
+              Math.floor(
+                i / canvasSize
+              ),
+              1,
+              1
+            );
+
+          }
+        );
+
+
+        previewFrame =
+          (
+            previewFrame + 1
+          ) %
+          frames.length;
+
+      }
+
+
+      drawPreview();
+
+
+      previewTimer =
+        setInterval(
+          drawPreview,
+          1000 / fps
+        );
+
+    }
   );
 
 
-if (addFrameButton) {
+/* =========================================================
+   STOP PREVIEW
+   ========================================================= */
 
-  addFrameButton.addEventListener(
+document
+  .getElementById(
+    "stopPreview"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      document
+        .getElementById(
+          "previewOverlay"
+        )
+        .style.display =
+        "none";
+
+
+      clearInterval(
+        previewTimer
+      );
+
+      previewTimer = null;
+
+    }
+  );
+
+
+/* =========================================================
+   FRAME BUTTONS
+   ========================================================= */
+
+document
+  .getElementById(
+    "frameAdd"
+  )
+  .addEventListener(
     "click",
     addFrame
   );
 
-}
 
-
-/* =========================================================
-   DELETE FRAME BUTTON
-   ========================================================= */
-
-const deleteFrameButton =
-  document.getElementById(
-    "deleteFrame"
-  );
-
-
-if (deleteFrameButton) {
-
-  deleteFrameButton.addEventListener(
+document
+  .getElementById(
+    "frameDelete"
+  )
+  .addEventListener(
     "click",
     deleteFrame
   );
 
-}
-
 
 /* =========================================================
-   INITIALIZE
+   START
    ========================================================= */
 
-initializeFrames();
+frames = [
+  createBlankFrame()
+];
+
+currentFrame = 0;
+
+resizeCanvas();
+
+renderFrameList();
 
 </script>
+
 </body>
 </html>
