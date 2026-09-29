@@ -51,11 +51,11 @@
       letter-spacing: -1px;
     }
 
-    #topButtons {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+   #topButtons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
     #playButton,
     #stopButton {
@@ -81,7 +81,19 @@
       background: #e85b5b;
       color: white;
     }
+     #backButton {
+       background: #292929;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+  }
 
+#backButton:hover {
+    background: #3a3a3a;
+}
     #playButton:hover,
     #stopButton:hover {
       filter: brightness(1.08);
@@ -480,15 +492,19 @@
       BLANKBOX
     </div>
 
-    <div id="topButtons">
+  <div id="topButtons">
 
-      <button id="playButton">
+    <button id="backButton">
+        ← PROJECTS
+    </button>
+
+    <button id="playButton">
         ▶ PLAY
-      </button>
+    </button>
 
-      <button id="stopButton">
+    <button id="stopButton">
         ■ EDIT
-      </button>
+    </button>
 
     </div>
 
@@ -726,7 +742,8 @@ const playButton =
 
 const stopButton =
   document.getElementById("stopButton");
-
+const backButton =
+    document.getElementById("backButton");
 
 let objects = [];
 
@@ -2181,7 +2198,15 @@ function exitPlayMode() {
   );
 
 }
+backButton.addEventListener("click", () => {
 
+    // Make sure the latest editor state is saved
+    saveEngine();
+
+    // Return to the project hub
+    window.location.href = "projects.html";
+
+});
 
 /* =========================================================
    PLAY BUTTON
