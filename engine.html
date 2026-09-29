@@ -854,7 +854,7 @@ function createObject(type) {
 
 
   renderObject(
-    object
+   object.el
   );
 
 
@@ -2286,6 +2286,19 @@ function physicsLoop() {
 
   playerObject.y +=
     playerObject.velocityY;
+
+
+  /* Update the player's visual position */
+
+  if (playerObject.el) {
+
+    playerObject.el.style.left =
+      playerObject.x + "px";
+
+    playerObject.el.style.top =
+      playerObject.y + "px";
+
+  }
 
 
   physicsFrame =
