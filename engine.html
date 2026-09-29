@@ -337,6 +337,64 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+    /* =========================================================
+   PLAY MODE
+   ========================================================= */
+
+body.playMode #sidebar,
+body.playMode #properties {
+  display: none;
+}
+
+body.playMode #engine {
+  grid-template-columns: 1fr;
+}
+
+body.playMode #topbar {
+  grid-column: 1;
+}
+
+body.playMode #workspace {
+  grid-column: 1;
+  grid-row: 2;
+  background: #111;
+}
+
+body.playMode #workspaceHint {
+  display: none !important;
+}
+
+body.playMode .gameObject {
+  cursor: default;
+}
+
+#stopButton {
+  display: none;
+
+  padding: 10px 28px;
+  border: 0;
+  border-radius: 8px;
+
+  background: #e85b5b;
+  color: white;
+
+  font-size: 16px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+#stopButton:hover {
+  filter: brightness(1.08);
+}
+
+body.playMode #playButton {
+  display: none;
+}
+
+body.playMode #stopButton {
+  display: block;
+}
   </style>
 </head>
 
@@ -347,11 +405,17 @@
   <header id="topbar">
     <div id="logo">BLANKBOX</div>
 
-    <button id="playButton">
-      ▶ PLAY
-    </button>
-  </header>
+    <div style="display:flex; gap:10px; align-items:center;">
 
+  <button id="playButton">
+    ▶ PLAY
+  </button>
+
+  <button id="stopButton">
+    ■ EDIT
+  </button>
+
+</div>
 
   <aside id="sidebar">
 
@@ -1854,32 +1918,224 @@ function receiveBixelSprite() {
 
 
 /* =========================================================
-   PLAY BUTTON
+   PLAY MODE
    ========================================================= */
 
-document
-  .getElementById(
-    "playButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
+const playButton =
+  document.getElementById("playButton");
 
-      alert(
-        "PLAY mode coming next."
-      );
+const stopButton =
+  document.getElementById("stopButton");
 
-    }
-  );
+let playMode = false;
 
 
 /* =========================================================
-   START ENGINE
+   ENTER PLAY MODE
    ========================================================= */
 
-loadEngine();
+function enterPlayMode() {
 
-receiveBixelSprite();
+  if (playMode)
+    return;
+
+  playMode = true;
+
+  document.body.classList.add("playMode");
+
+  /*
+    Stop selecting objects.
+  */
+
+  if (selected && selected.element) {
+
+    selected.element.classList.remove(
+      "selected"
+    );
+
+  }
+
+  selected = null;
+
+  emptyProperties.hidden = false;
+
+  propertyEditor.hidden = true;
+
+  /*
+    Disable dragging while playing.
+  */
+
+  objects.forEach(object => {
+
+    if (!object.element)
+      return;
+
+    object.element.style.pointerEvents =
+      "none";
+
+  });
+
+  notify("PLAY MODE");
+
+}
+
+
+/* =========================================================
+   EXIT PLAY MODE
+   ========================================================= */
+
+function exitPlayMode() {
+
+  if (!playMode)
+    return;
+
+  playMode = false;
+
+  document.body.classList.remove(
+    "playMode"
+  );
+
+  /*
+    Enable objects again.
+  */
+
+  objects.forEach(object => {
+
+    if (!object.element)
+      return;
+
+    object.element.style.pointerEvents =
+      "auto";
+
+  });
+
+  notify("EDIT MODE");
+
+}
+
+/* =========================================================
+   PLAY MODE
+   ========================================================= */
+
+const playButton =
+  document.getElementById("playButton");
+
+const stopButton =
+  document.getElementById("stopButton");
+
+let playMode = false;
+
+
+/* =========================================================
+   ENTER PLAY MODE
+   ========================================================= */
+
+function enterPlayMode() {
+
+  if (playMode)
+    return;
+
+  playMode = true;
+
+  document.body.classList.add("playMode");
+
+  /*
+    Stop selecting objects.
+  */
+
+  if (selected && selected.element) {
+
+    selected.element.classList.remove(
+      "selected"
+    );
+
+  }
+
+  selected = null;
+
+  emptyProperties.hidden = false;
+
+  propertyEditor.hidden = true;
+
+  /*
+    Disable dragging while playing.
+  */
+
+  objects.forEach(object => {
+
+    if (!object.element)
+      return;
+
+    object.element.style.pointerEvents =
+      "none";
+
+  });
+
+  notify("PLAY MODE");
+
+}
+
+
+/* =========================================================
+   EXIT PLAY MODE
+   ========================================================= */
+
+function exitPlayMode() {
+
+  if (!playMode)
+    return;
+
+  playMode = false;
+
+  document.body.classList.remove(
+    "playMode"
+  );
+
+  /*
+    Enable objects again.
+  */
+
+  objects.forEach(object => {
+
+    if (!object.element)
+      return;
+
+    object.element.style.pointerEvents =
+      "auto";
+
+  });
+
+  notify("EDIT MODE");
+
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+   ========================================================= */
+
+playButton.addEventListener(
+  "click",
+  () => {
+
+    enterPlayMode();
+
+  }
+);
+
+
+/* =========================================================
+   STOP BUTTON
+   ========================================================= */
+
+stopButton.addEventListener(
+  "click",
+  () => {
+
+    exitPlayMode();
+
+  }
+);
 
 </script>
 
