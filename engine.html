@@ -2251,6 +2251,15 @@ function stopPhysics() {
 
 }
 
+/* =========================================================
+   PHYSICS
+   ========================================================= */
+
+const GRAVITY = 0.6;
+const MAX_FALL_SPEED = 15;
+const MOVE_SPEED = 4;
+const JUMP_FORCE = 11;
+
 
 /* ---------------------------------------------------------
    PHYSICS LOOP
@@ -2274,7 +2283,19 @@ function physicsLoop() {
   }
 
 
-  /* Gravity */
+  /* -----------------------------------------
+     PLAYER VELOCITY
+     ----------------------------------------- */
+
+  if (
+    typeof playerObject.velocityX !==
+    "number"
+  ) {
+
+    playerObject.velocityX = 0;
+
+  }
+
 
   if (
     typeof playerObject.velocityY !==
@@ -2285,6 +2306,10 @@ function physicsLoop() {
 
   }
 
+
+  /* -----------------------------------------
+     GRAVITY
+     ----------------------------------------- */
 
   playerObject.velocityY +=
     GRAVITY;
@@ -2301,15 +2326,28 @@ function physicsLoop() {
   }
 
 
+  /* -----------------------------------------
+     MOVEMENT
+     ----------------------------------------- */
+
+  playerObject.x +=
+    playerObject.velocityX;
+
+
   playerObject.y +=
     playerObject.velocityY;
 
 
-  /* Update the actual rendered object */
+  /* -----------------------------------------
+     UPDATE VISUAL
+     ----------------------------------------- */
 
   if (
     playerObject.element
   ) {
+
+    playerObject.element.style.left =
+      `${playerObject.x}px`;
 
     playerObject.element.style.top =
       `${playerObject.y}px`;
