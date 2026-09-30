@@ -2162,28 +2162,33 @@ function receiveBixelSprite() {
 
 }
 
-/* =========================================================
-   PLAY MODE PHYSICS
-   ========================================================= */
+ /* =========================================================
+    PLAY MODE PHYSICS
+    ========================================================= */
 
 let playerObject = null;
 
 let physicsRunning = false;
 let physicsFrame = null;
 
+
 const GRAVITY = 0.6;
 const MAX_FALL_SPEED = 15;
+
+const MOVE_SPEED = 4;
+const JUMP_FORCE = 11;
 
 
 /* ---------------------------------------------------------
    FIND PLAYER
    --------------------------------------------------------- */
+
 function findPlayer() {
 
   playerObject =
     objects.find(
       object =>
-        object.type === "Player"
+        object.type.toLowerCase() === "player"
     ) || null;
 
 
@@ -2198,8 +2203,6 @@ function findPlayer() {
   }
 
 
-  /* Make sure the Player has a rendered element */
-
   if (!playerObject.element) {
 
     renderObject(
@@ -2212,6 +2215,7 @@ function findPlayer() {
   return true;
 
 }
+
 
 /* ---------------------------------------------------------
    START PHYSICS
@@ -2251,15 +2255,6 @@ function stopPhysics() {
 
 }
 
-/* =========================================================
-   PHYSICS
-   ========================================================= */
-
-const GRAVITY = 0.6;
-const MAX_FALL_SPEED = 15;
-const MOVE_SPEED = 4;
-const JUMP_FORCE = 11;
-
 
 /* ---------------------------------------------------------
    PHYSICS LOOP
@@ -2283,9 +2278,7 @@ function physicsLoop() {
   }
 
 
-  /* -----------------------------------------
-     PLAYER VELOCITY
-     ----------------------------------------- */
+  /* PLAYER VELOCITY */
 
   if (
     typeof playerObject.velocityX !==
@@ -2307,9 +2300,7 @@ function physicsLoop() {
   }
 
 
-  /* -----------------------------------------
-     GRAVITY
-     ----------------------------------------- */
+  /* GRAVITY */
 
   playerObject.velocityY +=
     GRAVITY;
@@ -2326,21 +2317,16 @@ function physicsLoop() {
   }
 
 
-  /* -----------------------------------------
-     MOVEMENT
-     ----------------------------------------- */
+  /* MOVEMENT */
 
   playerObject.x +=
     playerObject.velocityX;
-
 
   playerObject.y +=
     playerObject.velocityY;
 
 
-  /* -----------------------------------------
-     UPDATE VISUAL
-     ----------------------------------------- */
+  /* UPDATE VISUAL */
 
   if (
     playerObject.element
