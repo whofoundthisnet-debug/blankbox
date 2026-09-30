@@ -2170,7 +2170,7 @@ let playerObject = null;
 
 let physicsRunning = false;
 let physicsFrame = null;
-
+let playStartPositions = new Map();
 
 const GRAVITY = 0.6;
 const MAX_FALL_SPEED = 15;
@@ -2222,9 +2222,24 @@ function findPlayer() {
    --------------------------------------------------------- */
 
 function startPhysics() {
-  if (physicsRunning) return;
+  stopPhysics();
 
   if (!findPlayer()) return;
+
+  // Remember where every object started
+  playStartPositions.clear();
+
+  objects.forEach(object => {
+    playStartPositions.set(object.id, {
+      x: object.x,
+      y: object.y
+    });
+  });
+
+  // Reset player physics
+  playerObject.velocityX = 0;
+  playerObject.velocityY = 0;
+  playerObject.grounded = false;
 
   physicsRunning = true;
   physicsFrame = requestAnimationFrame(physicsLoop);
@@ -2242,6 +2257,29 @@ function stopPhysics() {
     cancelAnimationFrame(physicsFrame);
     physicsFrame = null;
   }
+
+  // Put everything back where it was when PLAY started
+  objects.forEach(object => {
+    const start = playStartPositions.get(object.id);
+
+    if (!start) return;
+
+    object.x = start.x;
+    object.y = start.y;
+
+    if (object.element) {
+      object.element.style.left = `${object.x}px`;
+      object.element.style.top = `${object.y}px`;
+    }
+  });
+
+  if (playerObject) {
+    playerObject.velocityX = 0;
+    playerObject.velocityY = 0;
+    playerObject.grounded = false;
+  }
+
+  playStartPositions.clear();
 }
 /* ---------------------------------------------------------
    PHYSICS LOOP
