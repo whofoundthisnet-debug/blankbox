@@ -2372,16 +2372,12 @@ checkPlatformCollision();
     );
 
 }
- function checkPlatformCollision() {
+function checkPlatformCollision() {
   const player = playerObject;
   if (!player || !player.element) return;
 
-  const playerWidth = player.element.offsetWidth;
-  const playerHeight = player.element.offsetHeight;
-
-  const playerLeft = player.x;
-  const playerRight = player.x + playerWidth;
-  const playerBottom = player.y + playerHeight;
+  const workspaceRect = workspace.getBoundingClientRect();
+  const playerRect = player.element.getBoundingClientRect();
 
   player.grounded = false;
 
@@ -2389,33 +2385,39 @@ checkPlatformCollision();
     if (!platform.element) continue;
     if (platform.type.toLowerCase() !== "platform") continue;
 
-    const platformWidth = platform.element.offsetWidth;
-
-    const platformLeft = platform.x;
-    const platformRight = platform.x + platformWidth;
-    const platformTop = platform.y;
+    const platformRect = platform.element.getBoundingClientRect();
 
     const horizontalOverlap =
-      playerRight > platformLeft &&
-      playerLeft < platformRight;
+      playerRect.right > platformRect.left &&
+      playerRect.left < platformRect.right;
 
-    const wasAbovePlatform =
-      playerBottom - player.velocityY <= platformTop;
+    const falling =
+      player.velocityY >= 0;
 
-    const reachedPlatform =
-      playerBottom >= platformTop;
+    const crossingTop =
+      playerRect.bottom >= platformRect.top &&
+      playerRect.bottom - player.velocityY <= platformRect.top;
 
-    if (
-      player.velocityY >= 0 &&
-      horizontalOverlap &&
-      wasAbovePlatform &&
-      reachedPlatform
-    ) {
+    if (falling && horizontalOverlap && crossingTop) {
+
+      // Convert the platform's screen position
+      // back into workspace coordinates.
+      const platformTop =
+        platformRect.top -
+        workspaceRect.top;
+
+      const playerHeight =
+        playerRect.height;
+
       player.y = platformTop - playerHeight;
+
       player.velocityY = 0;
       player.grounded = true;
 
-      break;
+      player.element.style.top =
+        `${player.y}px`;
+
+      return;
     }
   }
 }
