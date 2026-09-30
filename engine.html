@@ -2376,7 +2376,12 @@ checkPlatformCollision();
   const player = playerObject;
   if (!player || !player.element) return;
 
-  const playerRect = player.element.getBoundingClientRect();
+  const playerWidth = player.element.offsetWidth;
+  const playerHeight = player.element.offsetHeight;
+
+  const playerLeft = player.x;
+  const playerRight = player.x + playerWidth;
+  const playerBottom = player.y + playerHeight;
 
   player.grounded = false;
 
@@ -2384,26 +2389,29 @@ checkPlatformCollision();
     if (!platform.element) continue;
     if (platform.type.toLowerCase() !== "platform") continue;
 
-    const platformRect = platform.element.getBoundingClientRect();
+    const platformWidth = platform.element.offsetWidth;
+
+    const platformLeft = platform.x;
+    const platformRight = platform.x + platformWidth;
+    const platformTop = platform.y;
 
     const horizontalOverlap =
-      playerRect.right > platformRect.left &&
-      playerRect.left < platformRect.right;
+      playerRight > platformLeft &&
+      playerLeft < platformRight;
 
-    const playerBottom = playerRect.bottom;
-    const platformTop = platformRect.top;
-
-    const crossingTop =
-      player.velocityY >= 0 &&
-      playerBottom >= platformTop &&
+    const wasAbovePlatform =
       playerBottom - player.velocityY <= platformTop;
 
-    if (horizontalOverlap && crossingTop) {
-      const correction =
-        platformTop - playerRect.bottom;
+    const reachedPlatform =
+      playerBottom >= platformTop;
 
-      player.y += correction;
-
+    if (
+      player.velocityY >= 0 &&
+      horizontalOverlap &&
+      wasAbovePlatform &&
+      reachedPlatform
+    ) {
+      player.y = platformTop - playerHeight;
       player.velocityY = 0;
       player.grounded = true;
 
