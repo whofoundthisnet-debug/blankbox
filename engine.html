@@ -2372,16 +2372,11 @@ checkPlatformCollision();
     );
 
 }
-  function checkPlatformCollision() {
+ function checkPlatformCollision() {
   const player = playerObject;
   if (!player || !player.element) return;
 
-  const playerWidth = player.element.offsetWidth;
-  const playerHeight = player.element.offsetHeight;
-
-  const playerLeft = player.x;
-  const playerRight = player.x + playerWidth;
-  const playerBottom = player.y + playerHeight;
+  const playerRect = player.element.getBoundingClientRect();
 
   player.grounded = false;
 
@@ -2389,26 +2384,29 @@ checkPlatformCollision();
     if (!platform.element) continue;
     if (platform.type.toLowerCase() !== "platform") continue;
 
-    const platformWidth = platform.element.offsetWidth;
-    const platformHeight = platform.element.offsetHeight;
+    const platformRect = platform.element.getBoundingClientRect();
 
-    const platformLeft = platform.x;
-    const platformRight = platform.x + platformWidth;
-    const platformTop = platform.y;
+    const horizontalOverlap =
+      playerRect.right > platformRect.left &&
+      playerRect.left < platformRect.right;
 
-    const touchingHorizontally =
-      playerRight > platformLeft &&
-      playerLeft < platformRight;
+    const playerBottom = playerRect.bottom;
+    const platformTop = platformRect.top;
 
-    const landingOnTop =
+    const crossingTop =
       player.velocityY >= 0 &&
       playerBottom >= platformTop &&
       playerBottom - player.velocityY <= platformTop;
 
-    if (touchingHorizontally && landingOnTop) {
-      player.y = platformTop - playerHeight;
+    if (horizontalOverlap && crossingTop) {
+      const correction =
+        platformTop - playerRect.bottom;
+
+      player.y += correction;
+
       player.velocityY = 0;
       player.grounded = true;
+
       break;
     }
   }
