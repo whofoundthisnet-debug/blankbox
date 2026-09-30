@@ -2349,7 +2349,7 @@ function physicsLoop() {
 
   playerObject.y +=
     playerObject.velocityY;
-
+checkPlatformCollision();
 
   /* UPDATE VISUAL */
 
@@ -2371,6 +2371,47 @@ function physicsLoop() {
       physicsLoop
     );
 
+}
+  function checkPlatformCollision() {
+  const player = playerObject;
+  if (!player || !player.element) return;
+
+  const playerWidth = player.element.offsetWidth;
+  const playerHeight = player.element.offsetHeight;
+
+  const playerLeft = player.x;
+  const playerRight = player.x + playerWidth;
+  const playerBottom = player.y + playerHeight;
+
+  player.grounded = false;
+
+  for (const platform of objects) {
+    if (!platform.element) continue;
+    if (platform.type.toLowerCase() !== "platform") continue;
+
+    const platformWidth = platform.element.offsetWidth;
+    const platformHeight = platform.element.offsetHeight;
+
+    const platformLeft = platform.x;
+    const platformRight = platform.x + platformWidth;
+    const platformTop = platform.y;
+
+    const touchingHorizontally =
+      playerRight > platformLeft &&
+      playerLeft < platformRight;
+
+    const landingOnTop =
+      player.velocityY >= 0 &&
+      playerBottom >= platformTop &&
+      playerBottom - player.velocityY <= platformTop;
+
+    if (touchingHorizontally && landingOnTop) {
+      player.y = platformTop - playerHeight;
+      player.velocityY = 0;
+      player.grounded = true;
+      break;
+    }
+  }
 }
 /* =========================================================
    ENTER PLAY MODE
