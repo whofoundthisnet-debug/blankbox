@@ -797,7 +797,8 @@ function createObject(type) {
         Math.random() * 10000
       ),
 
-    type: type,
+    type:
+      type,
 
     name:
       type.charAt(0).toUpperCase() +
@@ -810,28 +811,28 @@ function createObject(type) {
     behaviors: {
 
       movement:
-        type === "player",
+        type.toLowerCase() === "player",
 
       jumping:
-        type === "player",
+        type.toLowerCase() === "player",
 
       chasePlayer:
-        type === "enemy",
+        type.toLowerCase() === "enemy",
 
       contactDamage:
-        type === "enemy",
+        type.toLowerCase() === "enemy",
 
       solid:
-        type === "platform",
+        type.toLowerCase() === "platform",
 
       ranged:
-        type === "weapon",
+        type.toLowerCase() === "weapon",
 
       dialogue:
-        type === "npc",
+        type.toLowerCase() === "npc",
 
       pickup:
-        type === "item"
+        type.toLowerCase() === "item"
 
     },
 
@@ -843,7 +844,8 @@ function createObject(type) {
       100 +
       Math.random() * 200,
 
-    spriteCode: null
+    spriteCode:
+      null
 
   };
 
@@ -853,8 +855,10 @@ function createObject(type) {
   );
 
 
+  /* Render the ACTUAL object */
+
   renderObject(
-   object.el
+    object
   );
 
 
@@ -866,7 +870,6 @@ function createObject(type) {
   saveEngine();
 
 }
-
 
 /* =========================================================
    RENDER OBJECT
