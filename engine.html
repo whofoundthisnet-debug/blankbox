@@ -2326,7 +2326,13 @@ function physicsLoop() {
 
 
   /* GRAVITY */
-
+if (
+  (keys["Space"] || keys["KeyW"] || keys["ArrowUp"]) &&
+  playerObject.grounded
+) {
+  playerObject.velocityY = -JUMP_FORCE;
+  playerObject.grounded = false;
+}
   playerObject.velocityY +=
     GRAVITY;
 
@@ -2505,7 +2511,7 @@ function enterPlayMode() {
   startPhysics();
 
 }
- const keys = {};
+const keys = {};
 
 window.addEventListener("keydown", event => {
   if (!playMode) return;
