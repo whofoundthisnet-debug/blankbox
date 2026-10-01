@@ -2343,7 +2343,13 @@ function physicsLoop() {
 
 
   /* MOVEMENT */
-
+if (keys["a"] || keys["arrowleft"]) {
+  playerObject.velocityX = -MOVE_SPEED;
+} else if (keys["d"] || keys["arrowright"]) {
+  playerObject.velocityX = MOVE_SPEED;
+} else {
+  playerObject.velocityX = 0;
+}
   playerObject.x +=
     playerObject.velocityX;
 
@@ -2499,6 +2505,17 @@ function enterPlayMode() {
   startPhysics();
 
 }
+  const keys = {};
+
+window.addEventListener("keydown", event => {
+  if (!playMode) return;
+
+  keys[event.key.toLowerCase()] = true;
+});
+
+window.addEventListener("keyup", event => {
+  keys[event.key.toLowerCase()] = false;
+});
 /* =========================================================
    EXIT PLAY MODE
    ========================================================= */
