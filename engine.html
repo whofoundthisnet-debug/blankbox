@@ -2511,10 +2511,17 @@ window.addEventListener("keydown", event => {
   if (!playMode) return;
 
   keys[event.code] = true;
-});
 
-window.addEventListener("keyup", event => {
-  keys[event.code] = false;
+  if (
+    (event.code === "Space" ||
+     event.code === "KeyW" ||
+     event.code === "ArrowUp") &&
+    playerObject &&
+    playerObject.grounded
+  ) {
+    playerObject.velocityY = -JUMP_FORCE;
+    playerObject.grounded = false;
+  }
 });
 /* =========================================================
    EXIT PLAY MODE
