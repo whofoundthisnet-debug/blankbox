@@ -2511,16 +2511,19 @@ window.addEventListener("keydown", event => {
   if (!playMode) return;
 
   keys[event.code] = true;
+});
 
-  if (
-    (event.code === "Space" ||
-     event.code === "KeyW" ||
-     event.code === "ArrowUp") &&
-    playerObject &&
-    playerObject.grounded
-  ) {
-    playerObject.velocityY = -JUMP_FORCE;
-    playerObject.grounded = false;
+window.addEventListener("keyup", event => {
+  keys[event.code] = false;
+});
+
+window.addEventListener("blur", () => {
+  for (const key in keys) {
+    keys[key] = false;
+  }
+
+  if (playerObject) {
+    playerObject.velocityX = 0;
   }
 });
 /* =========================================================
