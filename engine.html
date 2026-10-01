@@ -882,6 +882,15 @@ function renderObject(object) {
       "div"
     );
 
+  element.classList.add(
+    "gameObject",
+    object.type
+  );
+
+  if (object.spriteCode) {
+    element.classList.add("hasSprite");
+  }
+
 
   element.classList.add(
     "gameObject",
