@@ -256,7 +256,7 @@ h1 {
         Create your first game to get started.
 
         <br>
-
+        <button id="quitButton">QUIT</button>
         <button id="emptyNewProject">
             + CREATE PROJECT
         </button>
@@ -528,7 +528,9 @@ function renderProjects() {
 
 }
 
-
+document.getElementById("quitButton").addEventListener("click", () => {
+  window.location.href = "https://github.com/whofoundthisnet-debug/blankbox";
+});
 /* -------------------------
    START
 ------------------------- */
