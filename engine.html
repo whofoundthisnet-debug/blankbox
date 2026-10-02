@@ -811,6 +811,23 @@ function createObject(type) {
     health: 100,
 
     speed: 5,
+    aiEnabled:
+  type.toLowerCase() === "enemy",
+
+aiBehavior:
+  type.toLowerCase() === "enemy"
+    ? "chase"
+    : null,
+
+aiDetectionRange:
+  type.toLowerCase() === "enemy"
+    ? 300
+    : 0,
+
+aiAttackRange:
+  type.toLowerCase() === "enemy"
+    ? 40
+    : 0,
 
     behaviors: {
 
@@ -2294,6 +2311,43 @@ function stopPhysics() {
 
   playStartPositions.clear();
 }
+  function updateEnemyAI() {
+  if (!playerObject) return;
+
+  for (const enemy of objects) {
+    if (!enemy.element) continue;
+    if (enemy.type.toLowerCase() !== "enemy") continue;
+    if (!enemy.aiEnabled) continue;
+
+    if (enemy.aiBehavior !== "chase") continue;
+
+    const dx = playerObject.x - enemy.x;
+    const dy = playerObject.y - enemy.y;
+
+    const distance = Math.sqrt(
+      dx * dx + dy * dy
+    );
+
+    if (distance > enemy.aiDetectionRange) {
+      enemy.velocityX = 0;
+      continue;
+    }
+
+    if (Math.abs(dx) > 5) {
+      enemy.velocityX =
+        dx > 0
+          ? enemy.speed
+          : -enemy.speed;
+    } else {
+      enemy.velocityX = 0;
+    }
+
+    enemy.x += enemy.velocityX;
+
+    enemy.element.style.left =
+      `${enemy.x}px`;
+  }
+}
 /* ---------------------------------------------------------
    PHYSICS LOOP
    --------------------------------------------------------- */
@@ -2374,6 +2428,7 @@ if (keys["KeyA"] || keys["ArrowLeft"]) {
 
   playerObject.y +=
     playerObject.velocityY;
+  updateEnemyAI();
 checkPlatformCollision();
 
   /* UPDATE VISUAL */
