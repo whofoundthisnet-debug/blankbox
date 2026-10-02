@@ -809,8 +809,23 @@ function createObject(type) {
       type.slice(1),
 
     health: 100,
+maxHealth: 100,
 
-    speed: 5,
+healthType:
+  type.toLowerCase() === "player"
+    ? "number"
+    : "number",
+
+heartCount:
+  type.toLowerCase() === "player"
+    ? 7
+    : 0,
+
+damagePerHit: 1,
+
+invincibilityTime: 1,
+
+speed: 5,
     aiEnabled:
   type.toLowerCase() === "enemy",
 
