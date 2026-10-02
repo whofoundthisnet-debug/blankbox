@@ -615,19 +615,82 @@
 
       </div>
 
+<div class="property">
 
-      <div class="property">
+  <label>
+    Health Type
+  </label>
 
-        <label>
-          Health
-        </label>
+  <select id="healthTypeInput">
+    <option value="hearts">Hearts</option>
+    <option value="number">Number</option>
+    <option value="bar">Bar</option>
+    <option value="oneHit">One Hit</option>
+    <option value="none">None</option>
+  </select>
 
-        <input
-          id="healthInput"
-          type="number"
-        >
+</div>
 
-      </div>
+
+<div class="property" id="maxHealthProperty">
+
+  <label>
+    Maximum Health
+  </label>
+
+  <input
+    id="maxHealthInput"
+    type="number"
+    min="1"
+  >
+
+</div>
+
+
+<div class="property" id="heartCountProperty">
+
+  <label>
+    Hearts
+  </label>
+
+  <input
+    id="heartCountInput"
+    type="number"
+    min="1"
+  >
+
+</div>
+
+
+<div class="property">
+
+  <label>
+    Damage Per Hit
+  </label>
+
+  <input
+    id="damagePerHitInput"
+    type="number"
+    min="1"
+  >
+
+</div>
+
+
+<div class="property">
+
+  <label>
+    Invincibility Time
+  </label>
+
+  <input
+    id="invincibilityInput"
+    type="number"
+    min="0"
+    step="0.1"
+  >
+
+</div>
 
 
       <div class="property">
@@ -720,9 +783,6 @@ const selectedObject =
 const nameInput =
   document.getElementById("nameInput");
 
-const healthInput =
-  document.getElementById("healthInput");
-
 const speedInput =
   document.getElementById("speedInput");
 
@@ -754,7 +814,26 @@ let objects = [];
 let selected = null;
 
 let playMode = false;
+const healthTypeInput =
+  document.getElementById("healthTypeInput");
 
+const maxHealthInput =
+  document.getElementById("maxHealthInput");
+
+const heartCountInput =
+  document.getElementById("heartCountInput");
+
+const damagePerHitInput =
+  document.getElementById("damagePerHitInput");
+
+const invincibilityInput =
+  document.getElementById("invincibilityInput");
+
+const maxHealthProperty =
+  document.getElementById("maxHealthProperty");
+
+const heartCountProperty =
+  document.getElementById("heartCountProperty");
 
 /* =========================================================
    NOTIFICATION
@@ -804,18 +883,26 @@ function createObject(type) {
     type:
       type,
 
-    name:
-      type.charAt(0).toUpperCase() +
-      type.slice(1),
+   name:
+  type.charAt(0).toUpperCase() +
+  type.slice(1),
 
-    health: 100,
+health: 100,
 maxHealth: 100,
 
 healthType:
   type.toLowerCase() === "player"
-    ? "number"
+    ? "hearts"
     : "number",
 
+heartCount:
+  type.toLowerCase() === "player"
+    ? 7
+    : 0,
+
+damagePerHit: 1,
+
+invincibilityTime: 1,
 heartCount:
   type.toLowerCase() === "player"
     ? 7
@@ -1847,20 +1934,99 @@ nameInput.addEventListener(
   }
 );
 
+healthTypeInput.addEventListener(
+  "change",
+  () => {
 
-healthInput.addEventListener(
+    if (!selected)
+      return;
+
+    selected.healthType =
+      healthTypeInput.value;
+
+    updateHealthSettings();
+
+    saveEngine();
+
+  }
+);
+
+
+maxHealthInput.addEventListener(
   "input",
   () => {
 
     if (!selected)
       return;
 
+    selected.maxHealth =
+      Math.max(
+        1,
+        Number(maxHealthInput.value) || 1
+      );
 
     selected.health =
-      Number(
-        healthInput.value
-      ) || 0;
+      Math.min(
+        selected.health ?? selected.maxHealth,
+        selected.maxHealth
+      );
 
+    saveEngine();
+
+  }
+);
+
+
+heartCountInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.heartCount =
+      Math.max(
+        1,
+        Number(heartCountInput.value) || 1
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+damagePerHitInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.damagePerHit =
+      Math.max(
+        1,
+        Number(damagePerHitInput.value) || 1
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+invincibilityInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.invincibilityTime =
+      Math.max(
+        0,
+        Number(invincibilityInput.value) || 0
+      );
 
     saveEngine();
 
@@ -1887,7 +2053,31 @@ speedInput.addEventListener(
   }
 );
 
+function updateHealthSettings() {
 
+  if (!selected)
+    return;
+
+  const type =
+    selected.healthType || "hearts";
+
+  if (maxHealthProperty) {
+    maxHealthProperty.style.display =
+      type === "hearts" ||
+      type === "number" ||
+      type === "bar"
+        ? "block"
+        : "none";
+  }
+
+  if (heartCountProperty) {
+    heartCountProperty.style.display =
+      type === "hearts"
+        ? "block"
+        : "none";
+  }
+
+}
 /* =========================================================
    CREATE BUTTONS
    ========================================================= */
