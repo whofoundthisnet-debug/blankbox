@@ -1,1 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blank Box Multiplayer</title>
 
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: #202020;
+    overflow: hidden;
+  }
+
+  #status {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 20;
+    background: #181818;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #444;
+  }
+
+  #codeBox {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 20;
+    background: #181818;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    text-align: center;
+  }
+
+  #gameCode {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 3px;
+  }
+
+  .player {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+  }
+
+  #localPlayer {
+    background: #4da6ff;
+  }
+
+  #remotePlayer {
+    background: #ff6b6b;
+    display: none;
+  }
+
+  #leaveButton {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    z-index: 20;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+  <div id="status">
+    Connecting...
+  </div>
+
+  <div id="codeBox">
+    GAME CODE
+    <div id="gameCode">------</div>
+  </div>
+
+  <div id="localPlayer" class="player"></div>
+  <div id="remotePlayer" class="player"></div>
+
+  <button id="leaveButton">Leave Game</button>
+
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<script>
+const status = document.getElementById("status");
+const gameCode = document.getElementById("gameCode");
+const localPlayer = document.getElementById("localPlayer");
+const remotePlayer = document.getElementById("remotePlayer");
+const leaveButton = document.getElementById("leaveButton");
+
+const keys = {};
+
+let peer;
+let connection = null;
+let isHost = true;
+
+const local = {
+  x: 200,
+  y: 200,
+  vx: 0,
+  vy: 0
+};
+
+const remote = {
+  x: 400,
+  y: 200,
+  vx: 0,
+  vy: 0
+};
+
+const SPEED = 4;
+
+function makeGameCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  let code = "";
+
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return code;
+}
+
+function updateLocalVisual() {
+  localPlayer.style.left = `${local.x}px`;
+  localPlayer.style.top = `${local.y}px`;
+}
+
+function updateRemoteVisual() {
+  remotePlayer.style.left = `${remote.x}px`;
+  remotePlayer.style.top = `${remote.y}px`;
+}
+
+function sendState() {
+  if (!connection || !connection.open) return;
+
+  connection.send({
+    type: "playerState",
+    x: local.x,
+    y: local.y,
+    vx: local.vx,
+    vy: local.vy
+  });
+}
+
+function setupConnection(conn) {
+
+  connection = conn;
+
+  connection.on("open", () => {
+
+    status.textContent = "CONNECTED";
+
+    remotePlayer.style.display = "block";
+
+    connection.send({
+      type: "hello",
+      x: local.x,
+      y: local.y
+    });
+
+  });
+
+  connection.on("data", data => {
+
+    if (!data || typeof data !== "object") {
+      return;
+    }
+
+    if (data.type === "playerState") {
+
+      if (typeof data.x === "number") {
+        remote.x = data.x;
+      }
+
+      if (typeof data.y === "number") {
+        remote.y = data.y;
+      }
+
+      if (typeof data.vx === "number") {
+        remote.vx = data.vx;
+      }
+
+      if (typeof data.vy === "number") {
+        remote.vy = data.vy;
+      }
+
+      updateRemoteVisual();
+    }
+
+    if (data.type === "hello") {
+
+      remote.x = data.x ?? remote.x;
+      remote.y = data.y ?? remote.y;
+
+      updateRemoteVisual();
+
+      sendState();
+    }
+  });
+
+  connection.on("close", () => {
+
+    status.textContent = "PLAYER DISCONNECTED";
+
+    remotePlayer.style.display = "none";
+
+  });
+
+  connection.on("error", error => {
+
+    console.error(error);
+
+    status.textContent = "CONNECTION ERROR";
+
+  });
+}
+
+function createGame() {
+
+  isHost = true;
+
+  const code = makeGameCode();
+
+  /*
+    The actual Peer ID is different from the
+    friendly game code shown to the player.
+
+    We use the generated code as the peer ID
+    for this prototype.
+  */
+
+  peer = new Peer(`blankbox-${code}`);
+
+  peer.on("open", () => {
+
+    gameCode.textContent = code;
+
+    status.textContent = "WAITING FOR PLAYER";
+
+  });
+
+  peer.on("connection", conn => {
+
+    if (connection) {
+      conn.close();
+      return;
+    }
+
+    setupConnection(conn);
+
+  });
+
+  peer.on("error", error => {
+
+    console.error(error);
+
+    status.textContent =
+      "ROOM ERROR: " + error.type;
+
+  });
+}
+
+function connectToGame(code) {
+
+  isHost = false;
+
+  peer = new Peer();
+
+  peer.on("open", () => {
+
+    status.textContent = "CONNECTING TO GAME...";
+
+    const conn = peer.connect(
+      `blankbox-${code}`,
+      {
+        reliable: true
+      }
+    );
+
+    setupConnection(conn);
+
+  });
+
+  peer.on("error", error => {
+
+    console.error(error);
+
+    status.textContent =
+      "JOIN ERROR: " + error.type;
+
+  });
+}
+
+window.addEventListener("keydown", event => {
+
+  keys[event.code] = true;
+
+});
+
+window.addEventListener("keyup", event => {
+
+  keys[event.code] = false;
+
+});
+
+function gameLoop() {
+
+  local.vx = 0;
+
+  if (keys["KeyA"] || keys["ArrowLeft"]) {
+    local.vx = -SPEED;
+  }
+
+  if (keys["KeyD"] || keys["ArrowRight"]) {
+    local.vx = SPEED;
+  }
+
+  local.vy = 0;
+
+  if (keys["KeyW"] || keys["ArrowUp"]) {
+    local.vy = -SPEED;
+  }
+
+  if (keys["KeyS"] || keys["ArrowDown"]) {
+    local.vy = SPEED;
+  }
+
+  local.x += local.vx;
+  local.y += local.vy;
+
+  local.x = Math.max(
+    0,
+    Math.min(
+      window.innerWidth - 40,
+      local.x
+    )
+  );
+
+  local.y = Math.max(
+    0,
+    Math.min(
+      window.innerHeight - 40,
+      local.y
+    )
+  );
+
+  updateLocalVisual();
+
+  sendState();
+
+  requestAnimationFrame(gameLoop);
+}
+
+leaveButton.addEventListener("click", () => {
+
+  if (connection) {
+    connection.close();
+  }
+
+  if (peer) {
+    peer.destroy();
+  }
+
+  window.location.href = "projects.html";
+
+});
+
+updateLocalVisual();
+
+gameLoop();
+
+const params =
+  new URLSearchParams(window.location.search);
+
+const joinCode =
+  params.get("join");
+
+if (joinCode) {
+
+  isHost = false;
+
+  gameCode.textContent =
+    joinCode.toUpperCase();
+
+  createJoinConnection =
+    connectToGame(joinCode.toUpperCase());
+
+} else {
+
+  createGame();
+
+}
+</script>
+
+</body>
+</html>
