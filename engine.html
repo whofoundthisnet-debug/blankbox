@@ -903,15 +903,6 @@ heartCount:
 damagePerHit: 1,
 
 invincibilityTime: 1,
-heartCount:
-  type.toLowerCase() === "player"
-    ? 7
-    : 0,
-
-damagePerHit: 1,
-
-invincibilityTime: 1,
-
 speed: 5,
     aiEnabled:
   type.toLowerCase() === "enemy",
@@ -1065,8 +1056,7 @@ function renderObject(object) {
     "pointerdown",
     (event) => {
 
-      if (playMode)
-        return;
+    if (playMode) return;
 
 
       event.preventDefault();
@@ -1308,14 +1298,28 @@ function selectObject(object) {
     object.type.toUpperCase();
 
 
-  nameInput.value =
-    object.name;
+ nameInput.value =
+  object.name;
 
-  healthInput.value =
-    object.health;
+healthTypeInput.value =
+  object.healthType || "hearts";
 
-  speedInput.value =
-    object.speed;
+maxHealthInput.value =
+  object.maxHealth ?? 100;
+
+heartCountInput.value =
+  object.heartCount ?? 7;
+
+damagePerHitInput.value =
+  object.damagePerHit ?? 1;
+
+invincibilityInput.value =
+  object.invincibilityTime ?? 1;
+
+speedInput.value =
+  object.speed;
+
+updateHealthSettings();
 
 
   /* BEHAVIORS */
@@ -2202,11 +2206,26 @@ function saveEngine() {
         name:
           object.name,
 
-        health:
-          object.health,
+      health:
+  object.health,
 
-        speed:
-          object.speed,
+maxHealth:
+  object.maxHealth,
+
+healthType:
+  object.healthType,
+
+heartCount:
+  object.heartCount,
+
+damagePerHit:
+  object.damagePerHit,
+
+invincibilityTime:
+  object.invincibilityTime,
+
+speed:
+  object.speed,
 
         behaviors:
           object.behaviors,
