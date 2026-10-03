@@ -2935,7 +2935,6 @@ function generateGameCode() {
   return code;
 }
 
-
 gameCodeButton.addEventListener(
   "click",
   () => {
@@ -2943,12 +2942,47 @@ gameCodeButton.addEventListener(
     gameCode =
       generateGameCode();
 
+    multiplayerMode = true;
+    multiplayerHost = true;
+
+    localPlayerNumber = 1;
+
+    const player =
+      objects.find(
+        object =>
+          object.type &&
+          object.type.toLowerCase() === "player"
+      );
+
+    if (!player) {
+
+      notify("Create a Player first.");
+
+      multiplayerMode = false;
+      multiplayerHost = false;
+      localPlayerNumber = null;
+
+      return;
+    }
+
+    player.playerNumber = 1;
+
+    localPlayerId =
+      player.id;
+
+    hostPlayerId =
+      player.id;
+
     gameCodeButton.textContent =
-      `CODE: ${gameCode}`;
+      `P1 CODE: ${gameCode}`;
 
     console.log(
       "Blank Box Game Code:",
       gameCode
+    );
+
+    console.log(
+      "You are Player 1"
     );
 
   }
