@@ -2915,7 +2915,7 @@ function generateGameCode() {
   const characters =
     "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-  let code = "BX-";
+  let code = "";
 
   for (let i = 0; i < 6; i++) {
 
@@ -2928,6 +2928,9 @@ function generateGameCode() {
       ];
 
   }
+
+  return code;
+}
 
   return code;
 }
