@@ -817,6 +817,20 @@ let objects = [];
 let selected = null;
 
 let playMode = false;
+let multiplayerMode = false;
+let multiplayerHost = false;
+let multiplayerConnected = false;
+
+let multiplayerPeer = null;
+let multiplayerConnection = null;
+
+let currentGameCode = null;
+
+let localPlayerNumber = null;
+let localPlayerId = null;
+
+let hostPlayerId = null;
+let guestPlayerId = null;
 const healthTypeInput =
   document.getElementById("healthTypeInput");
 
