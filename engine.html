@@ -2907,7 +2907,7 @@ stopButton.addEventListener(
   exitPlayMode
 );
 /* =========================================================
-   GAME CODE
+   GAME CODE / MULTIPLAYER
    ========================================================= */
 
 function generateGameCode() {
@@ -2932,34 +2932,20 @@ function generateGameCode() {
   return code;
 }
 
-  return code;
-}
 
-gameCodeButton.addEventListener(
-  "click",
-  () => {
+/* =========================================================
+   CREATE PLAYER 2
+   ========================================================= */
 
-    gameCode =
-      generateGameCode();
-
-    multiplayerMode = true;
-    multiplayerHost = true;
-
-    localPlayerNumber = 1;
-
-    const player =
-      objects.find(
-        object =>
-          object.type &&
-          object.type.toLowerCase() === "player"
-      );
 function createPlayerTwo() {
 
   const playerTwo = {
 
     id:
       Date.now() +
-      Math.floor(Math.random() * 10000),
+      Math.floor(
+        Math.random() * 10000
+      ),
 
     type: "player",
 
@@ -2996,25 +2982,55 @@ function createPlayerTwo() {
 
     x: 200,
     y: 100,
+
     spriteCode: null
   };
-  function createGameSnapshot() {
+
+  objects.push(
+    playerTwo
+  );
+
+  renderObject(
+    playerTwo
+  );
+
+  return playerTwo;
+}
+
+
+/* =========================================================
+   GAME SNAPSHOT
+   ========================================================= */
+
+function createGameSnapshot() {
 
   return objects.map(object => {
 
     return {
-      id: object.id,
-      type: object.type,
-      name: object.name,
+
+      id:
+        object.id,
+
+      type:
+        object.type,
+
+      name:
+        object.name,
 
       playerNumber:
         object.playerNumber ?? null,
 
-      health: object.health,
-      maxHealth: object.maxHealth,
+      health:
+        object.health,
 
-      healthType: object.healthType,
-      heartCount: object.heartCount,
+      maxHealth:
+        object.maxHealth,
+
+      healthType:
+        object.healthType,
+
+      heartCount:
+        object.heartCount,
 
       damagePerHit:
         object.damagePerHit,
@@ -3022,7 +3038,8 @@ function createPlayerTwo() {
       invincibilityTime:
         object.invincibilityTime,
 
-      speed: object.speed,
+      speed:
+        object.speed,
 
       aiEnabled:
         object.aiEnabled,
@@ -3039,64 +3056,185 @@ function createPlayerTwo() {
       behaviors:
         object.behaviors,
 
-      x: object.x,
-      y: object.y,
+      x:
+        object.x,
+
+      y:
+        object.y,
 
       spriteCode:
         object.spriteCode
+
     };
 
   });
+
 }
-  function loadMultiplayerGame(snapshot) {
+
+
+/* =========================================================
+   LOAD MULTIPLAYER GAME
+   ========================================================= */
+
+function loadMultiplayerGame(snapshot) {
 
   objects.forEach(object => {
 
     if (object.element) {
+
       object.element.remove();
+
     }
 
   });
 
   objects = [];
+
   selected = null;
 
   snapshot.forEach(data => {
 
     const object = {
+
       ...data,
+
       element: null,
+
       spriteCanvas: null
+
     };
 
-    objects.push(object);
+    objects.push(
+      object
+    );
 
-    renderObject(object);
+    renderObject(
+      object
+    );
 
   });
 
   if (localPlayerId) {
+
     findPlayer();
+
     enterPlayMode();
+
   }
 
 }
 
-  objects.push(playerTwo);
 
-  renderObject(playerTwo);
+/* =========================================================
+   UPDATE REMOTE PLAYER
+   ========================================================= */
 
-  return playerTwo;
+function updateRemotePlayer(
+  playerId,
+  x,
+  y
+) {
+
+  const player =
+    objects.find(
+      object =>
+        object.id === playerId
+    );
+
+  if (!player)
+    return;
+
+  if (
+    player.id === localPlayerId
+  )
+    return;
+
+  player.x = x;
+  player.y = y;
+
+  if (player.element) {
+
+    player.element.style.left =
+      `${x}px`;
+
+    player.element.style.top =
+      `${y}px`;
+
+  }
+
 }
+
+
+/* =========================================================
+   SEND PLAYER STATE
+   ========================================================= */
+
+function sendPlayerState() {
+
+  if (!multiplayerConnection)
+    return;
+
+  if (!playerObject)
+    return;
+
+  multiplayerConnection.send({
+
+    type:
+      "playerState",
+
+    playerId:
+      localPlayerId,
+
+    x:
+      playerObject.x,
+
+    y:
+      playerObject.y
+
+  });
+
+}
+
+
+/* =========================================================
+   GAME CODE BUTTON
+   ========================================================= */
+
+gameCodeButton.addEventListener(
+  "click",
+  () => {
+
+    gameCode =
+      generateGameCode();
+
+    multiplayerMode = true;
+
+    multiplayerHost = true;
+
+    localPlayerNumber = 1;
+
+    const player =
+      objects.find(
+        object =>
+          object.type &&
+          object.type.toLowerCase() ===
+          "player"
+      );
+
     if (!player) {
 
-      notify("Create a Player first.");
+      notify(
+        "Create a Player first."
+      );
 
       multiplayerMode = false;
+
       multiplayerHost = false;
+
       localPlayerNumber = null;
 
       return;
+
     }
 
     player.playerNumber = 1;
@@ -3120,138 +3258,228 @@ function createPlayerTwo() {
     );
 
   }
+);
+
+
+/* =========================================================
+   JOIN MULTIPLAYER GAME
+   ========================================================= */
+
 function joinMultiplayerGame(code) {
 
-  code = code.trim().toUpperCase();
+  code =
+    code.trim().toUpperCase();
 
   multiplayerMode = true;
+
   multiplayerHost = false;
 
   currentGameCode = code;
 
-  multiplayerPeer = new Peer();
+  multiplayerPeer =
+    new Peer();
 
-  multiplayerPeer.on("open", () => {
-
-    console.log(
-      "Joining game:",
-      code
-    );
-
-    multiplayerConnection =
-      multiplayerPeer.connect(
-        "blankbox-" + code
-      );
-
-    multiplayerConnection.on("open", () => {
+  multiplayerPeer.on(
+    "open",
+    () => {
 
       console.log(
-        "Connected to Player 1"
+        "Joining game:",
+        code
       );
 
-      multiplayerConnection.send({
-        type: "requestPlayer2"
-      });
+      multiplayerConnection =
+        multiplayerPeer.connect(
+          "blankbox-" + code
+        );
 
-    });
-// ===============================
-// PLAYER 2 / JOINER DATA
-// ===============================
+      multiplayerConnection.on(
+        "open",
+        () => {
 
-multiplayerConnection.on("data", data => {
+          console.log(
+            "Connected to Player 1"
+          );
 
-  if (!data) return;
+          multiplayerConnection.send({
 
-  if (data.type === "playerAssignment") {
+            type:
+              "requestPlayer2"
 
-    localPlayerNumber = data.playerNumber;
-    localPlayerId = data.playerId;
-    hostPlayerId = data.hostPlayerId;
+          });
 
-    console.log(
-      "You are Player " + localPlayerNumber
-    );
+        }
+      );
 
-    notify("You are Player 2");
-  }
 
-  if (data.type === "gameSnapshot") {
+      multiplayerConnection.on(
+        "data",
+        data => {
 
-    loadMultiplayerGame(
-      data.objects
-    );
+          if (!data)
+            return;
 
-  }
 
-  if (data.type === "gameFull") {
+          if (
+            data.type ===
+            "playerAssignment"
+          ) {
 
-    notify(
-      "That game already has two players."
-    );
+            localPlayerNumber =
+              data.playerNumber;
 
-    multiplayerMode = false;
+            localPlayerId =
+              data.playerId;
 
-  }
+            hostPlayerId =
+              data.hostPlayerId;
 
-  if (data.type === "playerState") {
+            console.log(
+              "You are Player " +
+              localPlayerNumber
+            );
 
-    updateRemotePlayer(
-      data.playerId,
-      data.x,
-      data.y
-    );
+            notify(
+              "You are Player 2"
+            );
 
-  }
+          }
 
-});
-    // ===============================
-// PLAYER 1 / HOST DATA
-// ===============================
 
-if (multiplayerHost) {
+          if (
+            data.type ===
+            "gameSnapshot"
+          ) {
 
-  multiplayerPeer.on("connection", connection => {
+            loadMultiplayerGame(
+              data.objects
+            );
 
-    console.log(
-      "Player 2 is connecting..."
-    );
+          }
 
-    multiplayerConnection = connection;
 
-    connection.on("open", () => {
+          if (
+            data.type ===
+            "gameFull"
+          ) {
+
+            notify(
+              "That game already has two players."
+            );
+
+            multiplayerMode = false;
+
+          }
+
+
+          if (
+            data.type ===
+            "playerState"
+          ) {
+
+            updateRemotePlayer(
+
+              data.playerId,
+
+              data.x,
+
+              data.y
+
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+  multiplayerPeer.on(
+    "error",
+    error => {
+
+      console.error(
+        "Multiplayer error:",
+        error
+      );
+
+      notify(
+        "Could not connect to that game."
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOST CONNECTION
+   ========================================================= */
+
+function setupHostConnection(
+  connection
+) {
+
+  multiplayerConnection =
+    connection;
+
+  connection.on(
+    "open",
+    () => {
 
       console.log(
         "Player 2 connected."
       );
 
-    });
+    }
+  );
 
-    connection.on("data", data => {
 
-      if (!data) return;
+  connection.on(
+    "data",
+    data => {
 
-      if (data.type === "requestPlayer2") {
+      if (!data)
+        return;
+
+
+      if (
+        data.type ===
+        "requestPlayer2"
+      ) {
 
         if (guestPlayerId) {
 
           connection.send({
-            type: "gameFull"
+
+            type:
+              "gameFull"
+
           });
 
           return;
+
         }
+
 
         const playerTwo =
           createPlayerTwo();
 
+
         guestPlayerId =
           playerTwo.id;
 
+
         connection.send({
 
-          type: "playerAssignment",
+          type:
+            "playerAssignment",
 
-          playerNumber: 2,
+          playerNumber:
+            2,
 
           playerId:
             playerTwo.id,
@@ -3261,14 +3489,17 @@ if (multiplayerHost) {
 
         });
 
+
         connection.send({
 
-          type: "gameSnapshot",
+          type:
+            "gameSnapshot",
 
           objects:
             createGameSnapshot()
 
         });
+
 
         console.log(
           "Player 2 assigned:",
@@ -3277,17 +3508,27 @@ if (multiplayerHost) {
 
       }
 
-      if (data.type === "playerState") {
+
+      if (
+        data.type ===
+        "playerState"
+      ) {
 
         updateRemotePlayer(
+
           data.playerId,
+
           data.x,
+
           data.y
+
         );
+
 
         connection.send({
 
-          type: "playerState",
+          type:
+            "playerState",
 
           playerId:
             data.playerId,
@@ -3302,11 +3543,42 @@ if (multiplayerHost) {
 
       }
 
-    });
-
-  });
+    }
+  );
 
 }
+
+
+/* =========================================================
+   HOST PEER CONNECTION
+   ========================================================= */
+
+function setupHostPeer() {
+
+  if (!multiplayerPeer)
+    return;
+
+  multiplayerPeer.on(
+    "connection",
+    connection => {
+
+      console.log(
+        "Player 2 is connecting..."
+      );
+
+      setupHostConnection(
+        connection
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   END MULTIPLAYER
+   ========================================================= */
 /* =========================================================
    START ENGINE
    ========================================================= */
