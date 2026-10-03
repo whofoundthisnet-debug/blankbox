@@ -808,7 +808,10 @@ const stopButton =
   document.getElementById("stopButton");
 const backButton =
     document.getElementById("backButton");
+const gameCodeButton =
+  document.getElementById("gameCodeButton");
 
+let gameCode = null;
 let objects = [];
 
 let selected = null;
@@ -2890,7 +2893,51 @@ stopButton.addEventListener(
   exitPlayMode
 );
 
+/* =========================================================
+   GAME CODE
+   ========================================================= */
 
+function generateGameCode() {
+
+  const characters =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  let code = "BX-";
+
+  for (let i = 0; i < 6; i++) {
+
+    code +=
+      characters[
+        Math.floor(
+          Math.random() *
+          characters.length
+        )
+      ];
+
+  }
+
+  return code;
+}
+
+
+gameCodeButton.addEventListener(
+  "click",
+  () => {
+
+    gameCode =
+      generateGameCode();
+
+    notify(
+      `GAME CODE: ${gameCode}`
+    );
+
+    console.log(
+      "Blank Box Game Code:",
+      gameCode
+    );
+
+  }
+);
 /* =========================================================
    START ENGINE
    ========================================================= */
