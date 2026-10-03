@@ -2892,7 +2892,6 @@ stopButton.addEventListener(
   "click",
   exitPlayMode
 );
-
 /* =========================================================
    GAME CODE
    ========================================================= */
@@ -2927,9 +2926,8 @@ gameCodeButton.addEventListener(
     gameCode =
       generateGameCode();
 
-    notify(
-      `GAME CODE: ${gameCode}`
-    );
+    gameCodeButton.textContent =
+      `CODE: ${gameCode}`;
 
     console.log(
       "Blank Box Game Code:",
