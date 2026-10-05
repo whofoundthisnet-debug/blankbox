@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlankBox Bixel Art</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#171717;
+  color:white;
+}
+
+#app{
+  height:100%;
+  display:grid;
+  grid-template-rows:58px 1fr 110px;
+}
+
+#topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  background:#222;
+  border-bottom:2px solid #333;
+}
+
+#brand{
+  font-size:22px;
+  font-weight:900;
+}
+
+#actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+button,select,input{
+  font:inherit;
+}
+
+button{
+  border:1px solid #444;
+  background:#2b2b2b;
+  color:white;
+  border-radius:7px;
+  padding:9px 12px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#363636;
+}
+
+.primary{
+  background:#72d572;
+  color:#111;
+  border-color:#72d572;
+  font-weight:900;
+}
+
+#main{
+  min-height:0;
+  display:grid;
+  grid-template-columns:180px 1fr 230px;
+}
+
+#tools,#panel{
+  background:#202020;
+  padding:14px;
+  overflow:auto;
+}
+
+#tools{
+  border-right:2px solid #333;
+}
+
+#panel{
+  border-left:2px solid #333;
+}
+
+.section{
+  font-size:12px;
+  color:#aaa;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin:4px 0 10px;
+}
+
+.tool{
+  display:block;
+  width:100%;
+  margin-bottom:8px;
+  text-align:left;
+}
+
+.tool.active{
+  outline:2px solid #72d572;
+}
+
+#workspace{
+  min-width:0;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#111;
+  overflow:hidden;
+}
+
+#canvasWrap{
+  position:relative;
+  width:min(70vw,70vh);
+  height:min(70vw,70vh);
+  max-width:700px;
+  max-height:700px;
+  background:white;
+  image-rendering:pixelated;
+}
+
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  image-rendering:pixelated;
+}
+
+#shadowCanvas{
+  pointer-events:none;
+}
+
+#pixelCanvas{
+  cursor:crosshair;
+}
+
+.field{
+  margin-bottom:14px;
+}
+
+.field label{
+  display:block;
+  color:#aaa;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.field select,
+.field input[type="number"],
+.field input[type="range"]{
+  width:100%;
+}
+
+.field select,
+.field input[type="number"]{
+  padding:8px;
+  background:#292929;
+  color:white;
+  border:1px solid #444;
+  border-radius:6px;
+}
+
+.colorRow{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+#color{
+  width:52px;
+  height:38px;
+  padding:2px;
+}
+
+#hex{
+  flex:1;
+  min-width:0;
+  padding:8px;
+  background:#292929;
+  color:white;
+  border:1px solid #444;
+  border-radius:6px;
+}
+
+#frames{
+  background:#1c1c1c;
+  border-top:2px solid #333;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  overflow-x:auto;
+}
+
+.frame{
+  height:82px;
+  min-width:82px;
+  background:#111;
+  border:2px solid #444;
+  border-radius:6px;
+  padding:4px;
+  cursor:pointer;
+}
+
+.frame.active{
+  border-color:#72d572;
+}
+
+.frame canvas{
+  position:static;
+  width:70px;
+  height:70px;
+  display:block;
+  background:white;
+}
+
+#frameAdd{
+  height:82px;
+  min-width:82px;
+  font-size:28px;
+}
+
+#frameDelete{
+  height:82px;
+  min-width:82px;
+  font-size:12px;
+}
+
+#frameCounter{
+  min-width:70px;
+  text-align:center;
+  color:#aaa;
+  font-size:12px;
+  font-weight:900;
+}
+
+.note{
+  font-size:12px;
+  color:#888;
+  line-height:1.4;
+}
+
+#analysis{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.82);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+
+#analysisBox{
+  width:min(420px,90vw);
+  background:#202020;
+  border:2px solid #444;
+  border-radius:12px;
+  padding:24px;
+  text-align:center;
+}
+
+#analysisTitle{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:20px;
+}
+
+.analysisStep{
+  text-align:left;
+  margin:10px 0;
+  color:#777;
+}
+
+.analysisStep.done{
+  color:#72d572;
+}
+
+#seedResult{
+  margin-top:18px;
+  padding:12px;
+  background:#111;
+  border:1px solid #444;
+  border-radius:7px;
+  font-family:monospace;
+  font-size:12px;
+  word-break:break-all;
+  max-height:100px;
+  overflow:auto;
+}
+
+#copySeed{
+  margin-top:10px;
+  width:100%;
+}
+
+#previewOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:90;
+}
+
+#previewBox{
+  width:min(500px,90vw);
+  text-align:center;
+}
+
+#previewCanvas{
+  width:400px;
+  height:400px;
+  max-width:80vw;
+  max-height:60vh;
+  background:white;
+  image-rendering:pixelated;
+}
+
+#stopPreview{
+  margin-top:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<header id="topbar">
+
+  <div id="brand">
+    BIXEL ART
+  </div>
+
+  <div id="actions">
+
+    <button id="importButton">
+      IMPORT
+    </button>
+
+    <input
+      id="importInput"
+      type="file"
+      accept="image/*"
+      hidden
+    >
+
+    <button id="exportButton">
+      EXPORT PNG
+    </button>
+
+    <button
+      class="primary"
+      id="doneButton"
+    >
+      DONE
+    </button>
+
+  </div>
+
+</header>
+
+
+<div id="main">
+
+
+<aside id="tools">
+
+  <div class="section">
+    Tools
+  </div>
+
+  <button
+    class="tool active"
+    data-tool="pencil"
+  >
+    ✏ Pencil
+  </button>
+
+  <button
+    class="tool"
+    data-tool="eraser"
+  >
+    ⌫ Eraser
+  </button>
+
+  <button
+    class="tool"
+    data-tool="fill"
+  >
+    ▧ Fill
+  </button>
+
+  <button
+    class="tool"
+    data-tool="picker"
+  >
+    ◉ Color Picker
+  </button>
+
+
+  <div
+    class="section"
+    style="margin-top:20px"
+  >
+    Canvas
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Size
+    </label>
+
+    <select id="canvasSize">
+
+      <option value="16">
+        16 × 16
+      </option>
+
+      <option value="24">
+        24 × 24
+      </option>
+
+      <option
+        value="32"
+        selected
+      >
+        32 × 32
+      </option>
+
+      <option value="48">
+        48 × 48
+      </option>
+
+      <option value="64">
+        64 × 64
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <button id="newButton">
+    NEW SPRITE
+  </button>
+
+</aside>
+
+
+<section id="workspace">
+
+  <div id="canvasWrap">
+
+    <canvas id="shadowCanvas"></canvas>
+
+    <canvas id="pixelCanvas"></canvas>
+
+  </div>
+
+</section>
+
+
+<aside id="panel">
+
+  <div class="section">
+    Color
+  </div>
+
+  <div class="field">
+
+    <div class="colorRow">
+
+      <input
+        id="color"
+        type="color"
+        value="#111111"
+      >
+
+      <input
+        id="hex"
+        value="#111111"
+        maxlength="7"
+      >
+
+    </div>
+
+  </div>
+
+
+  <div class="section">
+    Shadow
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Template
+    </label>
+
+    <select id="shadowPose">
+
+      <option value="none">
+        None
+      </option>
+
+      <option value="idle">
+        Idle
+      </option>
+
+      <option value="walk">
+        Walk
+      </option>
+
+      <option value="run">
+        Run
+      </option>
+
+      <option value="jump">
+        Jump
+      </option>
+
+      <option value="hit">
+        Hit
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>
+
+      Opacity
+
+      <span id="sizeText">
+        30%
+      </span>
+
+    </label>
+
+    <input
+      id="shadowOpacity"
+      type="range"
+      min="5"
+      max="70"
+      value="30"
+    >
+
+  </div>
+
+
+  <div class="section">
+    Animation
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Frame speed
+    </label>
+
+    <input
+      id="fps"
+      type="number"
+      min="1"
+      max="60"
+      value="8"
+    >
+
+  </div>
+
+
+  <button id="previewButton">
+    ▶ PREVIEW
+  </button>
+
+</aside>
+
+</div>
+
+
+<!-- FRAME BAR -->
+
+<div id="frames">
+
+  <div id="frameCounter">
+    1 / 1
+  </div>
+
+  <button id="frameAdd">
+    +
+  </button>
+
+  <button id="frameDelete">
+    −
+  </button>
+
+</div>
+
+</div>
+
+
+<!-- ANALYSIS -->
+
+<div id="analysis">
+
+  <div id="analysisBox">
+
+    <div id="analysisTitle">
+      ANALYZING BIXEL...
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step1"
+    >
+      ○ Reading pixels
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step2"
+    >
+      ○ Checking center
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step3"
+    >
+      ○ Checking X / Y axes
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step4"
+    >
+      ○ Building shape data
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step5"
+    >
+      ○ Encoding colors
+    </div>
+
+    <div
+      class="analysisStep"
+      id="step6"
+    >
+      ○ Generating seed
+    </div>
+
+    <div id="seedResult"></div>
+
+    <button id="copySeed">
+      COPY BBX CODE
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- PREVIEW -->
+
+<div id="previewOverlay">
+
+  <div id="previewBox">
+
+    <canvas id="previewCanvas"></canvas>
+
+    <br>
+
+    <button id="stopPreview">
+      STOP PREVIEW
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   BIXEL ENGINE
+   ========================================================= */
+
+const canvas =
+  document.getElementById(
+    "pixelCanvas"
+  );
+
+const ctx =
+  canvas.getContext("2d");
+
+ctx.imageSmoothingEnabled =
+  false;
+
+
+const shadowCanvas =
+  document.getElementById(
+    "shadowCanvas"
+  );
+
+const shadowCtx =
+  shadowCanvas.getContext("2d");
+
+shadowCtx.imageSmoothingEnabled =
+  false;
+
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+let canvasSize = 32;
+
+let fps = 8;
+
+const MAX_FRAMES = 16;
+
+let frames = [];
+
+let currentFrame = 0;
+
+let currentTool = "pencil";
+
+let currentColor = "#111111";
+
+let drawing = false;
+
+let previewTimer = null;
+
+
+/* =========================================================
+   FRAME CREATION
+   ========================================================= */
+
+function createBlankFrame(){
+
+  return {
+
+    pixels:
+      new Array(
+        canvasSize * canvasSize
+      ).fill(null)
+
+  };
+
+}
+
+
+/* =========================================================
+   CANVAS SETUP
+   ========================================================= */
+
+function resizeCanvas(){
+
+  canvas.width =
+    canvasSize * 20;
+
+  canvas.height =
+    canvasSize * 20;
+
+  shadowCanvas.width =
+    canvas.width;
+
+  shadowCanvas.height =
+    canvas.height;
+
+  loadCurrentFrame();
+
+}
+
+
+/* =========================================================
+   PIXEL INDEX
+   ========================================================= */
+
+function pixelIndex(x,y){
+
+  return (
+    y * canvasSize +
+    x
+  );
+
+}
+
+
+/* =========================================================
+   DRAW CURRENT FRAME
+   ========================================================= */
+
+function loadCurrentFrame(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  const frame =
+    frames[currentFrame];
+
+  if(!frame)
+    return;
+
+
+  const pixelSize =
+    canvas.width /
+    canvasSize;
+
+
+  for(
+    let y=0;
+    y<canvasSize;
+    y++
+  ){
+
+    for(
+      let x=0;
+      x<canvasSize;
+      x++
+    ){
+
+      const color =
+        frame.pixels[
+          pixelIndex(x,y)
+        ];
+
+
+      if(!color)
+        continue;
+
+
+      ctx.fillStyle =
+        color;
+
+
+      ctx.fillRect(
+        x * pixelSize,
+        y * pixelSize,
+        pixelSize,
+        pixelSize
+      );
+
+    }
+
+  }
+
+
+  drawShadow();
+
+}
+
+
+/* =========================================================
+   SHADOW
+   ========================================================= */
+
+function drawShadow(){
+
+  shadowCtx.clearRect(
+    0,
+    0,
+    shadowCanvas.width,
+    shadowCanvas.height
+  );
+
+
+  const pose =
+    document.getElementById(
+      "shadowPose"
+    ).value;
+
+
+  if(pose === "none")
+    return;
+
+
+  const opacity =
+    Number(
+      document.getElementById(
+        "shadowOpacity"
+      ).value
+    ) / 100;
+
+
+  shadowCtx.globalAlpha =
+    opacity;
+
+
+  /*
+    Simple center guide/template.
+    This is intentionally lightweight.
+  */
+
+  shadowCtx.strokeStyle =
+    "#72d572";
+
+  shadowCtx.lineWidth =
+    Math.max(
+      2,
+      canvas.width / 100
+    );
+
+
+  shadowCtx.beginPath();
+
+  shadowCtx.moveTo(
+    canvas.width / 2,
+    canvas.height * 0.15
+  );
+
+  shadowCtx.lineTo(
+    canvas.width / 2,
+    canvas.height * 0.85
+  );
+
+  shadowCtx.moveTo(
+    canvas.width * 0.25,
+    canvas.height / 2
+  );
+
+  shadowCtx.lineTo(
+    canvas.width * 0.75,
+    canvas.height / 2
+  );
+
+  shadowCtx.stroke();
+
+
+  shadowCtx.globalAlpha =
+    1;
+
+}
+
+
+/* =========================================================
+   FRAME LIST
+   ========================================================= */
+
+function renderFrameList(){
+
+  const framesBar =
+    document.getElementById(
+      "frames"
+    );
+
+
+  /*
+    Keep the first three controls.
+  */
+
+  framesBar
+    .querySelectorAll(
+      ".frame"
+    )
+    .forEach(
+      element =>
+        element.remove()
+    );
+
+
+  frames.forEach(
+    (frame,index)=>{
+
+      const frameButton =
+        document.createElement(
+          "div"
+        );
+
+
+      frameButton.className =
+        "frame";
+
+
+      if(
+        index === currentFrame
+      ){
+
+        frameButton.classList.add(
+          "active"
+        );
+
+      }
+
+
+      const thumb =
+        document.createElement(
+          "canvas"
+        );
+
+
+      thumb.width =
+        canvasSize;
+
+      thumb.height =
+        canvasSize;
+
+
+      const thumbCtx =
+        thumb.getContext("2d");
+
+      thumbCtx.imageSmoothingEnabled =
+        false;
+
+
+      const pixelSize =
+        1;
+
+
+      frame.pixels.forEach(
+        (color,i)=>{
+
+          if(!color)
+            return;
+
+
+          const x =
+            i % canvasSize;
+
+          const y =
+            Math.floor(
+              i / canvasSize
+            );
+
+
+          thumbCtx.fillStyle =
+            color;
+
+
+          thumbCtx.fillRect(
+            x,
+            y,
+            pixelSize,
+            pixelSize
+          );
+
+        }
+      );
+
+
+      frameButton.appendChild(
+        thumb
+      );
+
+
+      frameButton.addEventListener(
+        "click",
+        ()=>{
+
+          saveCurrentFrame();
+
+          currentFrame =
+            index;
+
+          loadCurrentFrame();
+
+          renderFrameList();
+
+        }
+      );
+
+
+      framesBar.appendChild(
+        frameButton
+      );
+
+    }
+  );
+
+
+  document.getElementById(
+    "frameCounter"
+  ).textContent =
+    `${currentFrame + 1} / ${frames.length}`;
+
+}
+
+
+/* =========================================================
+   SAVE CURRENT FRAME
+   ========================================================= */
+
+function saveCurrentFrame(){
+
+  const frame =
+    frames[currentFrame];
+
+  if(!frame)
+    return;
+
+
+  const image =
+    ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+
+  const pixelSize =
+    canvas.width /
+    canvasSize;
+
+
+  for(
+    let y=0;
+    y<canvasSize;
+    y++
+  ){
+
+    for(
+      let x=0;
+      x<canvasSize;
+      x++
+    ){
+
+      const sampleX =
+        Math.floor(
+          x * pixelSize +
+          pixelSize / 2
+        );
+
+
+      const sampleY =
+        Math.floor(
+          y * pixelSize +
+          pixelSize / 2
+        );
+
+
+      const index =
+        (
+          sampleY *
+          canvas.width +
+          sampleX
+        ) * 4;
+
+
+      const a =
+        image.data[index + 3];
+
+
+      if(a === 0){
+
+        frame.pixels[
+          pixelIndex(x,y)
+        ] = null;
+
+      }else{
+
+        frame.pixels[
+          pixelIndex(x,y)
+        ] =
+          `rgb(
+            ${image.data[index]},
+            ${image.data[index+1]},
+            ${image.data[index+2]}
+          )`;
+
+      }
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ADD FRAME
+   ========================================================= */
+
+function addFrame(){
+
+  if(
+    frames.length >= MAX_FRAMES
+  ){
+
+    alert(
+      "Bixel animations have a maximum of 16 frames."
+    );
+
+    return;
+
+  }
+
+
+  saveCurrentFrame();
+
+
+  frames.splice(
+    currentFrame + 1,
+    0,
+    createBlankFrame()
+  );
+
+
+  currentFrame++;
+
+
+  loadCurrentFrame();
+
+  renderFrameList();
+
+}
+
+
+/* =========================================================
+   DELETE FRAME
+   ========================================================= */
+
+function deleteFrame(){
+
+  if(
+    frames.length <= 1
+  ){
+
+    alert(
+      "You need at least one frame."
+    );
+
+    return;
+
+  }
+
+
+  frames.splice(
+    currentFrame,
+    1
+  );
+
+
+  if(
+    currentFrame >= frames.length
+  ){
+
+    currentFrame =
+      frames.length - 1;
+
+  }
+
+
+  loadCurrentFrame();
+
+  renderFrameList();
+
+}
+
+
+/* =========================================================
+   MOUSE → PIXEL
+   ========================================================= */
+
+function getPixel(event){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  return {
+
+    x:
+      Math.floor(
+        (
+          event.clientX -
+          rect.left
+        ) /
+        rect.width *
+        canvasSize
+      ),
+
+    y:
+      Math.floor(
+        (
+          event.clientY -
+          rect.top
+        ) /
+        rect.height *
+        canvasSize
+      )
+
+  };
+
+}
+
+
+/* =========================================================
+   PAINT
+   ========================================================= */
+
+function paintPixel(x,y){
+
+  if(
+    x < 0 ||
+    y < 0 ||
+    x >= canvasSize ||
+    y >= canvasSize
+  )
+    return;
+
+
+  const frame =
+    frames[currentFrame];
+
+
+  const index =
+    pixelIndex(x,y);
+
+
+  if(
+    currentTool === "eraser"
+  ){
+
+    frame.pixels[index] =
+      null;
+
+  }else{
+
+    frame.pixels[index] =
+      currentColor;
+
+  }
+
+
+  loadCurrentFrame();
+
+}
+
+
+/* =========================================================
+   FILL
+   ========================================================= */
+
+function floodFill(x,y){
+
+  const frame =
+    frames[currentFrame];
+
+  const index =
+    pixelIndex(x,y);
+
+  const oldColor =
+    frame.pixels[index];
+
+  const newColor =
+    currentColor;
+
+
+  if(
+    oldColor === newColor
+  )
+    return;
+
+
+  const queue =
+    [[x,y]];
+
+
+  while(queue.length){
+
+    const [
+      px,
+      py
+    ] =
+      queue.shift();
+
+
+    if(
+      px < 0 ||
+      py < 0 ||
+      px >= canvasSize ||
+      py >= canvasSize
+    )
+      continue;
+
+
+    const i =
+      pixelIndex(px,py);
+
+
+    if(
+      frame.pixels[i] !== oldColor
+    )
+      continue;
+
+
+    frame.pixels[i] =
+      newColor;
+
+
+    queue.push(
+      [px+1,py],
+      [px-1,py],
+      [px,py+1],
+      [px,py-1]
+    );
+
+  }
+
+
+  loadCurrentFrame();
+
+}
+
+
+/* =========================================================
+   POINTER EVENTS
+   ========================================================= */
+
+canvas.addEventListener(
+  "pointerdown",
+  event=>{
+
+    event.preventDefault();
+
+    drawing = true;
+
+    canvas.setPointerCapture(
+      event.pointerId
+    );
+
+
+    const {
+      x,
+      y
+    } =
+      getPixel(event);
+
+
+    if(
+      currentTool === "fill"
+    ){
+
+      floodFill(x,y);
+
+    }else if(
+      currentTool === "picker"
+    ){
+
+      const frame =
+        frames[currentFrame];
+
+      const color =
+        frame.pixels[
+          pixelIndex(x,y)
+        ];
+
+
+      if(color){
+
+        currentColor =
+          color;
+
+        document.getElementById(
+          "color"
+        ).value =
+          rgbToHex(color);
+
+        document.getElementById(
+          "hex"
+        ).value =
+          rgbToHex(color);
+
+      }
+
+    }else{
+
+      paintPixel(x,y);
+
+    }
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointermove",
+  event=>{
+
+    if(!drawing)
+      return;
+
+
+    if(
+      currentTool !== "pencil" &&
+      currentTool !== "eraser"
+    )
+      return;
+
+
+    const {
+      x,
+      y
+    } =
+      getPixel(event);
+
+
+    paintPixel(x,y);
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointerup",
+  ()=>{
+    drawing = false;
+    saveCurrentFrame();
+  }
+);
+
+
+canvas.addEventListener(
+  "pointercancel",
+  ()=>{
+    drawing = false;
+  }
+);
+
+
+/* =========================================================
+   TOOLS
+   ========================================================= */
+
+document
+  .querySelectorAll(".tool")
+  .forEach(
+    button=>{
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          document
+            .querySelectorAll(".tool")
+            .forEach(
+              b =>
+                b.classList.remove(
+                  "active"
+                )
+            );
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          currentTool =
+            button.dataset.tool;
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   COLOR
+   ========================================================= */
+
+const colorInput =
+  document.getElementById(
+    "color"
+  );
+
+const hexInput =
+  document.getElementById(
+    "hex"
+  );
+
+
+colorInput.addEventListener(
+  "input",
+  ()=>{
+
+    currentColor =
+      colorInput.value;
+
+    hexInput.value =
+      currentColor;
+
+  }
+);
+
+
+hexInput.addEventListener(
+  "input",
+  ()=>{
+
+    if(
+      /^#[0-9a-fA-F]{6}$/
+        .test(
+          hexInput.value
+        )
+    ){
+
+      currentColor =
+        hexInput.value;
+
+      colorInput.value =
+        currentColor;
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   RGB → HEX
+   ========================================================= */
+
+function rgbToHex(rgb){
+
+  const match =
+    rgb.match(
+      /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/
+    );
+
+
+  if(!match)
+    return "#ffffff";
+
+
+  return "#" +
+    [
+      match[1],
+      match[2],
+      match[3]
+    ]
+      .map(
+        value =>
+          Number(value)
+            .toString(16)
+            .padStart(2,"0")
+      )
+      .join("");
+
+}
+
+
+/* =========================================================
+   CANVAS SIZE
+   ========================================================= */
+
+document
+  .getElementById(
+    "canvasSize"
+  )
+  .addEventListener(
+    "change",
+    event=>{
+
+      canvasSize =
+        Number(
+          event.target.value
+        );
+
+
+      frames = [
+        createBlankFrame()
+      ];
+
+
+      currentFrame = 0;
+
+
+      resizeCanvas();
+
+      renderFrameList();
+
+    }
+  );
+
+
+/* =========================================================
+   FPS
+   ========================================================= */
+
+document
+  .getElementById(
+    "fps"
+  )
+  .addEventListener(
+    "input",
+    event=>{
+
+      fps =
+        Math.max(
+          1,
+          Math.min(
+            60,
+            Number(
+              event.target.value
+            ) || 8
+          )
+        );
+
+    }
+  );
+
+
+/* =========================================================
+   SHADOW OPACITY
+   ========================================================= */
+
+document
+  .getElementById(
+    "shadowOpacity"
+  )
+  .addEventListener(
+    "input",
+    event=>{
+
+      document.getElementById(
+        "sizeText"
+      ).textContent =
+        event.target.value +
+        "%";
+
+
+      drawShadow();
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "shadowPose"
+  )
+  .addEventListener(
+    "change",
+    drawShadow
+  );
+
+
+/* =========================================================
+   NEW SPRITE
+   ========================================================= */
+
+document
+  .getElementById(
+    "newButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      if(
+        !confirm(
+          "Start a new sprite? Your current drawing will be cleared."
+        )
+      )
+        return;
+
+
+      frames = [
+        createBlankFrame()
+      ];
+
+      currentFrame = 0;
+
+      loadCurrentFrame();
+
+      renderFrameList();
+
+    }
+  );
+
+
+/* =========================================================
+   IMPORT
+   ========================================================= */
+
+document
+  .getElementById(
+    "importButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+      document
+        .getElementById(
+          "importInput"
+        )
+        .click();
+    }
+  );
+
+
+document
+  .getElementById(
+    "importInput"
+  )
+  .addEventListener(
+    "change",
+    event=>{
+
+      const file =
+        event.target.files[0];
+
+      if(!file)
+        return;
+
+
+      const image =
+        new Image();
+
+
+      image.onload =
+        ()=>{
+
+          const temp =
+            document.createElement(
+              "canvas"
+            );
+
+
+          temp.width =
+            canvasSize;
+
+          temp.height =
+            canvasSize;
+
+
+          const tempCtx =
+            temp.getContext(
+              "2d"
+            );
+
+
+          tempCtx.imageSmoothingEnabled =
+            false;
+
+
+          tempCtx.drawImage(
+            image,
+            0,
+            0,
+            canvasSize,
+            canvasSize
+          );
+
+
+          const data =
+            tempCtx.getImageData(
+              0,
+              0,
+              canvasSize,
+              canvasSize
+            );
+
+
+          const frame =
+            createBlankFrame();
+
+
+          for(
+            let i=0;
+            i<
+            canvasSize *
+            canvasSize;
+            i++
+          ){
+
+            const p =
+              i * 4;
+
+
+            if(
+              data.data[p+3] === 0
+            ){
+
+              frame.pixels[i] =
+                null;
+
+            }else{
+
+              frame.pixels[i] =
+                `rgb(
+                  ${data.data[p]},
+                  ${data.data[p+1]},
+                  ${data.data[p+2]}
+                )`;
+
+            }
+
+          }
+
+
+          frames[currentFrame] =
+            frame;
+
+
+          loadCurrentFrame();
+
+          renderFrameList();
+
+        };
+
+
+      image.src =
+        URL.createObjectURL(file);
+
+    }
+  );
+
+
+/* =========================================================
+   EXPORT PNG
+   ========================================================= */
+
+document
+  .getElementById(
+    "exportButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      saveCurrentFrame();
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.download =
+        `bixel-frame-${currentFrame+1}.png`;
+
+
+      link.href =
+        canvas.toDataURL(
+          "image/png"
+        );
+
+
+      link.click();
+
+    }
+  );
+
+
+/* =========================================================
+   BBX COLOR
+   ========================================================= */
+
+function colorToBBX(color){
+
+  if(!color)
+    return "0";
+
+
+  const match =
+    color.match(
+      /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/
+    );
+
+
+  if(!match)
+    return "0";
+
+
+  let r =
+    Number(match[1]);
+
+  let g =
+    Number(match[2]);
+
+  let b =
+    Number(match[3]);
+
+
+  r =
+    Math.min(
+      250,
+      Math.round(r/10)*10
+    );
+
+  g =
+    Math.min(
+      250,
+      Math.round(g/10)*10
+    );
+
+  b =
+    Math.min(
+      250,
+      Math.round(b/10)*10
+    );
+
+
+  return (
+    `${r},${g},${b}`
+  );
+
+}
+
+
+/* =========================================================
+   CREATE BBX
+   ========================================================= */
+
+function createBBX(){
+
+  saveCurrentFrame();
+
+
+  const encodedFrames =
+    frames.map(
+      frame =>
+        frame.pixels
+          .map(
+            color =>
+              colorToBBX(
+                color
+              )
+          )
+          .join(";")
+    );
+
+
+  return (
+    "BBX1|" +
+    canvasSize +
+    "|" +
+    fps +
+    "|" +
+    encodedFrames.join("||")
+  );
+
+}
+
+
+/* =========================================================
+   ANALYSIS
+   ========================================================= */
+
+function runAnalysis(code){
+
+  const analysis =
+    document.getElementById(
+      "analysis"
+    );
+
+
+  const seedResult =
+    document.getElementById(
+      "seedResult"
+    );
+
+
+  analysis.style.display =
+    "flex";
+
+
+  seedResult.textContent =
+    "";
+
+
+  const steps = [
+    "step1",
+    "step2",
+    "step3",
+    "step4",
+    "step5",
+    "step6"
+  ];
+
+
+  steps.forEach(
+    id=>{
+
+      document
+        .getElementById(id)
+        .classList.remove(
+          "done"
+        );
+
+      document
+        .getElementById(id)
+        .textContent =
+          document
+            .getElementById(id)
+            .textContent
+            .replace(
+              "✓",
+              "○"
+            );
+
+    }
+  );
+
+
+  let step = 0;
+
+
+  function nextStep(){
+
+    if(step >= steps.length){
+
+      seedResult.textContent =
+        code;
+
+      return;
+
+    }
+
+
+    const element =
+      document.getElementById(
+        steps[step]
+      );
+
+
+    element.classList.add(
+      "done"
+    );
+
+
+    element.textContent =
+      element.textContent
+        .replace(
+          "○",
+          "✓"
+        );
+
+
+    step++;
+
+
+    setTimeout(
+      nextStep,
+      350
+    );
+
+  }
+
+
+  nextStep();
+
+}
+
+
+/* =========================================================
+   COPY BBX
+   ========================================================= */
+
+document
+  .getElementById(
+    "copySeed"
+  )
+  .addEventListener(
+    "click",
+    async ()=>{
+
+      const code =
+        localStorage.getItem(
+          "blankbox_bixel_code"
+        );
+
+
+      if(!code)
+        return;
+
+
+      try{
+
+        await navigator.clipboard
+          .writeText(code);
+
+        alert(
+          "BBX code copied!"
+        );
+
+      }catch{
+
+        alert(
+          "BBX code is ready in the box above."
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   DONE
+   ========================================================= */
+
+document
+  .getElementById(
+    "doneButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      const code =
+        createBBX();
+
+
+      localStorage.setItem(
+        "blankbox_bixel_code",
+        code
+      );
+
+
+      runAnalysis(code);
+
+
+      setTimeout(
+        ()=>{
+          window.location.href =
+            "engine.html";
+        },
+        2600
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   PREVIEW
+   ========================================================= */
+
+document
+  .getElementById(
+    "previewButton"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      saveCurrentFrame();
+
+
+      const overlay =
+        document.getElementById(
+          "previewOverlay"
+        );
+
+
+      const previewCanvas =
+        document.getElementById(
+          "previewCanvas"
+        );
+
+
+      previewCanvas.width =
+        canvasSize;
+
+      previewCanvas.height =
+        canvasSize;
+
+
+      overlay.style.display =
+        "flex";
+
+
+      let previewFrame = 0;
+
+
+      function drawPreview(){
+
+        const frame =
+          frames[previewFrame];
+
+
+        const pctx =
+          previewCanvas
+            .getContext("2d");
+
+
+        pctx.clearRect(
+          0,
+          0,
+          canvasSize,
+          canvasSize
+        );
+
+
+        frame.pixels.forEach(
+          (color,i)=>{
+
+            if(!color)
+              return;
+
+
+            pctx.fillStyle =
+              color;
+
+
+            pctx.fillRect(
+              i % canvasSize,
+              Math.floor(
+                i / canvasSize
+              ),
+              1,
+              1
+            );
+
+          }
+        );
+
+
+        previewFrame =
+          (
+            previewFrame + 1
+          ) %
+          frames.length;
+
+      }
+
+
+      drawPreview();
+
+
+      previewTimer =
+        setInterval(
+          drawPreview,
+          1000 / fps
+        );
+
+    }
+  );
+
+
+/* =========================================================
+   STOP PREVIEW
+   ========================================================= */
+
+document
+  .getElementById(
+    "stopPreview"
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      document
+        .getElementById(
+          "previewOverlay"
+        )
+        .style.display =
+        "none";
+
+
+      clearInterval(
+        previewTimer
+      );
+
+      previewTimer = null;
+
+    }
+  );
+
+
+/* =========================================================
+   FRAME BUTTONS
+   ========================================================= */
+
+document
+  .getElementById(
+    "frameAdd"
+  )
+  .addEventListener(
+    "click",
+    addFrame
+  );
+
+
+document
+  .getElementById(
+    "frameDelete"
+  )
+  .addEventListener(
+    "click",
+    deleteFrame
+  );
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+frames = [
+  createBlankFrame()
+];
+
+currentFrame = 0;
+
+resizeCanvas();
+
+renderFrameList();
+
+</script>
+
+</body>
+</html>
