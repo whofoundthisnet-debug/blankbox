@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlankBox</title>
+  <style>
+    #status {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  font-size: clamp(20px, 3vw, 36px);
+  font-weight: 900;
+  color: #111;
+  z-index: 30;
+  text-align: center;
+}
+    #box {
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  width: min(420px, 60vw);
+  height: min(420px, 60vw);
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+/* SOLID CARDBOARD BODY */
+    .box-inside {
+  position: absolute;
+  left: 8%;
+  top: 8%;
+  width: 84%;
+  height: 35%;
+  background: #4a2d17;
+  border: 6px solid #8f602f;
+  z-index: 1;
+}
+.box-body {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: #c98f4d;
+  border: 7px solid #8f602f;
+  border-radius: 3px;
+  z-index: 5;
+}
+
+/* THE ACTUAL OPENING */
+.box-opening {
+  position: absolute;
+  left: 6%;
+  top: 8%;
+  width: 88%;
+  height: 24%;
+  background: #4a2d17;
+  border: 7px solid #8f602f;
+  z-index: 2;
+}
+
+/* OPEN CARDBOARD FLAPS */
+.box-flap {
+  position: absolute;
+  top: 0;
+  width: 42%;
+  height: 5%;
+  background: #d6a15b;
+  border: 6px solid #8f602f;
+  z-index: 8;
+}
+
+.left-flap {
+  left: 6%;
+  transform: rotate(-10deg);
+  transform-origin: bottom right;
+}
+
+.right-flap {
+  right: 6%;
+  transform: rotate(10deg);
+  transform-origin: bottom left;
+}
+    </style>
+</head>
+
+<body>
+  <main id="blankbox">
+    <div id="scene">
+      <div id="here" class="word">HERE</div>
+      <div id="there" class="word">THERE</div>
+
+    <div id="box">
+  <div class="box-inside"></div>
+  <div class="box-back"></div>
+  <div class="box-inside"></div>
+
+  <div class="box-flap box-flap-left"></div>
+  <div class="box-flap box-flap-right"></div>
+
+  <div class="box-front"></div>
+  <div class="box-side left"></div>
+  <div class="box-side right"></div>
+</div>
+
+<div id="tapeShot">
+  <div id="tapeBox">
+    <div id="tape">
+      <div id="doneText">DONE</div>
+    </div>
+  </div>
+</div>
+
+      <div id="status">PRESS ENTER</div>
+    </div>
+  </main>
+
+<script>
+ const scene = document.getElementById("scene");
+const box = document.getElementById("box");
+
+const junkShapes = [
+  "◆", "●", "■", "▲", "★", "✦", "⬟", "✚"
+];
+
+function spawnJunk(side, index) {
+  const junk = document.createElement("div");
+
+  junk.textContent =
+    junkShapes[Math.floor(Math.random() * junkShapes.length)];
+
+  junk.style.position = "absolute";
+  junk.style.fontSize = `${30 + Math.random() * 30}px`;
+  junk.style.fontWeight = "900";
+  junk.style.color = "#111";
+  junk.style.zIndex = "20";
+
+  scene.appendChild(junk);
+
+  const sceneRect = scene.getBoundingClientRect();
+  const boxRect = box.getBoundingClientRect();
+
+  const startX =
+    side === "left"
+      ? -80
+      : sceneRect.width + 80;
+
+  const startY =
+    80 + Math.random() * (sceneRect.height * 0.45);
+
+  const targetX =
+    boxRect.left -
+    sceneRect.left +
+    boxRect.width / 2;
+
+  const targetY =
+    boxRect.top -
+    sceneRect.top +
+    boxRect.height * 0.20;
+
+  junk.style.left = `${startX}px`;
+  junk.style.top = `${startY}px`;
+
+  const midX =
+    side === "left"
+      ? targetX - 180
+      : targetX + 180;
+
+  const midY = targetY - 100;
+
+  const endY = targetY + 110;
+
+  junk.animate(
+    [
+      {
+        transform: "translate(0,0) rotate(0deg) scale(1)",
+        opacity: 0
+      },
+      {
+        transform:
+          `translate(${midX - startX}px,
+          ${midY - startY}px)
+          rotate(180deg)
+          scale(1.05)`,
+        opacity: 1,
+        offset: 0.55
+      },
+      {
+        transform:
+          `translate(${targetX - startX}px,
+          ${endY - startY}px)
+          rotate(360deg)
+          scale(0.35)`,
+        opacity: 0
+      }
+    ],
+    {
+      duration: 1400,
+      delay: index * 180,
+      easing: "ease-in-out",
+      fill: "forwards"
+    }
+  ).finished.then(() => junk.remove());
+}
+
+for (let i = 0; i < junkShapes.length; i++) {
+  spawnJunk(
+    i % 2 === 0 ? "left" : "right",
+    i
+  );
+  document.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    window.location.href = "projects.html";
+  }
+});
+}
+</script>
+</body>
+</html>
