@@ -1038,7 +1038,17 @@ function createObject(type) {
     health: 100,
 
     maxHealth: 100,
+animations: {
+  idle: {
+    frames: [0],
+    fps: 8,
+    loop: true
+  }
+},
 
+currentAnimation: "idle",
+currentAnimationFrame: 0,
+animationTimer: 0,
     healthType:
       type.toLowerCase() === "player"
         ? "hearts"
@@ -3659,6 +3669,23 @@ function showAttackVisual(
     100
   );
 
+}
+  function playAnimation(object, animationName) {
+  if (!object) return;
+  if (!object.animations) return;
+
+  const animation = object.animations[animationName];
+
+  if (!animation) {
+    console.warn(
+      `Animation "${animationName}" does not exist on ${object.name || "object"}.`
+    );
+    return;
+  }
+
+  object.currentAnimation = animationName;
+  object.currentAnimationFrame = 0;
+  object.animationTimer = 0;
 }
 /* ---------------------------------------------------------
    PHYSICS LOOP
