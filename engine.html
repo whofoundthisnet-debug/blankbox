@@ -1,0 +1,4972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlankBox Engine</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #171717;
+      color: white;
+    }
+
+    #engine {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 220px 1fr 280px;
+      grid-template-rows: 60px 1fr;
+    }
+
+    /* =========================================================
+       TOP BAR
+       ========================================================= */
+
+    #topbar {
+      grid-column: 1 / 4;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 20px;
+
+      background: #222;
+      border-bottom: 2px solid #333;
+    }
+
+    #logo {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+   #topButtons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    #playButton,
+    #stopButton {
+      padding: 10px 28px;
+
+      border: 0;
+      border-radius: 8px;
+
+      font-size: 16px;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    #playButton {
+      background: #72d572;
+      color: #111;
+    }
+
+    #stopButton {
+      display: none;
+
+      background: #e85b5b;
+      color: white;
+    }
+     #backButton {
+       background: #292929;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+#backButton:hover {
+    background: #3a3a3a;
+}
+    #playButton:hover,
+    #stopButton:hover {
+      filter: brightness(1.08);
+    }
+
+    /* =========================================================
+       SIDEBAR
+       ========================================================= */
+
+    #sidebar {
+      background: #202020;
+      border-right: 2px solid #333;
+
+      padding: 16px;
+
+      overflow-y: auto;
+    }
+
+    .panelTitle {
+      margin-bottom: 14px;
+
+      font-size: 13px;
+      font-weight: 900;
+
+      color: #aaa;
+
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .objectButton {
+      width: 100%;
+
+      margin-bottom: 8px;
+      padding: 12px;
+
+      border: 1px solid #3a3a3a;
+      border-radius: 7px;
+
+      background: #292929;
+      color: white;
+
+      text-align: left;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    .objectButton:hover {
+      background: #333;
+    }
+
+    /* =========================================================
+       WORKSPACE
+       ========================================================= */
+
+    #workspace {
+      position: relative;
+      overflow: hidden;
+
+      background:
+        linear-gradient(#242424 1px, transparent 1px),
+        linear-gradient(90deg, #242424 1px, transparent 1px);
+
+      background-size: 32px 32px;
+    }
+
+    #workspaceHint {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      transform: translate(-50%, -50%);
+
+      color: #555;
+
+      font-size: 22px;
+      font-weight: 900;
+
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* =========================================================
+       PROPERTIES
+       ========================================================= */
+
+    #properties {
+      background: #202020;
+      border-left: 2px solid #333;
+
+      padding: 16px;
+
+      overflow-y: auto;
+    }
+
+    #selectedObject {
+      margin-bottom: 20px;
+
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .property {
+      margin-bottom: 14px;
+    }
+
+    .property label {
+      display: block;
+
+      margin-bottom: 6px;
+
+      color: #aaa;
+
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .property input,
+    .property select {
+      width: 100%;
+
+      padding: 9px;
+
+      border: 1px solid #444;
+      border-radius: 6px;
+
+      background: #292929;
+      color: white;
+
+      font-size: 14px;
+    }
+
+    #emptyProperties {
+      color: #777;
+      line-height: 1.5;
+    }
+
+    /* =========================================================
+       OBJECTS
+       ========================================================= */
+
+      .gameObject {
+        .resizeHandle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border: 2px solid black;
+  z-index: 20;
+  box-sizing: border-box;
+}
+
+.resizeHandle.top-left {
+  left: -5px;
+  top: -5px;
+  cursor: nwse-resize;
+}
+
+.resizeHandle.top-right {
+  right: -5px;
+  top: -5px;
+  cursor: nesw-resize;
+}
+
+.resizeHandle.bottom-left {
+  left: -5px;
+  bottom: -5px;
+  cursor: nesw-resize;
+}
+
+.resizeHandle.bottom-right {
+  right: -5px;
+  bottom: -5px;
+  cursor: nwse-resize;
+}
+        .gameObject .resizeHandle {
+  display: none;
+}
+
+.gameObject.selected .resizeHandle {
+  display: block;
+}
+      touch-action: none;
+
+      position: absolute;
+
+      width: 80px;
+      height: 80px;
+
+      border: 3px solid white;
+      border-radius: 8px;
+
+      cursor: pointer;
+      user-select: none;
+
+      overflow: hidden;
+    }
+
+    .player {
+      background: #5b8cff;
+    }
+
+    .enemy {
+      background: #e85b5b;
+    }
+
+    .platform {
+      background: #9a9a9a;
+      border-radius: 4px;
+    }
+
+    .weapon {
+      background: #d69b52;
+    }
+
+    .npc {
+      background: #a36de0;
+    }
+
+    .item {
+      background: #55c987;
+    }
+
+    .selected {
+      outline: 3px solid white;
+      outline-offset: 4px;
+    }
+    .gameObject.hasSprite {
+      background: transparent !important;
+      border-color: transparent !important;
+    }
+
+    /* =========================================================
+       SPRITE
+       ========================================================= */
+
+    .spriteCanvas {
+      position: absolute;
+
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+
+      pointer-events: none;
+    }
+
+    /* =========================================================
+       SPRITE PANEL
+       ========================================================= */
+
+    #spritePreview {
+      width: 100%;
+      height: 150px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 12px;
+
+      border: 1px solid #444;
+      border-radius: 8px;
+
+      background:
+        linear-gradient(45deg, #252525 25%, transparent 25%),
+        linear-gradient(-45deg, #252525 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #252525 75%),
+        linear-gradient(-45deg, transparent 75%, #252525 75%);
+
+      background-size: 20px 20px;
+
+      background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0;
+
+      overflow: hidden;
+    }
+
+    #spritePreview canvas {
+      max-width: 130px;
+      max-height: 130px;
+
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    #spriteStatus {
+      color: #777;
+
+      font-size: 12px;
+      line-height: 1.4;
+
+      margin-bottom: 10px;
+    }
+
+    #openBixelButton {
+      width: 100%;
+
+      padding: 11px;
+
+      border: 0;
+      border-radius: 7px;
+
+      background: white;
+      color: #111;
+
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    #openBixelButton:hover {
+      filter: brightness(0.9);
+    }
+
+    #removeSpriteButton {
+      width: 100%;
+
+      padding: 9px;
+      margin-top: 8px;
+
+      border: 1px solid #444;
+      border-radius: 7px;
+
+      background: #292929;
+      color: #ccc;
+
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    #removeSpriteButton:hover {
+      background: #333;
+    }
+
+    /* =========================================================
+       NOTIFICATION
+       ========================================================= */
+
+    #notification {
+      position: fixed;
+
+      left: 50%;
+      bottom: 25px;
+
+      transform:
+        translateX(-50%)
+        translateY(20px);
+
+      padding: 12px 18px;
+
+      border-radius: 8px;
+
+      background: #292929;
+      border: 1px solid #444;
+
+      color: white;
+
+      font-weight: 700;
+
+      opacity: 0;
+      pointer-events: none;
+
+      transition: 0.2s;
+
+      z-index: 1000;
+    }
+
+    #notification.show {
+      opacity: 1;
+
+      transform:
+        translateX(-50%)
+        translateY(0);
+    }
+
+    /* =========================================================
+       PLAY MODE
+       ========================================================= */
+
+    body.playMode #sidebar,
+    body.playMode #properties {
+      display: none;
+    }
+
+    body.playMode #engine {
+      grid-template-columns: 1fr;
+    }
+
+    body.playMode #topbar {
+      grid-column: 1;
+    }
+
+    body.playMode #workspace {
+      grid-column: 1;
+      grid-row: 2;
+
+      background: #111;
+    }
+
+    body.playMode #workspaceHint {
+      display: none;
+    }
+
+    body.playMode .gameObject {
+      cursor: default;
+    }
+
+    body.playMode #playButton {
+      display: none;
+    }
+
+    body.playMode #stopButton {
+      display: block;
+    }
+  </style>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+
+<body>
+
+<main id="engine">
+
+  <!-- =======================================================
+       TOP BAR
+       ======================================================== -->
+
+  <header id="topbar">
+
+    <div id="logo">
+      BLANKBOX
+    </div>
+
+  <div id="topButtons">
+
+    <button id="backButton">
+        ← PROJECTS
+    </button>
+
+    <button id="playButton">
+        ▶ PLAY
+    </button>
+
+    <button id="stopButton">
+        ■ EDIT
+    </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       SIDEBAR
+       ======================================================== -->
+
+  <aside id="sidebar">
+
+    <div class="panelTitle">
+      CREATE
+    </div>
+
+    <button
+      class="objectButton"
+      data-type="player"
+    >
+      + Player
+    </button>
+
+    <button
+      class="objectButton"
+      data-type="enemy"
+    >
+      + Enemy
+    </button>
+
+    <button
+      class="objectButton"
+      data-type="platform"
+    >
+      + Platform
+    </button>
+
+    <button
+      class="objectButton"
+      data-type="weapon"
+    >
+      + Weapon
+    </button>
+
+    <button
+      class="objectButton"
+      data-type="npc"
+    >
+      + NPC
+    </button>
+
+    <button
+      class="objectButton"
+      data-type="item"
+    >
+      + Item
+    </button>
+    <button id="gameCodeButton">GAME CODE</button>
+    <button id="eventsButton">EVENTS</button>
+  </aside>
+
+
+  <!-- =======================================================
+       WORKSPACE
+       ======================================================== -->
+
+  <section id="workspace">
+
+    <div id="workspaceHint">
+      YOUR GAME GOES HERE
+    </div>
+
+  </section>
+
+
+  <!-- =======================================================
+       PROPERTIES
+       ======================================================== -->
+
+  <aside id="properties">
+
+    <div class="panelTitle">
+      PROPERTIES
+    </div>
+
+    <div id="emptyProperties">
+      Select an object to edit its properties.
+    </div>
+
+    <div id="propertyEditor" hidden>
+
+      <div id="selectedObject"></div>
+
+
+      <div class="property">
+
+        <label>
+          Name
+        </label>
+
+        <input
+          id="nameInput"
+          type="text"
+        >
+
+      </div>
+
+<div class="property">
+
+  <label>
+    Health Type
+  </label>
+
+  <select id="healthTypeInput">
+    <option value="hearts">Hearts</option>
+    <option value="number">Number</option>
+    <option value="bar">Bar</option>
+    <option value="oneHit">One Hit</option>
+    <option value="none">None</option>
+  </select>
+
+</div>
+
+
+<div class="property" id="maxHealthProperty">
+
+  <label>
+    Maximum Health
+  </label>
+
+  <input
+    id="maxHealthInput"
+    type="number"
+    min="1"
+  >
+
+</div>
+
+
+<div class="property" id="heartCountProperty">
+
+  <label>
+    Hearts
+  </label>
+
+  <input
+    id="heartCountInput"
+    type="number"
+    min="1"
+  >
+
+</div>
+
+
+<div class="property">
+
+  <label>
+    Damage Per Hit
+  </label>
+
+  <input
+    id="damagePerHitInput"
+    type="number"
+    min="1"
+  >
+
+</div>
+
+
+<div class="property">
+
+  <label>
+    Invincibility Time
+  </label>
+
+  <input
+    id="invincibilityInput"
+    type="number"
+    min="0"
+    step="0.1"
+  >
+
+</div>
+
+
+      <div class="property">
+
+        <label>
+          Speed
+        </label>
+
+        <input
+          id="speedInput"
+          type="number"
+        >
+
+      </div>
+
+<div class="property">
+
+  <label>
+    Base Attack
+  </label>
+
+  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+
+    <input
+      id="baseAttackInput"
+      type="checkbox"
+      style="width:20px;height:20px;"
+    >
+
+    <span>
+      Can Attack
+    </span>
+
+  </label>
+
+</div>
+
+<div
+  id="attackSettings"
+  style="display:none;"
+>
+
+  <div class="property">
+
+    <label>
+      Attack Damage
+    </label>
+
+    <input
+      id="attackDamageInput"
+      type="number"
+      min="1"
+      value="10"
+    >
+
+  </div>
+
+  <div class="property">
+
+    <label>
+      Attack Range
+    </label>
+
+    <input
+      id="attackRangeInput"
+      type="number"
+      min="1"
+      value="60"
+    >
+
+  </div>
+
+  <div class="property">
+
+    <label>
+      Attack Key
+    </label>
+
+    <input
+      id="attackKeyInput"
+      type="text"
+      value="E"
+      maxlength="1"
+    >
+
+  </div>
+
+</div>
+      <div class="property">
+
+        <label>
+          Behaviors
+        </label>
+
+        <div id="behaviors"></div>
+
+      </div>
+
+
+      <div class="property">
+
+        <label>
+          SPRITE
+        </label>
+
+        <div id="spritePreview">
+
+          <span style="color:#666;">
+            No sprite
+          </span>
+
+        </div>
+
+        <div id="spriteStatus">
+          This object has no Bixel sprite yet.
+        </div>
+
+        <button id="openBixelButton">
+          🎨 OPEN BIXEL
+        </button>
+
+        <button id="removeSpriteButton">
+          Remove Sprite
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+</main>
+
+
+<div id="notification"></div>
+
+
+<script>
+
+/* =========================================================
+   BLANK BOX ENGINE
+   ========================================================= */
+
+const workspace =
+  document.getElementById("workspace");
+
+const workspaceHint =
+  document.getElementById("workspaceHint");
+
+const behaviors =
+  document.getElementById("behaviors");
+
+const emptyProperties =
+  document.getElementById("emptyProperties");
+
+const propertyEditor =
+  document.getElementById("propertyEditor");
+
+const selectedObject =
+  document.getElementById("selectedObject");
+
+const nameInput =
+  document.getElementById("nameInput");
+
+const speedInput =
+  document.getElementById("speedInput");
+  
+const baseAttackInput =
+  document.getElementById("baseAttackInput");
+
+const attackSettings =
+  document.getElementById("attackSettings");
+
+const attackDamageInput =
+  document.getElementById("attackDamageInput");
+
+const attackRangeInput =
+  document.getElementById("attackRangeInput");
+
+const attackKeyInput =
+  document.getElementById("attackKeyInput");
+const spritePreview =
+  document.getElementById("spritePreview");
+
+const spriteStatus =
+  document.getElementById("spriteStatus");
+
+const openBixelButton =
+  document.getElementById("openBixelButton");
+
+const removeSpriteButton =
+  document.getElementById("removeSpriteButton");
+
+const notification =
+  document.getElementById("notification");
+
+const playButton =
+  document.getElementById("playButton");
+
+const stopButton =
+  document.getElementById("stopButton");
+  
+const backButton =
+    document.getElementById("backButton");
+  
+const gameCodeButton =
+  document.getElementById("gameCodeButton");
+
+let gameCode = null;
+let objects = [];
+
+let selected = null;
+
+let playMode = false;
+let multiplayerMode = false;
+let multiplayerHost = false;
+let multiplayerConnected = false;
+
+let multiplayerPeer = null;
+let multiplayerConnection = null;
+
+let currentGameCode = null;
+
+let localPlayerNumber = null;
+let localPlayerId = null;
+
+let hostPlayerId = null;
+let guestPlayerId = null;
+const healthTypeInput =
+  document.getElementById("healthTypeInput");
+
+const maxHealthInput =
+  document.getElementById("maxHealthInput");
+
+const heartCountInput =
+  document.getElementById("heartCountInput");
+
+const damagePerHitInput =
+  document.getElementById("damagePerHitInput");
+
+const invincibilityInput =
+  document.getElementById("invincibilityInput");
+
+const maxHealthProperty =
+  document.getElementById("maxHealthProperty");
+
+const heartCountProperty =
+  document.getElementById("heartCountProperty");
+const eventsButton =
+  document.getElementById("eventsButton");
+/* =========================================================
+   NOTIFICATION
+   ========================================================= */
+
+function notify(message) {
+
+  notification.textContent =
+    message;
+
+  notification.classList.add(
+    "show"
+  );
+
+  setTimeout(() => {
+
+    notification.classList.remove(
+      "show"
+    );
+
+  }, 2200);
+}
+
+
+/* =========================================================
+   CREATE OBJECT
+   ========================================================= */
+
+function createObject(type) {
+
+  if (playMode)
+    return;
+
+
+  workspaceHint.style.display =
+    "none";
+
+
+  const object = {
+
+    id:
+      Date.now() +
+      Math.floor(
+        Math.random() * 10000
+      ),
+
+    type:
+      type,
+
+    name:
+      type.charAt(0).toUpperCase() +
+      type.slice(1),
+
+    health: 100,
+
+    maxHealth: 100,
+
+    healthType:
+      type.toLowerCase() === "player"
+        ? "hearts"
+        : "number",
+
+    heartCount:
+      type.toLowerCase() === "player"
+        ? 7
+        : 0,
+
+    damagePerHit: 1,
+
+invincibilityTime: 1,
+
+speed: 5,
+
+baseAttack: false,
+
+attackDamage: 10,
+
+attackRange: 60,
+
+attackKey: "E",
+
+    aiEnabled:
+      type.toLowerCase() === "enemy",
+
+    aiBehavior:
+      type.toLowerCase() === "enemy"
+        ? "chase"
+        : null,
+
+    aiDetectionRange:
+      type.toLowerCase() === "enemy"
+        ? 300
+        : 0,
+
+    aiAttackRange:
+      type.toLowerCase() === "enemy"
+        ? 40
+        : 0,
+
+
+    /* PLATFORM SIZE */
+
+    width:
+      type.toLowerCase() === "platform"
+        ? 200
+        : 60,
+
+    height:
+      type.toLowerCase() === "platform"
+        ? 30
+        : 60,
+
+
+    behaviors: {
+
+      movement:
+        type.toLowerCase() === "player",
+
+      jumping:
+        type.toLowerCase() === "player",
+
+      chasePlayer:
+        type.toLowerCase() === "enemy",
+
+      contactDamage:
+        type.toLowerCase() === "enemy",
+
+      solid:
+        type.toLowerCase() === "platform",
+
+      ranged:
+        type.toLowerCase() === "weapon",
+
+      dialogue:
+        type.toLowerCase() === "npc",
+
+      pickup:
+        type.toLowerCase() === "item"
+
+    },
+
+
+    x:
+      100 +
+      Math.random() * 300,
+
+    y:
+      100 +
+      Math.random() * 200,
+
+
+    spriteCode:
+      null
+
+  };
+
+
+  objects.push(
+    object
+  );
+
+
+  /* Render the ACTUAL object */
+
+  renderObject(
+    object
+  );
+
+
+  selectObject(
+    object
+  );
+
+
+  saveEngine();
+
+}
+/* =========================================================
+   RENDER OBJECT
+   ========================================================= */
+function renderObject(object) {
+
+  const element =
+    document.createElement(
+      "div"
+    );
+
+
+  element.classList.add(
+    "gameObject",
+    object.type
+  );
+
+
+  if (object.spriteCode) {
+
+    element.classList.add(
+      "hasSprite"
+    );
+
+  }
+
+
+  /* PLATFORM SIZE */
+
+  if (
+    object.type &&
+    object.type.toLowerCase() ===
+      "platform"
+  ) {
+
+    element.style.width =
+      `${object.width || 200}px`;
+
+    element.style.height =
+      `${object.height || 30}px`;
+
+  }
+
+
+  element.style.left =
+    `${object.x}px`;
+
+  element.style.top =
+    `${object.y}px`;
+
+
+  element.dataset.id =
+    object.id;
+
+
+  /* SPRITE CANVAS */
+
+  const spriteCanvas =
+    document.createElement(
+      "canvas"
+    );
+
+
+  spriteCanvas.className =
+    "spriteCanvas";
+
+
+  spriteCanvas.width = 1;
+  spriteCanvas.height = 1;
+
+
+  element.appendChild(
+    spriteCanvas
+  );
+
+
+  /* =====================================================
+     PLATFORM RESIZE HANDLES
+     ===================================================== */
+
+  if (
+    object.type &&
+    object.type.toLowerCase() ===
+      "platform"
+  ) {
+
+    const corners = [
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right"
+    ];
+
+
+    corners.forEach(
+      corner => {
+
+        const handle =
+          document.createElement(
+            "div"
+          );
+
+
+        handle.className =
+          `resizeHandle ${corner}`;
+
+
+        handle.addEventListener(
+          "pointerdown",
+          event => {
+
+            if (playMode)
+              return;
+
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            const startX =
+              event.clientX;
+
+            const startY =
+              event.clientY;
+
+
+            const startWidth =
+              object.width || 200;
+
+            const startHeight =
+              object.height || 30;
+
+
+            const startLeft =
+              object.x;
+
+            const startTop =
+              object.y;
+
+
+            handle.setPointerCapture(
+              event.pointerId
+            );
+
+
+            function resize(
+              moveEvent
+            ) {
+
+              const dx =
+                moveEvent.clientX -
+                startX;
+
+              const dy =
+                moveEvent.clientY -
+                startY;
+
+
+              let newWidth =
+                startWidth;
+
+              let newHeight =
+                startHeight;
+
+              let newX =
+                startLeft;
+
+              let newY =
+                startTop;
+
+
+              /* TOP */
+
+              if (
+                corner ===
+                  "top-left" ||
+                corner ===
+                  "top-right"
+              ) {
+
+                newHeight =
+                  startHeight -
+                  dy;
+
+                newY =
+                  startTop +
+                  dy;
+
+              }
+
+
+              /* BOTTOM */
+
+              if (
+                corner ===
+                  "bottom-left" ||
+                corner ===
+                  "bottom-right"
+              ) {
+
+                newHeight =
+                  startHeight +
+                  dy;
+
+              }
+
+
+              /* LEFT */
+
+              if (
+                corner ===
+                  "top-left" ||
+                corner ===
+                  "bottom-left"
+              ) {
+
+                newWidth =
+                  startWidth -
+                  dx;
+
+                newX =
+                  startLeft +
+                  dx;
+
+              }
+
+
+              /* RIGHT */
+
+              if (
+                corner ===
+                  "top-right" ||
+                corner ===
+                  "bottom-right"
+              ) {
+
+                newWidth =
+                  startWidth +
+                  dx;
+
+              }
+
+
+              /* Minimum size */
+
+              if (newWidth < 20) {
+
+                newWidth = 20;
+
+                if (
+                  corner ===
+                    "top-left" ||
+                  corner ===
+                    "bottom-left"
+                ) {
+
+                  newX =
+                    startLeft +
+                    startWidth -
+                    20;
+
+                }
+
+              }
+
+
+              if (newHeight < 10) {
+
+                newHeight = 10;
+
+                if (
+                  corner ===
+                    "top-left" ||
+                  corner ===
+                    "top-right"
+                ) {
+
+                  newY =
+                    startTop +
+                    startHeight -
+                    10;
+
+                }
+
+              }
+
+
+              object.width =
+                newWidth;
+
+              object.height =
+                newHeight;
+
+              object.x =
+                newX;
+
+              object.y =
+                newY;
+
+
+              element.style.width =
+                `${newWidth}px`;
+
+              element.style.height =
+                `${newHeight}px`;
+
+              element.style.left =
+                `${newX}px`;
+
+              element.style.top =
+                `${newY}px`;
+
+            }
+
+
+            function stopResize(
+              stopEvent
+            ) {
+
+              handle.releasePointerCapture(
+                stopEvent.pointerId
+              );
+
+
+              handle.removeEventListener(
+                "pointermove",
+                resize
+              );
+
+
+              handle.removeEventListener(
+                "pointerup",
+                stopResize
+              );
+
+
+              saveEngine();
+
+            }
+
+
+            handle.addEventListener(
+              "pointermove",
+              resize
+            );
+
+
+            handle.addEventListener(
+              "pointerup",
+              stopResize
+            );
+
+          }
+        );
+
+
+        element.appendChild(
+          handle
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =====================================================
+     DRAGGING
+     ===================================================== */
+
+  let dragging = false;
+
+  let offsetX = 0;
+  let offsetY = 0;
+
+
+  element.addEventListener(
+    "pointerdown",
+    event => {
+
+      if (playMode)
+        return;
+
+
+      if (
+        event.target.classList.contains(
+          "resizeHandle"
+        )
+      )
+        return;
+
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      selectObject(
+        object
+      );
+
+
+      const rect =
+        element.getBoundingClientRect();
+
+
+      offsetX =
+        event.clientX -
+        rect.left;
+
+      offsetY =
+        event.clientY -
+        rect.top;
+
+
+      dragging = true;
+
+
+      element.setPointerCapture(
+        event.pointerId
+      );
+
+    }
+  );
+
+
+  element.addEventListener(
+    "pointermove",
+    event => {
+
+      if (
+        !dragging ||
+        playMode
+      )
+        return;
+
+
+      const workspaceRect =
+        workspace.getBoundingClientRect();
+
+
+      let newX =
+        event.clientX -
+        workspaceRect.left -
+        offsetX;
+
+
+      let newY =
+        event.clientY -
+        workspaceRect.top -
+        offsetY;
+
+
+      const maxX =
+        workspace.clientWidth -
+        element.offsetWidth;
+
+
+      const maxY =
+        workspace.clientHeight -
+        element.offsetHeight;
+
+
+      newX =
+        Math.max(
+          0,
+          Math.min(
+            newX,
+            maxX
+          )
+        );
+
+
+      newY =
+        Math.max(
+          0,
+          Math.min(
+            newY,
+            maxY
+          )
+        );
+
+
+      object.x =
+        newX;
+
+      object.y =
+        newY;
+
+
+      element.style.left =
+        `${newX}px`;
+
+      element.style.top =
+        `${newY}px`;
+
+    }
+  );
+
+
+  element.addEventListener(
+    "pointerup",
+    event => {
+
+      dragging = false;
+
+
+      if (
+        element.hasPointerCapture(
+          event.pointerId
+        )
+      ) {
+
+        element.releasePointerCapture(
+          event.pointerId
+        );
+
+      }
+
+
+      if (!playMode) {
+
+        selectObject(
+          object
+        );
+
+        saveEngine();
+
+      }
+
+    }
+  );
+
+
+  element.addEventListener(
+    "pointercancel",
+    () => {
+
+      dragging = false;
+
+    }
+  );
+
+
+  element.addEventListener(
+    "click",
+    event => {
+
+      if (playMode)
+        return;
+
+
+      event.stopPropagation();
+
+
+      selectObject(
+        object
+      );
+
+    }
+  );
+
+
+  object.element =
+    element;
+
+  object.spriteCanvas =
+    spriteCanvas;
+
+
+  workspace.appendChild(
+    element
+  );
+
+
+  if (object.spriteCode) {
+
+    renderSprite(
+      object
+    );
+
+  }
+
+}
+
+/* =========================================================
+   SELECT OBJECT
+   ========================================================= */
+
+function selectObject(object) {
+
+  if (
+    playMode ||
+    !object ||
+    !object.element
+  )
+    return;
+
+  if (
+    selected &&
+    selected.element
+  ) {
+    selected.element.classList.remove(
+      "selected"
+    );
+  }
+
+  selected = object;
+
+  selected.element.classList.add(
+    "selected"
+  );
+
+  emptyProperties.hidden = true;
+  propertyEditor.hidden = false;
+
+  selectedObject.textContent =
+    object.type.toUpperCase();
+
+  nameInput.value =
+    object.name || "";
+
+  healthTypeInput.value =
+    object.healthType || "hearts";
+
+  maxHealthInput.value =
+    object.maxHealth ?? 100;
+
+  heartCountInput.value =
+    object.heartCount ?? 7;
+
+  damagePerHitInput.value =
+    object.damagePerHit ?? 1;
+
+  invincibilityInput.value =
+    object.invincibilityTime ?? 1;
+
+  speedInput.value =
+  object.speed ?? 5;
+
+baseAttackInput.checked =
+  Boolean(
+    object.baseAttack
+  );
+
+attackDamageInput.value =
+  object.attackDamage ?? 10;
+
+attackRangeInput.value =
+  object.attackRange ?? 60;
+
+attackKeyInput.value =
+  object.attackKey ?? "E";
+
+attackSettings.style.display =
+  object.baseAttack
+    ? "block"
+    : "none";
+
+updateHealthSettings();
+
+
+  /* =====================================================
+     BEHAVIORS
+     ===================================================== */
+
+  behaviors.innerHTML = "";
+
+  const behaviorData =
+    object.behaviors || {};
+
+  object.behaviors =
+    behaviorData;
+
+
+  for (
+    const behavior of Object.keys(
+      behaviorData
+    )
+  ) {
+
+    const label =
+      document.createElement("label");
+
+    label.style.display = "block";
+    label.style.marginBottom = "8px";
+
+
+    const checkbox =
+      document.createElement("input");
+
+    checkbox.type = "checkbox";
+
+    checkbox.checked =
+      Boolean(
+        behaviorData[behavior]
+      );
+
+
+    checkbox.addEventListener(
+      "change",
+      function () {
+
+        behaviorData[behavior] =
+          checkbox.checked;
+
+        saveEngine();
+
+      }
+    );
+
+
+    label.appendChild(
+      checkbox
+    );
+
+
+    const text =
+      document.createTextNode(
+        " " +
+        behavior.replace(
+          /([A-Z])/g,
+          " $1"
+        )
+      );
+
+    label.appendChild(
+      text
+    );
+
+
+    behaviors.appendChild(
+      label
+    );
+
+  }
+
+
+  /* ADD BEHAVIOR */
+
+  const addBehaviorButton =
+    document.createElement("button");
+
+  addBehaviorButton.type = "button";
+
+  addBehaviorButton.textContent =
+    "+ ADD BEHAVIOR";
+
+  addBehaviorButton.style.width =
+    "100%";
+
+  addBehaviorButton.style.padding =
+    "9px";
+
+  addBehaviorButton.style.marginTop =
+    "4px";
+
+  addBehaviorButton.style.border =
+    "1px solid #444";
+
+  addBehaviorButton.style.borderRadius =
+    "7px";
+
+  addBehaviorButton.style.background =
+    "#292929";
+
+  addBehaviorButton.style.color =
+    "white";
+
+  addBehaviorButton.style.cursor =
+    "pointer";
+
+
+  addBehaviorButton.addEventListener(
+    "click",
+    function () {
+
+      if (!selected)
+        return;
+
+
+      const name =
+        prompt(
+          "Enter behavior name:"
+        );
+
+
+      if (
+        !name ||
+        !name.trim()
+      )
+        return;
+
+
+      const behaviorName =
+        name.trim();
+
+
+      if (
+        Object.prototype.hasOwnProperty.call(
+          behaviorData,
+          behaviorName
+        )
+      ) {
+
+        alert(
+          "That behavior already exists."
+        );
+
+        return;
+
+      }
+
+
+      behaviorData[behaviorName] =
+        true;
+
+
+      saveEngine();
+
+      selectObject(
+        object
+      );
+
+    }
+  );
+
+
+  behaviors.appendChild(
+    addBehaviorButton
+  );
+
+
+  updateSpritePanel();
+
+}
+
+
+/* =========================================================
+   UPDATE SPRITE PANEL
+   ========================================================= */
+
+function updateSpritePanel() {
+
+  if (!selected)
+    return;
+
+
+  spritePreview.innerHTML =
+    "";
+
+
+  if (!selected.spriteCode) {
+
+    spritePreview.innerHTML =
+      `<span style="color:#666;">
+        No sprite
+      </span>`;
+
+
+    spriteStatus.textContent =
+      "This object has no Bixel sprite yet.";
+
+
+    return;
+
+  }
+
+
+  const decoded =
+    decodeBBX(
+      selected.spriteCode
+    );
+
+
+  if (!decoded) {
+
+    spritePreview.innerHTML =
+      `<span style="color:#d66;">
+        Invalid BBX
+      </span>`;
+
+
+    spriteStatus.textContent =
+      "The sprite code could not be decoded.";
+
+
+    return;
+
+  }
+
+
+  const previewCanvas =
+    document.createElement(
+      "canvas"
+    );
+
+
+  previewCanvas.width =
+    decoded.size;
+
+  previewCanvas.height =
+    decoded.size;
+
+
+  previewCanvas.style.width =
+    "130px";
+
+  previewCanvas.style.height =
+    "130px";
+
+
+  previewCanvas.style.imageRendering =
+    "pixelated";
+
+
+  drawFrame(
+    previewCanvas,
+    decoded.frames[0]
+  );
+
+
+  spritePreview.appendChild(
+    previewCanvas
+  );
+
+
+  spriteStatus.textContent =
+    `${decoded.size}×${decoded.size} • ${decoded.frames.length} frame${decoded.frames.length === 1 ? "" : "s"} • ${decoded.fps} FPS`;
+
+}
+
+
+/* =========================================================
+   BBX DECODER
+   ========================================================= */
+
+function decodeBBX(code) {
+
+  try {
+
+    if (
+      typeof code !== "string"
+    )
+      return null;
+
+
+    if (
+      !code.startsWith("BBX1|")
+    )
+      return null;
+
+
+    const parts =
+      code.split("|");
+
+
+    if (
+      parts.length < 4
+    )
+      return null;
+
+
+    const size =
+      Number(parts[1]);
+
+
+    const fps =
+      Number(parts[2]);
+
+
+    const frameData =
+      parts
+        .slice(3)
+        .join("|")
+        .split("||");
+
+
+    if (
+      !Number.isInteger(size) ||
+      size < 1 ||
+      size > 256
+    )
+      return null;
+
+
+    const frames = [];
+
+
+    for (
+      const encodedFrame
+      of frameData
+    ) {
+
+      if (!encodedFrame)
+        continue;
+
+
+      const pixels =
+        encodedFrame.split(";");
+
+
+      if (
+        pixels.length !==
+        size * size
+      ) {
+
+        console.warn(
+          "Bad frame size",
+          pixels.length,
+          size * size
+        );
+
+
+        return null;
+
+      }
+
+
+      const frame = [];
+
+
+      for (
+        const pixel
+        of pixels
+      ) {
+
+        if (
+          pixel === "0"
+        ) {
+
+          frame.push({
+
+            transparent: true,
+
+            r: 0,
+            g: 0,
+            b: 0
+
+          });
+
+
+          continue;
+
+        }
+
+
+        const rgb =
+          pixel
+            .split(",")
+            .map(Number);
+
+
+        if (
+          rgb.length !== 3
+        )
+          return null;
+
+
+        frame.push({
+
+          transparent: false,
+
+          r: Math.max(
+            0,
+            Math.min(
+              255,
+              rgb[0]
+            )
+          ),
+
+          g: Math.max(
+            0,
+            Math.min(
+              255,
+              rgb[1]
+            )
+          ),
+
+          b: Math.max(
+            0,
+            Math.min(
+              255,
+              rgb[2]
+            )
+          )
+
+        });
+
+      }
+
+
+      frames.push(
+        frame
+      );
+
+    }
+
+
+    if (
+      frames.length === 0
+    )
+      return null;
+
+
+    return {
+
+      version: "BBX1",
+
+      size: size,
+
+      fps:
+        Number.isFinite(fps)
+          ? fps
+          : 8,
+
+      frames: frames
+
+    };
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "BBX decode error:",
+      error
+    );
+
+
+    return null;
+
+  }
+
+}
+
+
+/* =========================================================
+   DRAW FRAME
+   ========================================================= */
+
+function drawFrame(
+  canvas,
+  frame
+) {
+
+  if (!frame)
+    return;
+
+
+  const ctx =
+    canvas.getContext(
+      "2d"
+    );
+
+
+  const size =
+    Math.sqrt(
+      frame.length
+    );
+
+
+  canvas.width =
+    size;
+
+  canvas.height =
+    size;
+
+
+  ctx.clearRect(
+    0,
+    0,
+    size,
+    size
+  );
+
+
+  const image =
+    ctx.createImageData(
+      size,
+      size
+    );
+
+
+  for (
+    let i = 0;
+    i < frame.length;
+    i++
+  ) {
+
+    const pixel =
+      frame[i];
+
+
+    const index =
+      i * 4;
+
+
+    if (
+      pixel.transparent
+    ) {
+
+      image.data[index] = 0;
+      image.data[index + 1] = 0;
+      image.data[index + 2] = 0;
+      image.data[index + 3] = 0;
+
+    }
+
+    else {
+
+      image.data[index] =
+        pixel.r;
+
+      image.data[index + 1] =
+        pixel.g;
+
+      image.data[index + 2] =
+        pixel.b;
+
+      image.data[index + 3] =
+        255;
+
+    }
+
+  }
+
+
+  ctx.putImageData(
+    image,
+    0,
+    0
+  );
+
+}
+
+
+/* =========================================================
+   RENDER SPRITE
+   ========================================================= */
+
+function renderSprite(
+  object
+) {
+
+  if (
+    !object ||
+    !object.spriteCanvas ||
+    !object.spriteCode
+  )
+    return;
+
+
+  const decoded =
+    decodeBBX(
+      object.spriteCode
+    );
+
+
+  if (!decoded)
+    return;
+
+
+  drawFrame(
+    object.spriteCanvas,
+    decoded.frames[0]
+  );
+
+
+  object.spriteCanvas.style.display =
+    "block";
+
+}
+
+
+/* =========================================================
+   OPEN BIXEL
+   ========================================================= */
+
+openBixelButton.addEventListener(
+  "click",
+  () => {
+
+    if (
+      !selected ||
+      playMode
+    )
+      return;
+
+
+    localStorage.setItem(
+      "blankbox_bixel_target",
+      String(selected.id)
+    );
+
+
+    saveEngine();
+
+
+    window.location.href =
+      "bixel.html";
+
+  }
+);
+
+
+/* =========================================================
+   REMOVE SPRITE
+   ========================================================= */
+
+removeSpriteButton.addEventListener(
+  "click",
+  () => {
+
+    if (
+      !selected ||
+      playMode
+    )
+      return;
+
+
+    selected.spriteCode =
+      null;
+
+
+    const ctx =
+      selected.spriteCanvas
+        .getContext("2d");
+
+
+    ctx.clearRect(
+      0,
+      0,
+      selected.spriteCanvas.width,
+      selected.spriteCanvas.height
+    );
+
+
+    updateSpritePanel();
+
+    saveEngine();
+
+
+    notify(
+      "Sprite removed."
+    );
+
+  }
+);
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+nameInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+
+    selected.name =
+      nameInput.value;
+
+
+    saveEngine();
+
+  }
+);
+
+healthTypeInput.addEventListener(
+  "change",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.healthType =
+      healthTypeInput.value;
+
+    updateHealthSettings();
+
+    saveEngine();
+
+  }
+);
+
+
+maxHealthInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.maxHealth =
+      Math.max(
+        1,
+        Number(maxHealthInput.value) || 1
+      );
+
+    selected.health =
+      Math.min(
+        selected.health ?? selected.maxHealth,
+        selected.maxHealth
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+heartCountInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.heartCount =
+      Math.max(
+        1,
+        Number(heartCountInput.value) || 1
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+damagePerHitInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.damagePerHit =
+      Math.max(
+        1,
+        Number(damagePerHitInput.value) || 1
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+invincibilityInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.invincibilityTime =
+      Math.max(
+        0,
+        Number(invincibilityInput.value) || 0
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+speedInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+
+    selected.speed =
+      Number(
+        speedInput.value
+      ) || 0;
+
+
+    saveEngine();
+
+  }
+  );
+  baseAttackInput.addEventListener(
+  "change",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.baseAttack =
+      baseAttackInput.checked;
+
+    attackSettings.style.display =
+      selected.baseAttack
+        ? "block"
+        : "none";
+
+    saveEngine();
+
+  }
+);
+
+
+attackDamageInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.attackDamage =
+      Math.max(
+        1,
+        Number(
+          attackDamageInput.value
+        ) || 1
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+attackRangeInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    selected.attackRange =
+      Math.max(
+        1,
+        Number(
+          attackRangeInput.value
+        ) || 1
+      );
+
+    saveEngine();
+
+  }
+);
+
+
+attackKeyInput.addEventListener(
+  "input",
+  () => {
+
+    if (!selected)
+      return;
+
+    const key =
+      attackKeyInput.value
+        .trim()
+        .toUpperCase();
+
+    selected.attackKey =
+      key || "E";
+
+    attackKeyInput.value =
+      selected.attackKey;
+
+    saveEngine();
+
+  }
+);
+
+function updateHealthSettings() {
+
+  if (!selected)
+    return;
+
+  const type =
+    selected.healthType || "hearts";
+
+  if (maxHealthProperty) {
+    maxHealthProperty.style.display =
+      type === "hearts" ||
+      type === "number" ||
+      type === "bar"
+        ? "block"
+        : "none";
+  }
+
+  if (heartCountProperty) {
+    heartCountProperty.style.display =
+      type === "hearts"
+        ? "block"
+        : "none";
+  }
+
+}
+/* =========================================================
+   CREATE BUTTONS
+   ========================================================= */
+
+document
+  .querySelectorAll(
+    ".objectButton"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          createObject(
+            button.dataset.type
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   WORKSPACE DESELECT
+   ========================================================= */
+
+workspace.addEventListener(
+  "click",
+  () => {
+
+    if (playMode)
+      return;
+
+
+    if (
+      selected &&
+      selected.element
+    ) {
+
+      selected.element.classList.remove(
+        "selected"
+      );
+
+    }
+
+
+    selected = null;
+
+
+    emptyProperties.hidden =
+      false;
+
+    propertyEditor.hidden =
+      true;
+
+  }
+);
+
+
+/* =========================================================
+   SAVE ENGINE
+   ========================================================= */
+
+function saveEngine() {
+
+  const projectID =
+    localStorage.getItem(
+      "blankbox_current_project"
+    );
+
+  if (!projectID) {
+
+    console.warn(
+      "No current Blank Box project selected."
+    );
+
+    return;
+
+  }
+
+
+  const projects =
+    JSON.parse(
+      localStorage.getItem(
+        "blankbox_projects"
+      )
+    ) || [];
+
+
+  const projectIndex =
+    projects.findIndex(
+      project =>
+        project.id === projectID
+    );
+
+
+  if (projectIndex === -1) {
+
+    console.warn(
+      "Current Blank Box project could not be found."
+    );
+
+    return;
+
+  }
+
+
+  const cleanObjects =
+    objects.map(
+      object => ({
+
+        id:
+          object.id,
+
+        type:
+          object.type,
+
+        name:
+          object.name,
+
+      health:
+  object.health,
+
+maxHealth:
+  object.maxHealth,
+
+healthType:
+  object.healthType,
+
+heartCount:
+  object.heartCount,
+
+damagePerHit:
+  object.damagePerHit,
+
+invincibilityTime:
+  object.invincibilityTime,
+
+speed:
+  object.speed,
+
+baseAttack:
+  object.baseAttack,
+
+attackDamage:
+  object.attackDamage,
+
+attackRange:
+  object.attackRange,
+
+attackKey:
+  object.attackKey,
+
+behaviors:
+  object.behaviors,
+
+        x: object.x,
+        y: object.y,
+        width: object.width,
+        height: object.height,
+        spriteCode: object.spriteCode||
+          null
+
+      })
+    );
+
+
+  projects[projectIndex].objects =
+    cleanObjects;
+if (
+  !Array.isArray(
+    projects[projectIndex].eventSheets
+  )
+) {
+
+  projects[projectIndex].eventSheets = [];
+
+}
+
+  projects[projectIndex].modified =
+    Date.now();
+
+
+  localStorage.setItem(
+    "blankbox_projects",
+    JSON.stringify(
+      projects
+    )
+  );
+
+}
+
+
+/* =========================================================
+   LOAD ENGINE
+   ========================================================= */
+
+function loadEngine() {
+
+  const projectID =
+    localStorage.getItem(
+      "blankbox_current_project"
+    );
+
+
+  if (!projectID) {
+
+    console.warn(
+      "No current Blank Box project selected."
+    );
+
+    return;
+
+  }
+
+
+  const projects =
+    JSON.parse(
+      localStorage.getItem(
+        "blankbox_projects"
+      )
+    ) || [];
+
+
+  const project =
+    projects.find(
+      project =>
+        project.id === projectID
+    );
+
+
+  if (!project) {
+
+    console.warn(
+      "Current Blank Box project could not be found."
+    );
+
+    return;
+
+  }
+
+
+  const saved =
+    project.objects;
+
+
+  if (
+    !Array.isArray(
+      saved
+    )
+  )
+    return;
+
+
+  for (
+    const object
+    of saved
+  ) {
+
+    objects.push(
+      object
+    );
+if (object.type === "platform") {
+  object.width = object.width || 200;
+  object.height = object.height || 30;
+}
+
+    renderObject(
+      object
+    );
+
+  }
+
+
+  if (
+    objects.length > 0
+  ) {
+
+    workspaceHint.style.display =
+      "none";
+
+  }
+
+}
+
+/* =========================================================
+   RECEIVE BIXEL SPRITE
+   ========================================================= */
+
+function receiveBixelSprite() {
+
+  const code =
+    localStorage.getItem(
+      "blankbox_bixel_code"
+    );
+
+
+  const targetId =
+    localStorage.getItem(
+      "blankbox_bixel_target"
+    );
+
+
+  if (
+    !code ||
+    !targetId
+  )
+    return;
+
+
+  const target =
+    objects.find(
+      object =>
+        String(object.id) ===
+        String(targetId)
+    );
+
+
+  if (!target)
+    return;
+
+
+  target.spriteCode =
+    code;
+
+
+  renderSprite(
+    target
+  );
+
+
+  selectObject(
+    target
+  );
+
+
+  localStorage.removeItem(
+    "blankbox_bixel_target"
+  );
+
+
+  saveEngine();
+
+
+  notify(
+    "Bixel sprite added!"
+  );
+
+}
+
+ /* =========================================================
+    PLAY MODE PHYSICS
+    ========================================================= */
+
+let playerObject = null;
+
+let physicsRunning = false;
+let physicsFrame = null;
+let playStartPositions = new Map();
+
+const GRAVITY = 0.6;
+const MAX_FALL_SPEED = 15;
+
+const MOVE_SPEED = 4;
+const JUMP_FORCE = 11;
+let attackCooldown = false;
+let attackVisual = null;
+
+/* ---------------------------------------------------------
+   FIND PLAYER
+   --------------------------------------------------------- */
+
+function findPlayer() {
+
+  if (localPlayerId) {
+
+    const multiplayerPlayer =
+      objects.find(
+        object =>
+          object.id === localPlayerId
+      );
+
+    if (multiplayerPlayer) {
+
+      playerObject =
+        multiplayerPlayer;
+
+      return true;
+
+    }
+
+  }
+
+
+  playerObject =
+    objects.find(
+      object =>
+        object.type &&
+        object.type.toLowerCase() ===
+        "player"
+    ) || null;
+
+
+  if (!playerObject) {
+
+    console.warn(
+      "BLANK BOX: No Player object found."
+    );
+
+    return false;
+
+  }
+
+
+  if (!playerObject.element) {
+
+    renderObject(
+      playerObject
+    );
+
+  }
+
+
+  return true;
+
+}
+
+
+/* ---------------------------------------------------------
+   START PHYSICS
+   --------------------------------------------------------- */
+
+function startPhysics() {
+  stopPhysics();
+
+  if (!findPlayer()) return;
+
+  // Remember where every object started
+  playStartPositions.clear();
+
+ objects.forEach(object => {
+
+  playStartPositions.set(object.id, {
+    x: object.x,
+    y: object.y
+  });
+
+
+  /*
+    Reset runtime health when a new
+    play session begins.
+  */
+
+  if (
+    object.type &&
+    object.type.toLowerCase() === "enemy"
+  ) {
+
+    object.health =
+      Number(object.maxHealth) || 100;
+
+  }
+
+});
+  // Reset player physics
+  playerObject.velocityX = 0;
+  playerObject.velocityY = 0;
+  playerObject.grounded = false;
+
+  physicsRunning = true;
+  physicsFrame = requestAnimationFrame(physicsLoop);
+}
+
+
+/* ---------------------------------------------------------
+   STOP PHYSICS
+   --------------------------------------------------------- */
+
+function stopPhysics() {
+  physicsRunning = false;
+
+  if (physicsFrame !== null) {
+    cancelAnimationFrame(physicsFrame);
+    physicsFrame = null;
+  }
+
+  // Put everything back where it was when PLAY started
+  objects.forEach(object => {
+    const start = playStartPositions.get(object.id);
+
+    if (!start) return;
+
+    object.x = start.x;
+    object.y = start.y;
+
+    if (object.element) {
+      object.element.style.left = `${object.x}px`;
+      object.element.style.top = `${object.y}px`;
+    }
+  });
+
+  if (playerObject) {
+    playerObject.velocityX = 0;
+    playerObject.velocityY = 0;
+    playerObject.grounded = false;
+  }
+
+  playStartPositions.clear();
+}
+  function updateEnemyAI() {
+  if (!playerObject) return;
+
+  for (const enemy of objects) {
+    if (!enemy.element) continue;
+    if (enemy.type.toLowerCase() !== "enemy") continue;
+    if (!enemy.aiEnabled) continue;
+
+    if (enemy.aiBehavior !== "chase") continue;
+
+    const dx = playerObject.x - enemy.x;
+    const dy = playerObject.y - enemy.y;
+
+    const distance = Math.sqrt(
+      dx * dx + dy * dy
+    );
+
+    if (distance > enemy.aiDetectionRange) {
+      enemy.velocityX = 0;
+      continue;
+    }
+
+    if (Math.abs(dx) > 5) {
+      enemy.velocityX =
+        dx > 0
+          ? enemy.speed
+          : -enemy.speed;
+    } else {
+      enemy.velocityX = 0;
+    }
+
+    enemy.x += enemy.velocityX;
+
+    enemy.element.style.left =
+      `${enemy.x}px`;
+  }
+}
+  /* ---------------------------------------------------------
+   PLAYER ATTACK
+   --------------------------------------------------------- */
+
+function playerAttack() {
+
+  if (!playMode)
+    return;
+
+  if (!playerObject)
+    return;
+
+  if (!playerObject.baseAttack)
+    return;
+
+  if (attackCooldown)
+    return;
+
+  const damage =
+    Math.max(
+      1,
+      Number(playerObject.attackDamage) || 1
+    );
+
+  const range =
+    Math.max(
+      1,
+      Number(playerObject.attackRange) || 60
+    );
+
+
+  attackCooldown = true;
+
+
+  /*
+    Determine which direction the player
+    is facing.
+  */
+
+  let direction = 1;
+
+  if (playerObject.velocityX < 0) {
+    direction = -1;
+  }
+
+
+  /*
+    Create the attack hitbox.
+  */
+
+  const attackWidth = range;
+  const attackHeight = playerObject.height || 60;
+
+  const attackX =
+    direction > 0
+      ? playerObject.x + (playerObject.width || 60)
+      : playerObject.x - attackWidth;
+
+  const attackY =
+    playerObject.y;
+
+
+  /*
+    Visual attack indicator.
+  */
+
+  showAttackVisual(
+    attackX,
+    attackY,
+    attackWidth,
+    attackHeight
+  );
+
+
+  /*
+    Check every enemy.
+  */
+
+  for (const enemy of objects) {
+
+    if (!enemy)
+      continue;
+
+    if (!enemy.element)
+      continue;
+
+    if (
+      !enemy.type ||
+      enemy.type.toLowerCase() !== "enemy"
+    )
+      continue;
+
+    /*
+      Enemy rectangle.
+    */
+
+    const enemyWidth =
+      enemy.width || 60;
+
+    const enemyHeight =
+      enemy.height || 60;
+
+
+    const hit =
+      attackX < enemy.x + enemyWidth &&
+      attackX + attackWidth > enemy.x &&
+      attackY < enemy.y + enemyHeight &&
+      attackY + attackHeight > enemy.y;
+
+
+    if (!hit)
+      continue;
+
+
+    damageEnemy(
+      enemy,
+      damage
+    );
+
+  }
+
+
+  /*
+    Small attack cooldown so one key press
+    doesn't damage the enemy every frame.
+  */
+
+  setTimeout(
+    () => {
+      attackCooldown = false;
+    },
+    250
+  );
+
+}
+
+
+/* ---------------------------------------------------------
+   DAMAGE ENEMY
+   --------------------------------------------------------- */
+
+function damageEnemy(
+  enemy,
+  damage
+) {
+
+  if (!enemy)
+    return;
+
+
+  /*
+    Make sure health exists.
+  */
+
+  if (
+    typeof enemy.health !== "number"
+  ) {
+
+    enemy.health =
+      Number(enemy.maxHealth) || 100;
+
+  }
+
+
+  enemy.health -= damage;
+
+
+  /*
+    Flash the enemy when hit.
+  */
+
+  if (enemy.element) {
+
+    enemy.element.style.filter =
+      "brightness(2)";
+
+    setTimeout(
+      () => {
+
+        if (
+          enemy.element
+        ) {
+
+          enemy.element.style.filter =
+            "";
+
+        }
+
+      },
+      100
+    );
+
+  }
+
+
+  console.log(
+    `${enemy.name || "Enemy"} took ${damage} damage. Health: ${enemy.health}`
+  );
+
+
+  /*
+    Enemy dies at 0 HP.
+  */
+
+  if (
+    enemy.health <= 0
+  ) {
+
+    enemy.health = 0;
+
+    killEnemy(
+      enemy
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   KILL ENEMY
+   --------------------------------------------------------- */
+
+function killEnemy(
+  enemy
+) {
+
+  if (!enemy)
+    return;
+
+
+  console.log(
+    `${enemy.name || "Enemy"} defeated.`
+  );
+
+
+  if (enemy.element) {
+
+    enemy.element.remove();
+
+  }
+
+
+  /*
+    Remove from the actual game object list.
+  */
+
+  const index =
+    objects.indexOf(
+      enemy
+    );
+
+
+  if (index !== -1) {
+
+    objects.splice(
+      index,
+      1
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   ATTACK VISUAL
+   --------------------------------------------------------- */
+
+function showAttackVisual(
+  x,
+  y,
+  width,
+  height
+) {
+
+  if (attackVisual) {
+
+    attackVisual.remove();
+
+  }
+
+
+  const visual =
+    document.createElement(
+      "div"
+    );
+
+
+  attackVisual =
+    visual;
+
+
+  visual.style.position =
+    "absolute";
+
+  visual.style.left =
+    `${x}px`;
+
+  visual.style.top =
+    `${y}px`;
+
+  visual.style.width =
+    `${width}px`;
+
+  visual.style.height =
+    `${height}px`;
+
+  visual.style.border =
+    "2px solid white";
+
+  visual.style.background =
+    "rgba(255,255,255,0.15)";
+
+  visual.style.pointerEvents =
+    "none";
+
+  visual.style.zIndex =
+    "50";
+
+
+  workspace.appendChild(
+    visual
+  );
+
+
+  setTimeout(
+    () => {
+
+      if (
+        visual.parentNode
+      ) {
+
+        visual.remove();
+
+      }
+
+      if (
+        attackVisual === visual
+      ) {
+
+        attackVisual = null;
+
+      }
+
+    },
+    100
+  );
+
+}
+/* ---------------------------------------------------------
+   PHYSICS LOOP
+   --------------------------------------------------------- */
+
+function physicsLoop() {
+
+  if (!physicsRunning)
+    return;
+
+
+  if (!playerObject) {
+
+    physicsFrame =
+      requestAnimationFrame(
+        physicsLoop
+      );
+
+    return;
+
+  }
+
+
+  /* PLAYER VELOCITY */
+
+  if (
+    typeof playerObject.velocityX !==
+    "number"
+  ) {
+
+    playerObject.velocityX = 0;
+
+  }
+
+
+  if (
+    typeof playerObject.velocityY !==
+    "number"
+  ) {
+
+    playerObject.velocityY = 0;
+
+  }
+
+
+  /* GRAVITY */
+if (
+  (keys["Space"] || keys["KeyW"] || keys["ArrowUp"]) &&
+  playerObject.grounded
+) {
+  playerObject.velocityY = -JUMP_FORCE;
+  playerObject.grounded = false;
+}
+  playerObject.velocityY +=
+    GRAVITY;
+
+
+  if (
+    playerObject.velocityY >
+    MAX_FALL_SPEED
+  ) {
+
+    playerObject.velocityY =
+      MAX_FALL_SPEED;
+
+  }
+
+
+  /* MOVEMENT */
+if (keys["KeyA"] || keys["ArrowLeft"]) {
+  playerObject.velocityX = -MOVE_SPEED;
+} else if (keys["KeyD"] || keys["ArrowRight"]) {
+  playerObject.velocityX = MOVE_SPEED;
+} else {
+  playerObject.velocityX = 0;
+}
+  playerObject.x +=
+    playerObject.velocityX;
+
+  playerObject.y +=
+    playerObject.velocityY;
+  updateEnemyAI();
+checkPlatformCollision();
+
+  /* UPDATE VISUAL */
+
+  if (
+    playerObject.element
+  ) {
+
+    playerObject.element.style.left =
+      `${playerObject.x}px`;
+
+    playerObject.element.style.top =
+      `${playerObject.y}px`;
+
+  }
+if (multiplayerMode) {
+
+  sendPlayerState();
+
+}
+
+  physicsFrame =
+    requestAnimationFrame(
+      physicsLoop
+    );
+
+}
+function checkPlatformCollision() {
+
+  const player =
+    playerObject;
+
+  if (
+    !player ||
+    !player.element
+  )
+    return;
+
+
+  const workspaceRect =
+    workspace.getBoundingClientRect();
+
+
+  const playerRect =
+    player.element.getBoundingClientRect();
+
+
+  player.grounded =
+    false;
+
+
+  for (
+    const platform of objects
+  ) {
+
+    if (!platform.element)
+      continue;
+
+
+    if (
+      !platform.type ||
+      platform.type.toLowerCase() !==
+        "platform"
+    )
+      continue;
+
+
+    const platformRect =
+      platform.element.getBoundingClientRect();
+
+
+    /* CURRENT PLAYER POSITION */
+
+    const playerLeft =
+      playerRect.left;
+
+    const playerRight =
+      playerRect.right;
+
+    const playerTop =
+      playerRect.top;
+
+    const playerBottom =
+      playerRect.bottom;
+
+
+    /* PLATFORM POSITION */
+
+    const platformLeft =
+      platformRect.left;
+
+    const platformRight =
+      platformRect.right;
+
+    const platformTop =
+      platformRect.top;
+
+    const platformBottom =
+      platformRect.bottom;
+
+
+    /* CHECK FOR OVERLAP */
+
+    const overlapping =
+      playerRight >
+        platformLeft &&
+      playerLeft <
+        platformRight &&
+      playerBottom >
+        platformTop &&
+      playerTop <
+        platformBottom;
+
+
+    if (!overlapping)
+      continue;
+
+
+    /*
+      Find where the player was
+      BEFORE this physics frame.
+    */
+
+    const previousLeft =
+      playerLeft -
+      player.velocityX;
+
+    const previousRight =
+      playerRight -
+      player.velocityX;
+
+    const previousTop =
+      playerTop -
+      player.velocityY;
+
+    const previousBottom =
+      playerBottom -
+      player.velocityY;
+
+
+    /*
+      LANDING ON TOP
+    */
+
+    if (
+      previousBottom <=
+        platformTop &&
+      player.velocityY >= 0
+    ) {
+
+      const platformTopPosition =
+        platformTop -
+        workspaceRect.top;
+
+
+      const playerHeight =
+        playerRect.height;
+
+
+      player.y =
+        platformTopPosition -
+        playerHeight;
+
+
+      player.velocityY =
+        0;
+
+
+      player.grounded =
+        true;
+
+
+      player.element.style.top =
+        `${player.y}px`;
+
+
+      continue;
+
+    }
+
+
+    /*
+      HITTING THE BOTTOM
+    */
+
+    if (
+      previousTop >=
+        platformBottom &&
+      player.velocityY < 0
+    ) {
+
+      const platformBottomPosition =
+        platformBottom -
+        workspaceRect.top;
+
+
+      player.y =
+        platformBottomPosition;
+
+
+      player.velocityY =
+        0;
+
+
+      player.element.style.top =
+        `${player.y}px`;
+
+
+      continue;
+
+    }
+
+
+    /*
+      HITTING THE LEFT SIDE
+    */
+
+    if (
+      previousRight <=
+        platformLeft &&
+      player.velocityX > 0
+    ) {
+
+      const platformLeftPosition =
+        platformLeft -
+        workspaceRect.left;
+
+
+      const playerWidth =
+        playerRect.width;
+
+
+      player.x =
+        platformLeftPosition -
+        playerWidth;
+
+
+      player.velocityX =
+        0;
+
+
+      player.element.style.left =
+        `${player.x}px`;
+
+
+      continue;
+
+    }
+
+
+    /*
+      HITTING THE RIGHT SIDE
+    */
+
+    if (
+      previousLeft >=
+        platformRight &&
+      player.velocityX < 0
+    ) {
+
+      const platformRightPosition =
+        platformRight -
+        workspaceRect.left;
+
+
+      player.x =
+        platformRightPosition;
+
+
+      player.velocityX =
+        0;
+
+
+      player.element.style.left =
+        `${player.x}px`;
+
+
+      continue;
+
+    }
+
+  }
+
+}
+/* =========================================================
+   ENTER PLAY MODE
+   ========================================================= */
+
+function enterPlayMode() {
+
+  if (playMode)
+    return;
+
+
+  playMode = true;
+
+
+  /* Remove editor selection */
+
+  if (
+    selected &&
+    selected.element
+  ) {
+
+    selected.element.classList.remove(
+      "selected"
+    );
+
+  }
+
+
+  selected = null;
+
+
+  emptyProperties.hidden =
+    false;
+
+  propertyEditor.hidden =
+    true;
+
+
+  /* Make every object non-interactive */
+
+  objects.forEach(
+    object => {
+
+      if (!object.element)
+        return;
+
+
+      object.element.style.pointerEvents =
+        "none";
+
+
+      /* Make sure the object is
+         at its saved position */
+
+      object.element.style.left =
+        `${object.x}px`;
+
+      object.element.style.top =
+        `${object.y}px`;
+
+    }
+  );
+
+
+  document.body.classList.add(
+    "playMode"
+  );
+
+
+  notify(
+    "PLAY MODE"
+  );
+
+
+  /* Start game physics */
+
+  startPhysics();
+
+}
+const keys = {};
+
+window.addEventListener("keydown", event => {
+
+  if (!playMode)
+    return;
+
+
+  keys[event.code] = true;
+
+
+  /*
+    Player attack.
+  */
+
+  if (
+    playerObject &&
+    playerObject.baseAttack
+  ) {
+
+    const attackKey =
+      (
+        playerObject.attackKey ||
+        "E"
+      ).toUpperCase();
+
+
+    /*
+      Convert the configured key into
+      the browser's KeyboardEvent code.
+    */
+
+    let pressedKey =
+      event.key.toUpperCase();
+
+
+    if (
+      pressedKey === attackKey
+    ) {
+
+      event.preventDefault();
+
+      playerAttack();
+
+    }
+
+  }
+
+});
+window.addEventListener("keyup", event => {
+  keys[event.code] = false;
+});
+
+window.addEventListener("blur", () => {
+  for (const key in keys) {
+    keys[key] = false;
+  }
+
+  if (playerObject) {
+    playerObject.velocityX = 0;
+  }
+});
+/* =========================================================
+   EXIT PLAY MODE
+   ========================================================= */
+
+function exitPlayMode() {
+stopPhysics();
+  if (!playMode)
+    return;
+
+
+  playMode = false;
+
+
+  document.body.classList.remove(
+    "playMode"
+  );
+
+
+  objects.forEach(
+    object => {
+
+      if (!object.element)
+        return;
+
+
+      object.element.style.pointerEvents =
+        "auto";
+
+    }
+  );
+
+
+  notify(
+    "EDIT MODE"
+  );
+
+}
+backButton.addEventListener("click", () => {
+
+    // Make sure the latest editor state is saved
+    saveEngine();
+
+    // Return to the project hub
+    window.location.href = "projects.html";
+
+});
+eventsButton.addEventListener(
+  "click",
+  () => {
+
+    if (playMode)
+      return;
+
+    saveEngine();
+
+    window.location.href =
+      "events.html";
+
+  }
+);
+/* =========================================================
+   PLAY BUTTON
+   ========================================================= */
+
+playButton.addEventListener(
+  "click",
+  enterPlayMode
+);
+
+
+/* =========================================================
+   STOP BUTTON
+   ========================================================= */
+
+stopButton.addEventListener(
+  "click",
+  exitPlayMode
+);
+/* =========================================================
+   GAME CODE / MULTIPLAYER
+   ========================================================= */
+
+function generateGameCode() {
+
+  const characters =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  let code = "";
+
+  for (let i = 0; i < 6; i++) {
+
+    code +=
+      characters[
+        Math.floor(
+          Math.random() *
+          characters.length
+        )
+      ];
+
+  }
+
+  return code;
+}
+
+
+/* =========================================================
+   CREATE PLAYER 2
+   ========================================================= */
+
+function createPlayerTwo() {
+
+  const playerTwo = {
+
+    id:
+      Date.now() +
+      Math.floor(
+        Math.random() * 10000
+      ),
+
+    type: "player",
+
+    name: "Player 2",
+
+    playerNumber: 2,
+
+    health: 100,
+    maxHealth: 100,
+
+    healthType: "hearts",
+    heartCount: 7,
+
+    damagePerHit: 1,
+    invincibilityTime: 1,
+
+    speed: 5,
+
+    aiEnabled: false,
+    aiBehavior: null,
+    aiDetectionRange: 0,
+    aiAttackRange: 0,
+
+    behaviors: {
+      movement: true,
+      jumping: true,
+      chasePlayer: false,
+      contactDamage: false,
+      solid: false,
+      ranged: false,
+      dialogue: false,
+      pickup: false
+    },
+
+    x: 200,
+    y: 100,
+
+    spriteCode: null
+  };
+
+  objects.push(
+    playerTwo
+  );
+
+  renderObject(
+    playerTwo
+  );
+
+  return playerTwo;
+}
+
+
+/* =========================================================
+   GAME SNAPSHOT
+   ========================================================= */
+
+function createGameSnapshot() {
+
+  return objects.map(object => {
+
+    return {
+
+      id:
+        object.id,
+
+      type:
+        object.type,
+
+      name:
+        object.name,
+
+      playerNumber:
+        object.playerNumber ?? null,
+
+      health:
+        object.health,
+
+      maxHealth:
+        object.maxHealth,
+
+      healthType:
+        object.healthType,
+
+      heartCount:
+        object.heartCount,
+
+      damagePerHit:
+        object.damagePerHit,
+
+      invincibilityTime:
+        object.invincibilityTime,
+
+      speed:
+        object.speed,
+
+      aiEnabled:
+        object.aiEnabled,
+
+      aiBehavior:
+        object.aiBehavior,
+
+      aiDetectionRange:
+        object.aiDetectionRange,
+
+      aiAttackRange:
+        object.aiAttackRange,
+
+      behaviors:
+        object.behaviors,
+
+      x:
+        object.x,
+
+      y:
+        object.y,
+
+      spriteCode:
+        object.spriteCode
+
+    };
+
+  });
+
+}
+
+
+/* =========================================================
+   LOAD MULTIPLAYER GAME
+   ========================================================= */
+
+function loadMultiplayerGame(snapshot) {
+
+  objects.forEach(object => {
+
+    if (object.element) {
+
+      object.element.remove();
+
+    }
+
+  });
+
+  objects = [];
+
+  selected = null;
+
+  snapshot.forEach(data => {
+
+    const object = {
+
+      ...data,
+
+      element: null,
+
+      spriteCanvas: null
+
+    };
+
+    objects.push(
+      object
+    );
+
+    renderObject(
+      object
+    );
+
+  });
+
+  if (localPlayerId) {
+
+    findPlayer();
+
+    enterPlayMode();
+
+  }
+
+}
+
+
+/* =========================================================
+   UPDATE REMOTE PLAYER
+   ========================================================= */
+
+function updateRemotePlayer(
+  playerId,
+  x,
+  y
+) {
+
+  const player =
+    objects.find(
+      object =>
+        object.id === playerId
+    );
+
+  if (!player)
+    return;
+
+  if (
+    player.id === localPlayerId
+  )
+    return;
+
+  player.x = x;
+  player.y = y;
+
+  if (player.element) {
+
+    player.element.style.left =
+      `${x}px`;
+
+    player.element.style.top =
+      `${y}px`;
+
+  }
+
+}
+
+
+/* =========================================================
+   SEND PLAYER STATE
+   ========================================================= */
+
+function sendPlayerState() {
+
+  if (!multiplayerConnection)
+    return;
+
+  if (!playerObject)
+    return;
+
+  multiplayerConnection.send({
+
+    type:
+      "playerState",
+
+    playerId:
+      localPlayerId,
+
+    x:
+      playerObject.x,
+
+    y:
+      playerObject.y
+
+  });
+
+}
+
+
+/* =========================================================
+   GAME CODE BUTTON
+   ========================================================= */
+
+gameCodeButton.addEventListener(
+  "click",
+  () => {
+
+    gameCode =
+      generateGameCode();
+
+    multiplayerMode = true;
+
+    multiplayerHost = true;
+
+    localPlayerNumber = 1;
+
+    const player =
+      objects.find(
+        object =>
+          object.type &&
+          object.type.toLowerCase() ===
+          "player"
+      );
+
+    if (!player) {
+
+      notify(
+        "Create a Player first."
+      );
+
+      multiplayerMode = false;
+
+      multiplayerHost = false;
+
+      localPlayerNumber = null;
+
+      return;
+
+    }
+
+    player.playerNumber = 1;
+
+    localPlayerId =
+      player.id;
+
+    hostPlayerId =
+      player.id;
+multiplayerPeer =
+  new Peer("blankbox-" + gameCode);
+
+multiplayerPeer.on(
+  "open",
+  () => {
+
+    console.log(
+      "Hosting game:",
+      gameCode
+    );
+
+    setupHostPeer();
+
+  }
+);
+
+multiplayerPeer.on(
+  "error",
+  error => {
+
+    console.error(
+      "Host multiplayer error:",
+      error
+    );
+
+    notify(
+      "Could not start multiplayer."
+    );
+
+  }
+);
+    gameCodeButton.textContent =
+      `P1 CODE: ${gameCode}`;
+
+    console.log(
+      "Blank Box Game Code:",
+      gameCode
+    );
+
+    console.log(
+      "You are Player 1"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   JOIN MULTIPLAYER GAME
+   ========================================================= */
+
+function joinMultiplayerGame(code) {
+
+  code =
+    code.trim().toUpperCase();
+
+  multiplayerMode = true;
+
+  multiplayerHost = false;
+
+  currentGameCode = code;
+
+  multiplayerPeer =
+    new Peer();
+
+  multiplayerPeer.on(
+    "open",
+    () => {
+
+      console.log(
+        "Joining game:",
+        code
+      );
+
+      multiplayerConnection =
+        multiplayerPeer.connect(
+          "blankbox-" + code
+        );
+
+      multiplayerConnection.on(
+        "open",
+        () => {
+
+          console.log(
+            "Connected to Player 1"
+          );
+
+          multiplayerConnection.send({
+
+            type:
+              "requestPlayer2"
+
+          });
+
+        }
+      );
+
+
+      multiplayerConnection.on(
+        "data",
+        data => {
+
+          if (!data)
+            return;
+
+
+          if (
+            data.type ===
+            "playerAssignment"
+          ) {
+
+            localPlayerNumber =
+              data.playerNumber;
+
+            localPlayerId =
+              data.playerId;
+
+            hostPlayerId =
+              data.hostPlayerId;
+
+            console.log(
+              "You are Player " +
+              localPlayerNumber
+            );
+
+            notify(
+              "You are Player 2"
+            );
+
+          }
+
+
+          if (
+            data.type ===
+            "gameSnapshot"
+          ) {
+
+            loadMultiplayerGame(
+              data.objects
+            );
+
+          }
+
+
+          if (
+            data.type ===
+            "gameFull"
+          ) {
+
+            notify(
+              "That game already has two players."
+            );
+
+            multiplayerMode = false;
+
+          }
+
+
+          if (
+            data.type ===
+            "playerState"
+          ) {
+
+            updateRemotePlayer(
+
+              data.playerId,
+
+              data.x,
+
+              data.y
+
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+  multiplayerPeer.on(
+    "error",
+    error => {
+
+      console.error(
+        "Multiplayer error:",
+        error
+      );
+
+      notify(
+        "Could not connect to that game."
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOST CONNECTION
+   ========================================================= */
+
+function setupHostConnection(
+  connection
+) {
+
+  multiplayerConnection =
+    connection;
+
+  connection.on(
+    "open",
+    () => {
+
+      console.log(
+        "Player 2 connected."
+      );
+
+    }
+  );
+
+
+  connection.on(
+    "data",
+    data => {
+
+      if (!data)
+        return;
+
+
+      if (
+        data.type ===
+        "requestPlayer2"
+      ) {
+
+        if (guestPlayerId) {
+
+          connection.send({
+
+            type:
+              "gameFull"
+
+          });
+
+          return;
+
+        }
+
+
+        const playerTwo =
+          createPlayerTwo();
+
+
+        guestPlayerId =
+          playerTwo.id;
+
+
+        connection.send({
+
+          type:
+            "playerAssignment",
+
+          playerNumber:
+            2,
+
+          playerId:
+            playerTwo.id,
+
+          hostPlayerId:
+            hostPlayerId
+
+        });
+
+
+        connection.send({
+
+          type:
+            "gameSnapshot",
+
+          objects:
+            createGameSnapshot()
+
+        });
+
+
+        console.log(
+          "Player 2 assigned:",
+          playerTwo.id
+        );
+
+      }
+
+
+      if (
+        data.type ===
+        "playerState"
+      ) {
+
+        updateRemotePlayer(
+
+          data.playerId,
+
+          data.x,
+
+          data.y
+
+        );
+
+
+        connection.send({
+
+          type:
+            "playerState",
+
+          playerId:
+            data.playerId,
+
+          x:
+            data.x,
+
+          y:
+            data.y
+
+        });
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   HOST PEER CONNECTION
+   ========================================================= */
+
+function setupHostPeer() {
+
+  if (!multiplayerPeer)
+    return;
+
+  multiplayerPeer.on(
+    "connection",
+    connection => {
+
+      console.log(
+        "Player 2 is connecting..."
+      );
+
+      setupHostConnection(
+        connection
+      );
+
+    }
+  );
+
+}
+const joinCode =
+  new URLSearchParams(
+    window.location.search
+  ).get("join");
+
+if (joinCode) {
+
+  joinMultiplayerGame(
+    joinCode
+  );
+
+}
+
+/* =========================================================
+   END MULTIPLAYER
+   ========================================================= */
+/* =========================================================
+   START ENGINE
+   ========================================================= */
+
+loadEngine();
+
+receiveBixelSprite();
+
+</script>
+
+</body>
+</html>
