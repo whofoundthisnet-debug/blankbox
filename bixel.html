@@ -569,15 +569,92 @@ canvas{
 
 
   <div class="section">
-    Animation
-  </div>
+  Animation
+</div>
 
+<div class="field">
 
-  <div class="field">
+  <label>
+    Current Animation
+  </label>
 
-    <label>
-      Frame speed
-    </label>
+  <select id="animationSelect">
+  </select>
+
+</div>
+
+<div class="field">
+
+  <label>
+    Animation Name
+  </label>
+
+  <input
+    id="animationName"
+    type="text"
+    value="idle"
+    maxlength="32"
+    style="
+      width:100%;
+      padding:8px;
+      background:#292929;
+      color:white;
+      border:1px solid #444;
+      border-radius:6px;
+    "
+  >
+
+</div>
+
+<div class="field">
+
+  <button id="newAnimationButton" style="width:100%;">
+    + NEW ANIMATION
+  </button>
+
+  <button id="renameAnimationButton" style="width:100%; margin-top:8px;">
+    RENAME
+  </button>
+
+  <button id="deleteAnimationButton" style="width:100%; margin-top:8px;">
+    DELETE ANIMATION
+  </button>
+
+</div>
+
+<div class="field">
+
+  <label>
+    Frame speed
+  </label>
+
+  <input
+    id="fps"
+    type="number"
+    min="1"
+    max="60"
+    value="8"
+  >
+
+</div>
+
+<div class="field">
+
+  <label>
+    Loop
+  </label>
+
+  <select id="animationLoop">
+
+    <option value="true">
+      Yes
+    </option>
+
+    <option value="false">
+      No
+    </option>
+
+  </select>
 
     <input
       id="fps"
@@ -748,6 +825,16 @@ let currentFrame = 0;
 
 let currentTool = "pencil";
 
+let animations = {
+  idle: {
+    frames: [0],
+    fps: 8,
+    loop: true
+  }
+};
+
+let currentAnimation = "idle";
+  
 let currentColor = "#111111";
 
 let drawing = false;
@@ -1102,7 +1189,168 @@ function renderFrameList(){
     `${currentFrame + 1} / ${frames.length}`;
 
 }
+/* =========================================================
+   ANIMATION MANAGER
+   ========================================================= */
 
+function renderAnimationList(){
+
+  const select =
+    document.getElementById(
+      "animationSelect"
+    );
+
+  select.innerHTML = "";
+
+  Object.keys(animations).forEach(
+    name => {
+
+      const option =
+        document.createElement("option");
+
+      option.value = name;
+      option.textContent = name;
+
+      if(name === currentAnimation){
+        option.selected = true;
+      }
+
+      select.appendChild(option);
+
+    }
+  );
+
+  document.getElementById(
+    "animationName"
+  ).value = currentAnimation;
+
+  const animation =
+    animations[currentAnimation];
+
+  if(animation){
+
+    document.getElementById(
+      "fps"
+    ).value = animation.fps;
+
+    document.getElementById(
+      "animationLoop"
+    ).value =
+      String(animation.loop);
+
+  }
+
+}
+
+
+function createAnimation(name){
+
+  name = name.trim();
+
+  if(!name)
+    return;
+
+  if(animations[name]){
+
+    alert(
+      "An animation with that name already exists."
+    );
+
+    return;
+
+  }
+
+  animations[name] = {
+
+    frames: [
+      currentFrame
+    ],
+
+    fps: 8,
+
+    loop: true
+
+  };
+
+  currentAnimation = name;
+
+  renderAnimationList();
+
+}
+
+
+function renameAnimation(){
+
+  const oldName =
+    currentAnimation;
+
+  const newName =
+    document
+      .getElementById(
+        "animationName"
+      )
+      .value
+      .trim();
+
+  if(!newName)
+    return;
+
+  if(
+    newName !== oldName &&
+    animations[newName]
+  ){
+
+    alert(
+      "An animation with that name already exists."
+    );
+
+    return;
+
+  }
+
+  animations[newName] =
+    animations[oldName];
+
+  delete animations[oldName];
+
+  currentAnimation =
+    newName;
+
+  renderAnimationList();
+
+}
+
+
+function deleteAnimation(){
+
+  const names =
+    Object.keys(animations);
+
+  if(names.length <= 1){
+
+    alert(
+      "You need at least one animation."
+    );
+
+    return;
+
+  }
+
+  if(
+    !confirm(
+      `Delete animation "${currentAnimation}"?`
+    )
+  )
+    return;
+
+  delete animations[currentAnimation];
+
+  currentAnimation =
+    Object.keys(animations)[0];
+
+  renderAnimationList();
+
+}
 
 /* =========================================================
    SAVE CURRENT FRAME
@@ -1479,7 +1727,81 @@ canvas.addEventListener(
 
         currentColor =
           color;
+document
+  .getElementById(
+    "animationSelect"
+  )
+  .addEventListener(
+    "change",
+    event => {
 
+      currentAnimation =
+        event.target.value;
+
+      renderAnimationList();
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "newAnimationButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      const name =
+        document
+          .getElementById(
+            "animationName"
+          )
+          .value
+          .trim();
+
+      createAnimation(name);
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "renameAnimationButton"
+  )
+  .addEventListener(
+    "click",
+    renameAnimation
+  );
+
+
+document
+  .getElementById(
+    "deleteAnimationButton"
+  )
+  .addEventListener(
+    "click",
+    deleteAnimation
+  );
+
+
+document
+  .getElementById(
+    "animationLoop"
+  )
+  .addEventListener(
+    "change",
+    event => {
+
+      if(!animations[currentAnimation])
+        return;
+
+      animations[currentAnimation].loop =
+        event.target.value === "true";
+
+    }
+  );
         document.getElementById(
           "color"
         ).value =
@@ -2430,6 +2752,7 @@ resizeCanvas();
 
 renderFrameList();
 
+renderAnimationList();
 </script>
 
 </body>
