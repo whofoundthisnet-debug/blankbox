@@ -2356,11 +2356,9 @@ function colorToBBX(color){
 /* =========================================================
    CREATE BBX
    ========================================================= */
-
 function createBBX(){
 
   saveCurrentFrame();
-
 
   const encodedFrames =
     frames.map(
@@ -2375,18 +2373,20 @@ function createBBX(){
           .join(";")
     );
 
+  const animationData = JSON.stringify(animations);
 
   return (
-    "BBX1|" +
+    "BBX2|" +
     canvasSize +
     "|" +
     fps +
+    "|" +
+    encodeURIComponent(animationData) +
     "|" +
     encodedFrames.join("||")
   );
 
 }
-
 
 /* =========================================================
    ANALYSIS
