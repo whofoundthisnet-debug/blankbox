@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Blank Box — New Project</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #101010;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    height: 76px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 30px;
+
+    background: #151515;
+    border-bottom: 1px solid #292929;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    opacity: 0.4;
+}
+
+main {
+    width: min(800px, 92%);
+    margin: 55px auto;
+}
+
+h1 {
+    font-size: 38px;
+    margin: 0;
+}
+
+.subtitle {
+    color: #888;
+    margin-top: 8px;
+    margin-bottom: 40px;
+}
+
+
+/* SECTIONS */
+
+.section {
+    margin-bottom: 35px;
+}
+
+.sectionTitle {
+    font-size: 19px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.sectionDescription {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+
+/* INPUT */
+
+input,
+textarea {
+    width: 100%;
+
+    background: #181818;
+
+    border: 1px solid #333;
+
+    border-radius: 8px;
+
+    color: white;
+
+    padding: 14px;
+
+    font-size: 16px;
+
+    outline: none;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #777;
+}
+
+
+/* CHOICES */
+
+.choices {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+}
+
+.choice {
+
+    background: #181818;
+
+    border: 2px solid #292929;
+
+    border-radius: 10px;
+
+    padding: 20px;
+
+    cursor: pointer;
+
+    transition: 0.15s;
+}
+
+.choice:hover {
+    border-color: #555;
+}
+
+.choice.selected {
+    border-color: white;
+    background: #222;
+}
+
+.choiceName {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.choiceDescription {
+    color: #888;
+
+    font-size: 13px;
+
+    margin-top: 6px;
+
+    line-height: 1.4;
+}
+
+
+/* 3D */
+
+.disabled {
+
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}
+
+.comingSoon {
+
+    display: inline-block;
+
+    margin-top: 8px;
+
+    font-size: 11px;
+
+    color: #777;
+
+    border: 1px solid #444;
+
+    padding: 3px 7px;
+
+    border-radius: 4px;
+}
+
+
+/* BOTTOM */
+
+.bottom {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 45px;
+
+    padding-top: 25px;
+
+    border-top: 1px solid #292929;
+}
+
+.backButton {
+
+    background: #292929;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 12px 18px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+.createButton {
+
+    background: white;
+
+    color: black;
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 13px 22px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+.createButton:hover {
+    background: #ddd;
+}
+
+#error {
+
+    color: #ff7777;
+
+    font-size: 14px;
+
+    margin-top: 12px;
+
+    display: none;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .choices {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom {
+        gap: 15px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<header>
+
+    <div class="logo">
+        BLANK<span>BOX</span>
+    </div>
+
+</header>
+
+
+<main>
+
+    <h1>Create a Project</h1>
+
+    <div class="subtitle">
+        Tell Blank Box what you're making.
+    </div>
+
+
+    <!-- NAME -->
+
+    <div class="section">
+
+        <div class="sectionTitle">
+            What's your game called?
+        </div>
+
+        <input
+            id="projectName"
+            type="text"
+            placeholder="My Awesome Game"
+            maxlength="60"
+        >
+
+    </div>
+
+
+    <!-- PLAYER MODE -->
+
+    <div class="section">
+
+        <div class="sectionTitle">
+            Who can play?
+        </div>
+
+        <div class="sectionDescription">
+            You can change how multiplayer works later.
+        </div>
+
+
+        <div class="choices">
+
+            <div
+                class="choice selected"
+                data-mode="Single Player"
+            >
+
+                <div class="choiceName">
+                    Single Player
+                </div>
+
+                <div class="choiceDescription">
+                    A game designed for one player.
+                </div>
+
+            </div>
+
+
+            <div
+                class="choice"
+                data-mode="Multiplayer"
+            >
+
+                <div class="choiceName">
+                    Multiplayer
+                </div>
+
+                <div class="choiceDescription">
+                    A game designed for multiple players.
+                </div>
+
+            </div>
+
+
+            <div
+                class="choice"
+                data-mode="Both"
+            >
+
+                <div class="choiceName">
+                    Both
+                </div>
+
+                <div class="choiceDescription">
+                    Support single player and multiplayer.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DIMENSION -->
+
+    <div class="section">
+
+        <div class="sectionTitle">
+            What kind of game?
+        </div>
+
+        <div class="sectionDescription">
+            Choose the type of world you're building.
+        </div>
+
+
+        <div class="choices">
+
+            <div
+                class="choice selected"
+                data-dimension="2D"
+            >
+
+                <div class="choiceName">
+                    2D
+                </div>
+
+                <div class="choiceDescription">
+                    Traditional two-dimensional games.
+                </div>
+
+            </div>
+
+
+            <div
+                class="choice"
+                data-dimension="2.5D"
+            >
+
+                <div class="choiceName">
+                    2.5D
+                </div>
+
+                <div class="choiceDescription">
+                    2D gameplay with depth and 3D-style elements.
+                </div>
+
+            </div>
+
+
+            <div
+                class="choice disabled"
+            >
+
+                <div class="choiceName">
+                    3D
+                </div>
+
+                <div class="choiceDescription">
+                    Full three-dimensional games.
+                </div>
+
+                <div class="comingSoon">
+                    COMING LATER
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DESCRIPTION -->
+
+    <div class="section">
+
+        <div class="sectionTitle">
+            Tell us about your game
+        </div>
+
+        <div class="sectionDescription">
+            Optional. You can describe the idea, genre, story, or anything else.
+        </div>
+
+        <textarea
+            id="description"
+            placeholder="A platformer where..."
+            maxlength="500"
+        ></textarea>
+
+    </div>
+
+
+    <div id="error"></div>
+
+
+    <div class="bottom">
+
+        <button
+            class="backButton"
+            id="backButton"
+        >
+            ← BACK
+        </button>
+
+
+        <button
+            class="createButton"
+            id="createButton"
+        >
+            CREATE PROJECT →
+        </button>
+
+    </div>
+
+</main>
+
+
+<script>
+
+/* -------------------------
+   STATE
+------------------------- */
+
+let selectedMode =
+    "Single Player";
+
+let selectedDimension =
+    "2D";
+
+
+/* -------------------------
+   MODE BUTTONS
+------------------------- */
+
+const modeChoices =
+    document.querySelectorAll(
+        "[data-mode]"
+    );
+
+modeChoices.forEach(choice => {
+
+    choice.addEventListener(
+        "click",
+        () => {
+
+            modeChoices.forEach(
+                item => item.classList.remove(
+                    "selected"
+                )
+            );
+
+            choice.classList.add(
+                "selected"
+            );
+
+            selectedMode =
+                choice.dataset.mode;
+
+        }
+    );
+
+});
+
+
+/* -------------------------
+   DIMENSION BUTTONS
+------------------------- */
+
+const dimensionChoices =
+    document.querySelectorAll(
+        "[data-dimension]"
+    );
+
+dimensionChoices.forEach(choice => {
+
+    choice.addEventListener(
+        "click",
+        () => {
+
+            dimensionChoices.forEach(
+                item => item.classList.remove(
+                    "selected"
+                )
+            );
+
+            choice.classList.add(
+                "selected"
+            );
+
+            selectedDimension =
+                choice.dataset.dimension;
+
+        }
+    );
+
+});
+
+
+/* -------------------------
+   BACK
+------------------------- */
+
+document
+    .getElementById("backButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "projects.html";
+
+        }
+    );
+
+
+/* -------------------------
+   CREATE PROJECT
+------------------------- */
+
+document
+    .getElementById("createButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            const nameInput =
+                document.getElementById(
+                    "projectName"
+                );
+
+            const descriptionInput =
+                document.getElementById(
+                    "description"
+                );
+
+            const error =
+                document.getElementById(
+                    "error"
+                );
+
+
+            const name =
+                nameInput.value.trim();
+
+
+            if (!name) {
+
+                error.textContent =
+                    "Give your project a name first.";
+
+                error.style.display =
+                    "block";
+
+                nameInput.focus();
+
+                return;
+
+            }
+
+
+            error.style.display =
+                "none";
+
+
+            /* Get existing projects */
+
+            let projects = [];
+
+            try {
+
+                projects =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "blankbox_projects"
+                        )
+                    ) || [];
+
+            } catch {
+
+                projects = [];
+
+            }
+
+
+            /* Create project */
+
+            const project = {
+
+                id:
+                    "project_" +
+                    Date.now() +
+                    "_" +
+                    Math.random()
+                        .toString(36)
+                        .slice(2, 8),
+
+                name:
+                    name,
+
+                mode:
+                    selectedMode,
+
+                dimension:
+                    selectedDimension,
+
+                description:
+                    descriptionInput.value.trim(),
+
+                objects: [],
+
+                created:
+                    Date.now(),
+
+                modified:
+                    Date.now()
+
+            };
+
+
+            /* Save */
+
+            projects.push(project);
+
+
+            localStorage.setItem(
+                "blankbox_projects",
+                JSON.stringify(projects)
+            );
+
+
+            /* Make this the current project */
+
+            localStorage.setItem(
+                "blankbox_current_project",
+                project.id
+            );
+
+
+            /* Enter editor */
+
+            window.location.href =
+                "engine.html";
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
