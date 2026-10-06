@@ -2129,42 +2129,25 @@ function decodeBBX(code) {
 
   try {
 
+    if (typeof code !== "string")
+      return null;
+
     if (
-      typeof code !== "string"
+      !code.startsWith("BBX1|") &&
+      !code.startsWith("BBX2|")
     )
       return null;
 
+    const parts = code.split("|");
 
-    if (
-      !code.startsWith("BBX1|")
-    )
+    if (parts.length < 4)
       return null;
 
+    const version = parts[0];
 
-    const parts =
-      code.split("|");
+    const size = Number(parts[1]);
 
-
-    if (
-      parts.length < 4
-    )
-      return null;
-
-
-    const size =
-      Number(parts[1]);
-
-
-    const fps =
-      Number(parts[2]);
-
-
-    const frameData =
-      parts
-        .slice(3)
-        .join("|")
-        .split("||");
-
+    const fps = Number(parts[2]);
 
     if (
       !Number.isInteger(size) ||
@@ -2172,6 +2155,77 @@ function decodeBBX(code) {
       size > 256
     )
       return null;
+
+
+    /*
+      ==========================
+      BBX2
+      ==========================
+    */
+
+    let animationData = {
+      idle: {
+        frames: [0],
+        fps: Number.isFinite(fps) ? fps : 8,
+        loop: true
+      }
+    };
+
+    let frameData;
+
+
+    if (version === "BBX2") {
+
+      if (parts.length < 5)
+        return null;
+
+      let decodedAnimationData;
+
+      try {
+
+        decodedAnimationData =
+          decodeURIComponent(parts[3]);
+
+        animationData =
+          JSON.parse(decodedAnimationData);
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "BBX2 animation decode error:",
+          error
+        );
+
+        return null;
+
+      }
+
+      frameData =
+        parts
+          .slice(4)
+          .join("|")
+          .split("||");
+
+    }
+
+
+    /*
+      ==========================
+      BBX1
+      ==========================
+    */
+
+    else {
+
+      frameData =
+        parts
+          .slice(3)
+          .join("|")
+          .split("||");
+
+    }
 
 
     const frames = [];
@@ -2201,7 +2255,6 @@ function decodeBBX(code) {
           size * size
         );
 
-
         return null;
 
       }
@@ -2215,9 +2268,7 @@ function decodeBBX(code) {
         of pixels
       ) {
 
-        if (
-          pixel === "0"
-        ) {
+        if (pixel === "0") {
 
           frame.push({
 
@@ -2228,7 +2279,6 @@ function decodeBBX(code) {
             b: 0
 
           });
-
 
           continue;
 
@@ -2241,9 +2291,7 @@ function decodeBBX(code) {
             .map(Number);
 
 
-        if (
-          rgb.length !== 3
-        )
+        if (rgb.length !== 3)
           return null;
 
 
@@ -2280,22 +2328,105 @@ function decodeBBX(code) {
       }
 
 
-      frames.push(
-        frame
-      );
+      frames.push(frame);
 
     }
 
 
-    if (
-      frames.length === 0
-    )
+    if (frames.length === 0)
       return null;
+
+
+    /*
+      ==========================
+      CLEAN ANIMATION DATA
+      ==========================
+    */
+
+    const cleanedAnimations = {};
+
+
+    if (
+      animationData &&
+      typeof animationData === "object"
+    ) {
+
+      for (
+        const name of Object.keys(animationData)
+      ) {
+
+        const animation =
+          animationData[name];
+
+        if (
+          !animation ||
+          !Array.isArray(animation.frames)
+        )
+          continue;
+
+
+        const validFrames =
+          animation.frames.filter(
+            index =>
+              Number.isInteger(index) &&
+              index >= 0 &&
+              index < frames.length
+          );
+
+
+        if (validFrames.length === 0)
+          continue;
+
+
+        cleanedAnimations[name] = {
+
+          frames: validFrames,
+
+          fps:
+            Number.isFinite(
+              Number(animation.fps)
+            )
+              ? Number(animation.fps)
+              : 8,
+
+          loop:
+            animation.loop !== false
+
+        };
+
+      }
+
+    }
+
+
+    /*
+      Make absolutely sure
+      there is an idle animation.
+    */
+
+    if (
+      !cleanedAnimations.idle
+    ) {
+
+      cleanedAnimations.idle = {
+
+        frames: [0],
+
+        fps:
+          Number.isFinite(fps)
+            ? fps
+            : 8,
+
+        loop: true
+
+      };
+
+    }
 
 
     return {
 
-      version: "BBX1",
+      version: version,
 
       size: size,
 
@@ -2304,7 +2435,9 @@ function decodeBBX(code) {
           ? fps
           : 8,
 
-      frames: frames
+      frames: frames,
+
+      animations: cleanedAnimations
 
     };
 
@@ -2317,13 +2450,11 @@ function decodeBBX(code) {
       error
     );
 
-
     return null;
 
   }
 
 }
-
 
 /* =========================================================
    DRAW FRAME
@@ -2423,15 +2554,109 @@ function drawFrame(
   );
 
 }
+function getAnimationFrame(object) {
 
+  if (!object)
+    return null;
+
+  if (!object.animations)
+    return null;
+
+  const animation =
+    object.animations[object.currentAnimation];
+
+  if (!animation)
+    return null;
+
+  if (!Array.isArray(animation.frames))
+    return null;
+
+  if (animation.frames.length === 0)
+    return null;
+
+  const frameIndex =
+    animation.frames[object.animationFrame];
+
+  if (
+    !Number.isInteger(frameIndex)
+  )
+    return null;
+
+  if (
+    !object.frames ||
+    !object.frames[frameIndex]
+  )
+    return null;
+
+  return object.frames[frameIndex];
+}
+  function updateAnimation(object, deltaTime) {
+
+  if (!object)
+    return;
+
+  if (!object.animations)
+    return;
+
+  const animation =
+    object.animations[object.currentAnimation];
+
+  if (!animation)
+    return;
+
+  if (!Array.isArray(animation.frames))
+    return;
+
+  if (animation.frames.length <= 1)
+    return;
+
+  const fps =
+    Number(animation.fps) || 8;
+
+  object.animationTimer += deltaTime;
+
+  const frameDuration =
+    1 / fps;
+
+  while (
+    object.animationTimer >= frameDuration
+  ) {
+
+    object.animationTimer -= frameDuration;
+
+    object.animationFrame++;
+
+    if (
+      object.animationFrame >=
+      animation.frames.length
+    ) {
+
+      if (animation.loop) {
+
+        object.animationFrame = 0;
+
+      } else {
+
+        object.animationFrame =
+          animation.frames.length - 1;
+
+        object.animationTimer = 0;
+
+        break;
+
+      }
+
+    }
+
+  }
+
+}
 
 /* =========================================================
    RENDER SPRITE
    ========================================================= */
 
-function renderSprite(
-  object
-) {
+function renderSprite(object) {
 
   if (
     !object ||
@@ -2451,9 +2676,77 @@ function renderSprite(
     return;
 
 
+  // Make sure the object has the animation data
+  if (!object.animations) {
+
+    object.animations =
+      decoded.animations || {
+        idle: {
+          frames: [0],
+          fps: decoded.fps || 8,
+          loop: true
+        }
+      };
+
+  }
+
+
+  if (!object.currentAnimation)
+    object.currentAnimation = "idle";
+
+
+  const animation =
+    object.animations[
+      object.currentAnimation
+    ];
+
+
+  if (
+    !animation ||
+    !Array.isArray(animation.frames) ||
+    animation.frames.length === 0
+  ) {
+
+    drawFrame(
+      object.spriteCanvas,
+      decoded.frames[0]
+    );
+
+    object.spriteCanvas.style.display =
+      "block";
+
+    return;
+
+  }
+
+
+  const animationPosition =
+    Math.max(
+      0,
+      Math.min(
+        object.animationFrame || 0,
+        animation.frames.length - 1
+      )
+    );
+
+
+  const frameIndex =
+    animation.frames[
+      animationPosition
+    ];
+
+
+  const frame =
+    decoded.frames[frameIndex];
+
+
+  if (!frame)
+    return;
+
+
   drawFrame(
     object.spriteCanvas,
-    decoded.frames[0]
+    frame
   );
 
 
@@ -3785,11 +4078,28 @@ if (
   playerObject &&
   playerObject.animations
 ) {
+
   if (Math.abs(playerObject.velocityX) > 0.1) {
-    playAnimation(playerObject, "walk");
+
+    playAnimation(
+      playerObject,
+      "walk"
+    );
+
   } else {
-    playAnimation(playerObject, "idle");
+
+    playAnimation(
+      playerObject,
+      "idle"
+    );
+
   }
+
+  updateAnimation(
+    playerObject,
+    1 / 60
+  );
+
 }
   playerObject.x +=
     playerObject.velocityX;
