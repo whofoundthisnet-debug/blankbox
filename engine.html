@@ -4065,48 +4065,33 @@ if (
 
   }
 
+/* MOVEMENT */
 
-  /* MOVEMENT */
 if (keys["KeyA"] || keys["ArrowLeft"]) {
-  playerObject.velocityX = -MOVE_SPEED;
-} else if (keys["KeyD"] || keys["ArrowRight"]) {
-  playerObject.velocityX = MOVE_SPEED;
-} else {
-  playerObject.velocityX = 0;
-}if (
-  playerObject &&
-  playerObject.animations
+
+  playerObject.velocityX =
+    -MOVE_SPEED;
+
+} else if (
+  keys["KeyD"] ||
+  keys["ArrowRight"]
 ) {
 
-  if (
-    keys["KeyA"] ||
-    keys["ArrowLeft"] ||
-    keys["KeyD"] ||
-    keys["ArrowRight"]
-  ) {
+  playerObject.velocityX =
+    MOVE_SPEED;
 
-    playAnimation(
-      playerObject,
-      "walk"
-    );
+} else {
 
-  } else {
+  playerObject.velocityX =
+    0;
 
-    playAnimation(
-      playerObject,
-      "idle"
-    );
-
-  }
-
-  updateAnimation(
-    playerObject,
-    1 / 60
-  );
-renderSprite(
-  playerObject
-);
 }
+
+playerObject.x +=
+  playerObject.velocityX;
+
+playerObject.y +=
+  playerObject.velocityY;
   /* UPDATE VISUAL */
 
   if (
