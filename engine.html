@@ -3781,13 +3781,16 @@ if (keys["KeyA"] || keys["ArrowLeft"]) {
 } else {
   playerObject.velocityX = 0;
 }
-/*
-if (Math.abs(playerObject.velocityX) > 0.1) {
-  playAnimation(playerObject, "walk");
-} else {
-  playAnimation(playerObject, "idle");
+if (
+  playerObject &&
+  playerObject.animations
+) {
+  if (Math.abs(playerObject.velocityX) > 0.1) {
+    playAnimation(playerObject, "walk");
+  } else {
+    playAnimation(playerObject, "idle");
+  }
 }
-*/
   playerObject.x +=
     playerObject.velocityX;
 
