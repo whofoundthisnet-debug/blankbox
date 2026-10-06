@@ -301,6 +301,9 @@
     .enemy {
       background: #e85b5b;
     }
+    .boss {
+      background: #8e44ad;
+    }
 
     .platform {
       background: #9a9a9a;
@@ -579,30 +582,35 @@
     >
       + Enemy
     </button>
-
+<button
+  class="objectButton"
+  data-type="boss"
+>
+  + Boss
+</button>
     <button
-      class="objectButton"
+      class="Button"
       data-type="platform"
     >
       + Platform
     </button>
 
     <button
-      class="objectButton"
+      class="Button"
       data-type="weapon"
     >
       + Weapon
     </button>
 
     <button
-      class="objectButton"
+      class="Button"
       data-type="npc"
     >
       + NPC
     </button>
 
     <button
-      class="objectButton"
+      class="Button"
       data-type="item"
     >
       + Item
@@ -636,7 +644,7 @@
     </div>
 
     <div id="emptyProperties">
-      Select an object to edit its properties.
+      Select an  to edit its properties.
     </div>
 
     <div id="propertyEditor" hidden>
@@ -1035,9 +1043,16 @@ function createObject(type) {
       type.charAt(0).toUpperCase() +
       type.slice(1),
 
-    health: 100,
+   health:
+  type.toLowerCase() === "boss"
+    ? 500
+    : 100,
 
-    maxHealth: 100,
+maxHealth:
+  type.toLowerCase() === "boss"
+    ? 500
+    : 100,
+    
 animations: {
   idle: {
     frames: [0],
@@ -1073,8 +1088,8 @@ attackRange: 60,
 attackKey: "E",
 
     aiEnabled:
-      type.toLowerCase() === "enemy",
-
+  type.toLowerCase() === "enemy" ||
+  type.toLowerCase() === "boss",
     aiBehavior:
       type.toLowerCase() === "enemy"
         ? "chase"
@@ -1112,11 +1127,13 @@ attackKey: "E",
       jumping:
         type.toLowerCase() === "player",
 
-      chasePlayer:
-        type.toLowerCase() === "enemy",
+    chasePlayer:
+  type.toLowerCase() === "enemy" ||
+  type.toLowerCase() === "boss",
 
-      contactDamage:
-        type.toLowerCase() === "enemy",
+contactDamage:
+  type.toLowerCase() === "enemy" ||
+  type.toLowerCase() === "boss",
 
       solid:
         type.toLowerCase() === "platform",
