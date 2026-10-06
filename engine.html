@@ -1170,8 +1170,17 @@ attackKey: "E",
 }
   function playAnimation(object, animationName) {
   if (!object) return;
-  if (!object.animations) return;
-  if (!object.animations[animationName]) return;
+
+  if (
+    !object.animations ||
+    typeof object.animations !== "object"
+  ) {
+    return;
+  }
+
+  const animation = object.animations[animationName];
+
+  if (!animation) return;
 
   if (object.currentAnimation !== animationName) {
     object.currentAnimation = animationName;
