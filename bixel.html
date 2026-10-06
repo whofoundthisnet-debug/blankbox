@@ -1249,113 +1249,25 @@ function renderAnimationList(){
 }
 
 
-function createAnimation(name){
-
+function createAnimation(name) {
   name = name.trim();
 
-  if(!name)
+  if (!name) return;
+
+  if (animations[name]) {
+    alert("An animation with that name already exists.");
     return;
-
-  if(animations[name]){
-
-    alert(
-      "An animation with that name already exists."
-    );
-
-    return;
-
   }
 
   animations[name] = {
-
-    frames: [
-      currentFrame
-    ],
-
+    frames: [currentFrame],
     fps: 8,
-
     loop: true
-
   };
 
   currentAnimation = name;
 
   renderAnimationList();
-
-}
-
-
-function renameAnimation(){
-
-  const oldName =
-    currentAnimation;
-
-  const newName =
-    document
-      .getElementById(
-        "animationName"
-      )
-      .value
-      .trim();
-
-  if(!newName)
-    return;
-
-  if(
-    newName !== oldName &&
-    animations[newName]
-  ){
-
-    alert(
-      "An animation with that name already exists."
-    );
-
-    return;
-
-  }
-
-  animations[newName] =
-    animations[oldName];
-
-  delete animations[oldName];
-
-  currentAnimation =
-    newName;
-
-  renderAnimationList();
-
-}
-
-
-function deleteAnimation(){
-
-  const names =
-    Object.keys(animations);
-
-  if(names.length <= 1){
-
-    alert(
-      "You need at least one animation."
-    );
-
-    return;
-
-  }
-
-  if(
-    !confirm(
-      `Delete animation "${currentAnimation}"?`
-    )
-  )
-    return;
-
-  delete animations[currentAnimation];
-
-  currentAnimation =
-    Object.keys(animations)[0];
-
-  renderAnimationList();
-
 }
 
 /* =========================================================
@@ -2503,7 +2415,36 @@ function runAnalysis(code){
 
 }
 
+function addCurrentFrameToAnimation() {
+  const animation = animations[currentAnimation];
+  if (!animation) return;
 
+  if (!animation.frames.includes(currentFrame)) {
+    animation.frames.push(currentFrame);
+    animation.frames.sort((a, b) => a - b);
+  }
+}
+
+function removeCurrentFrameFromAnimation() {
+  const animation = animations[currentAnimation];
+  if (!animation) return;
+
+  animation.frames = animation.frames.filter(
+    frameIndex => frameIndex !== currentFrame
+  );
+
+  if (animation.frames.length === 0) {
+    animation.frames.push(currentFrame);
+  }
+}
+
+document
+  .getElementById("addFrameToAnimation")
+  .addEventListener("click", addCurrentFrameToAnimation);
+
+document
+  .getElementById("removeFrameFromAnimation")
+  .addEventListener("click", removeCurrentFrameFromAnimation);
 /* =========================================================
    COPY BBX
    ========================================================= */
@@ -2668,11 +2609,7 @@ document
         );
 
 
-        previewFrame =
-          (
-            previewFrame + 1
-          ) %
-          frames.length;
+      previewFrame = (previewFrame + 1) % frames.length;
 
       }
 
