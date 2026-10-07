@@ -4132,259 +4132,126 @@ if (multiplayerMode) {
     requestAnimationFrame(
       physicsLoop
     );
-
+checkPlatformCollision();
 }
-  checkPlatformCollision();
+ 
 function checkPlatformCollision() {
 
-  const player =
-    playerObject;
+  const player = playerObject;
 
-  if (
-    !player ||
-    !player.element
-  )
+  if (!player)
     return;
 
+  const playerWidth = 60;
+  const playerHeight = 60;
 
-  const workspaceRect =
-    workspace.getBoundingClientRect();
+  player.grounded = false;
 
-
-  const playerRect =
-    player.element.getBoundingClientRect();
-
-
-  player.grounded =
-    false;
-
-
-  for (
-    const platform of objects
-  ) {
-
-    if (!platform.element)
-      continue;
-
+  for (const platform of objects) {
 
     if (
-      !platform.type ||
-      platform.type.toLowerCase() !==
-        "platform"
+      !platform ||
+      platform.type?.toLowerCase() !== "platform"
     )
       continue;
 
+    const platformWidth =
+      platform.width || 200;
 
-    const platformRect =
-      platform.element.getBoundingClientRect();
+    const platformHeight =
+      platform.height || 30;
 
-
-    /* CURRENT PLAYER POSITION */
-
-    const playerLeft =
-      playerRect.left;
-
+    const playerLeft = player.x;
     const playerRight =
-      playerRect.right;
+      player.x + playerWidth;
 
-    const playerTop =
-      playerRect.top;
-
+    const playerTop = player.y;
     const playerBottom =
-      playerRect.bottom;
-
-
-    /* PLATFORM POSITION */
+      player.y + playerHeight;
 
     const platformLeft =
-      platformRect.left;
+      platform.x;
 
     const platformRight =
-      platformRect.right;
+      platform.x + platformWidth;
 
     const platformTop =
-      platformRect.top;
+      platform.y;
 
     const platformBottom =
-      platformRect.bottom;
+      platform.y + platformHeight;
 
 
-    /* CHECK FOR OVERLAP */
+    /* OVERLAP */
 
     const overlapping =
-      playerRight >
-        platformLeft &&
-      playerLeft <
-        platformRight &&
-      playerBottom >
-        platformTop &&
-      playerTop <
-        platformBottom;
-
+      playerRight > platformLeft &&
+      playerLeft < platformRight &&
+      playerBottom > platformTop &&
+      playerTop < platformBottom;
 
     if (!overlapping)
       continue;
 
 
-    /*
-      Find where the player was
-      BEFORE this physics frame.
-    */
-
- const previousLeft =
-  playerLeft -
-  (player.velocityX * 0.016);
-
-const previousRight =
-  playerRight -
-  (player.velocityX * 0.016);
-
-  const previousTop =
-  playerTop -
-  (player.velocityY * 0.016);
-
-const previousBottom =
-  playerBottom -
-  (player.velocityY * 0.016);
-
-    /*
-      LANDING ON TOP
-    */
+    /* LANDING */
 
     if (
-      previousBottom <=
-        platformTop &&
-      player.velocityY >= 0
+      player.velocityY >= 0 &&
+      playerBottom >= platformTop
     ) {
-
-      const platformTopPosition =
-        platformTop -
-        workspaceRect.top;
-
-
-      const playerHeight =
-        playerRect.height;
-
 
       player.y =
-        platformTopPosition -
-        playerHeight;
+        platformTop - playerHeight;
 
+      player.velocityY = 0;
 
-      player.velocityY =
-        0;
-
-
-      player.grounded =
-        true;
-
-
-      player.element.style.top =
-        `${player.y}px`;
-
+      player.grounded = true;
 
       continue;
 
     }
 
 
-    /*
-      HITTING THE BOTTOM
-    */
+    /* HIT BOTTOM */
 
     if (
-      previousTop >=
-        platformBottom &&
-      player.velocityY < 0
+      player.velocityY < 0 &&
+      playerTop < platformBottom
     ) {
-
-      const platformBottomPosition =
-        platformBottom -
-        workspaceRect.top;
-
 
       player.y =
-        platformBottomPosition;
+        platformBottom;
 
-
-      player.velocityY =
-        0;
-
-
-      player.element.style.top =
-        `${player.y}px`;
-
+      player.velocityY = 0;
 
       continue;
 
     }
 
 
-    /*
-      HITTING THE LEFT SIDE
-    */
+    /* LEFT SIDE */
 
-    if (
-      previousRight <=
-        platformLeft &&
-      player.velocityX > 0
-    ) {
-
-      const platformLeftPosition =
-        platformLeft -
-        workspaceRect.left;
-
-
-      const playerWidth =
-        playerRect.width;
-
+    if (player.velocityX > 0) {
 
       player.x =
-        platformLeftPosition -
-        playerWidth;
+        platformLeft - playerWidth;
 
-
-      player.velocityX =
-        0;
-
-
-      player.element.style.left =
-        `${player.x}px`;
-
+      player.velocityX = 0;
 
       continue;
 
     }
 
 
-    /*
-      HITTING THE RIGHT SIDE
-    */
+    /* RIGHT SIDE */
 
-    if (
-      previousLeft >=
-        platformRight &&
-      player.velocityX < 0
-    ) {
-
-      const platformRightPosition =
-        platformRight -
-        workspaceRect.left;
-
+    if (player.velocityX < 0) {
 
       player.x =
-        platformRightPosition;
+        platformRight;
 
-
-      player.velocityX =
-        0;
-
-
-      player.element.style.left =
-        `${player.x}px`;
-
-
-      continue;
+      player.velocityX = 0;
 
     }
 
