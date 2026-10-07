@@ -3793,7 +3793,7 @@ function playerAttack() {
 function damageEnemy(
   enemy,
   damage
-) {
+){
 
   if (!enemy)
     return;
@@ -3871,7 +3871,6 @@ function damageEnemy(
 /* ---------------------------------------------------------
    KILL ENEMY
    --------------------------------------------------------- */
-
 function killEnemy(
   enemy
 ) {
@@ -3892,10 +3891,6 @@ function killEnemy(
   }
 
 
-  /*
-    Remove from the actual game object list.
-  */
-
   const index =
     objects.indexOf(
       enemy
@@ -3912,7 +3907,6 @@ function killEnemy(
   }
 
 }
-
 
 /* ---------------------------------------------------------
    ATTACK VISUAL
