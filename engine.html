@@ -4134,6 +4134,7 @@ if (multiplayerMode) {
     );
 
 }
+  checkPlatformCollision();
 function checkPlatformCollision() {
 
   const player =
@@ -4230,22 +4231,21 @@ function checkPlatformCollision() {
       BEFORE this physics frame.
     */
 
-    const previousLeft =
-      playerLeft -
-      player.velocityX;
+ const previousLeft =
+  playerLeft -
+  (player.velocityX * 0.016);
 
-    const previousRight =
-      playerRight -
-      player.velocityX;
+const previousRight =
+  playerRight -
+  (player.velocityX * 0.016);
 
-    const previousTop =
-      playerTop -
-      player.velocityY;
+  const previousTop =
+  playerTop -
+  (player.velocityY * 0.016);
 
-    const previousBottom =
-      playerBottom -
-      player.velocityY;
-
+const previousBottom =
+  playerBottom -
+  (player.velocityY * 0.016);
 
     /*
       LANDING ON TOP
