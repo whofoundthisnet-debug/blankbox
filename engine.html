@@ -3735,11 +3735,14 @@ function playerAttack() {
     if (!enemy.element)
       continue;
 
-    if (
-      !enemy.type ||
-      enemy.type.toLowerCase() !== "enemy"
-    )
-      continue;
+   const type =
+  enemy.type?.toLowerCase();
+
+if (
+  type !== "enemy" &&
+  type !== "boss"
+)
+  continue;
 
     /*
       Enemy rectangle.
