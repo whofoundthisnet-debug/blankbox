@@ -3733,9 +3733,7 @@ function playerAttack() {
       continue;
 
     if (!enemy.element)
-      continue;
-
-   const type =
+      continue;const type =
   enemy.type?.toLowerCase();
 
 if (
@@ -3743,24 +3741,22 @@ if (
   type !== "boss"
 )
   continue;
-
     /*
-      Enemy rectangle.
-    */
+  Target rectangle.
+  Works for enemies AND bosses.
+*/
 
-    const enemyWidth =
-      enemy.width || 60;
+const targetWidth =
+  enemy.width || 60;
 
-    const enemyHeight =
-      enemy.height || 60;
-
+const targetHeight =
+  enemy.height || 60;
 
     const hit =
-      attackX < enemy.x + enemyWidth &&
-      attackX + attackWidth > enemy.x &&
-      attackY < enemy.y + enemyHeight &&
-      attackY + attackHeight > enemy.y;
-
+  attackX < enemy.x + targetWidth &&
+  attackX + attackWidth > enemy.x &&
+  attackY < enemy.y + targetHeight &&
+  attackY + attackHeight > enemy.y;
 
     if (!hit)
       continue;
