@@ -191,6 +191,24 @@
       overflow-y: auto;
     }
 
+/* Align behavior checkboxes with their labels */
+
+#behaviors label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  line-height: 20px;
+}
+
+#behaviors input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 16px;
+  cursor: pointer;
+}
+
     #selectedObject {
       margin-bottom: 20px;
 
@@ -650,6 +668,8 @@
     <div id="propertyEditor" hidden>
 
       <div id="selectedObject"></div>
+
+
 
 
       <div class="property">
@@ -1889,8 +1909,12 @@ updateHealthSettings();
     const label =
       document.createElement("label");
 
-    label.style.display = "block";
-    label.style.marginBottom = "8px";
+   
+label.style.display = "flex";
+label.style.alignItems = "center";
+label.style.gap = "8px";
+label.style.marginBottom = "8px";
+
 
 
     const checkbox =
