@@ -887,54 +887,7 @@
         </button>
 
       </div>
-/* =========================================================
-   RIGHT-CLICK TO DELETE OBJECT
-   ========================================================= */
 
-workspace.addEventListener("contextmenu", function (event) {
-  const objectElement = event.target.closest(".gameObject");
-
-  // Only delete actual game objects.
-  if (!objectElement || playMode) {
-    return;
-  }
-
-  // Prevent the browser's normal right-click menu.
-  event.preventDefault();
-
-  // Find the object connected to the clicked element.
-  const objectToDelete = objects.find(
-    object => object.element === objectElement
-  );
-
-  if (!objectToDelete) {
-    return;
-  }
-
-  // Remove the object from the workspace.
-  objectToDelete.element.remove();
-
-  // Remove it from the project's object list.
-  const index = objects.indexOf(objectToDelete);
-
-  if (index !== -1) {
-    objects.splice(index, 1);
-  }
-
-  // Clear the Properties panel if this object was selected.
-  if (selected === objectToDelete) {
-    selected = null;
-    propertyEditor.hidden = true;
-    emptyProperties.hidden = false;
-  }
-
-  // Update the workspace hint and save.
-  workspaceHint.style.display =
-    objects.length === 0 ? "block" : "none";
-
-  saveEngine();
-  notify("Object deleted.");
-});
     </div>
 
   </aside>
@@ -1933,7 +1886,54 @@ attackSettings.style.display =
 
 updateHealthSettings();
 
+/* =========================================================
+   RIGHT-CLICK TO DELETE OBJECT
+   ========================================================= */
 
+workspace.addEventListener("contextmenu", function (event) {
+  const objectElement = event.target.closest(".gameObject");
+
+  // Only delete actual game objects.
+  if (!objectElement || playMode) {
+    return;
+  }
+
+  // Prevent the browser's normal right-click menu.
+  event.preventDefault();
+
+  // Find the object connected to the clicked element.
+  const objectToDelete = objects.find(
+    object => object.element === objectElement
+  );
+
+  if (!objectToDelete) {
+    return;
+  }
+
+  // Remove the object from the workspace.
+  objectToDelete.element.remove();
+
+  // Remove it from the project's object list.
+  const index = objects.indexOf(objectToDelete);
+
+  if (index !== -1) {
+    objects.splice(index, 1);
+  }
+
+  // Clear the Properties panel if this object was selected.
+  if (selected === objectToDelete) {
+    selected = null;
+    propertyEditor.hidden = true;
+    emptyProperties.hidden = false;
+  }
+
+  // Update the workspace hint and save.
+  workspaceHint.style.display =
+    objects.length === 0 ? "block" : "none";
+
+  saveEngine();
+  notify("Object deleted.");
+});
   /* =====================================================
      BEHAVIORS
      ===================================================== */
