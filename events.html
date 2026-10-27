@@ -293,6 +293,7 @@ function normalizeAction(action) {
   };
 }
 
+
 function saveEvents() {
   if (!projects[projectIndex]) {
     document.getElementById("status").textContent =
@@ -303,10 +304,11 @@ function saveEvents() {
   projects[projectIndex].eventSheets = eventSheet;
 
   localStorage.setItem(
-    PROJECTS_KEY,
+    "blankbox_projects",
     JSON.stringify(projects)
   );
-  localStorage.setItem("blankbox_current_project", String(projectIndex));
+
+  // Keep the project's actual ID unchanged.
 
   document.getElementById("status").textContent =
     "Events saved to this project.";
