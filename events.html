@@ -1,0 +1,477 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlankBox — Events</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f5f9;
+  color: #202636;
+}
+
+header {
+  background: #202636;
+  color: white;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 21px;
+}
+
+button, select, input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 12px;
+  background: #5b8cff;
+  color: white;
+}
+
+button:hover {
+  filter: brightness(.94);
+}
+
+button.danger {
+  background: #e85b5b;
+}
+
+button.secondary {
+  background: #687386;
+}
+
+main {
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+#events {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event {
+  background: white;
+  border: 1px solid #dce1eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px #1720330b;
+}
+
+.event-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.event-title input {
+  min-width: 0;
+  width: 100%;
+  max-width: 400px;
+  padding: 9px;
+  border: 1px solid #dce1eb;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.section {
+  background: #f7f8fb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.section h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.logic-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  align-items: center;
+}
+
+.logic-row select,
+.logic-row input {
+  min-width: 0;
+  flex: 1;
+  padding: 9px;
+  border: 1px solid #dce1eb;
+  border-radius: 6px;
+  background: white;
+}
+
+.logic-row button {
+  flex-shrink: 0;
+}
+
+.add-row {
+  margin-top: 8px;
+  background: #687386;
+}
+
+#status {
+  color: #596579;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.empty {
+  text-align: center;
+  color: #687386;
+  background: white;
+  padding: 36px 18px;
+  border-radius: 12px;
+  border: 1px dashed #cbd2df;
+}
+
+@media (max-width: 520px) {
+  .logic-row {
+    flex-wrap: wrap;
+  }
+
+  .logic-row select,
+  .logic-row input {
+    flex-basis: 40%;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>⬜ BlankBox Events</h1>
+  <button class="secondary" onclick="goBack()">← Back to Editor</button>
+</header>
+
+<main>
+  <div class="toolbar">
+    <div>
+      <h2 style="margin:0 0 5px">Event Sheet</h2>
+      <div style="color:#687386;font-size:14px">
+        Conditions decide when actions happen.
+      </div>
+    </div>
+    <button onclick="addEvent()">+ Add Event</button>
+  </div>
+
+  <div id="events"></div>
+  <div id="status">Loading project events…</div>
+</main>
+
+<script>
+const PROJECTS_KEY = "blankbox_projects";
+let projects = [];
+let projectIndex = 0;
+let eventSheet = [];
+
+const conditionTypes = [
+  ["always", "Always"],
+  ["keyPressed", "Key is pressed"],
+  ["playerTouchesEnemy", "Player touches an enemy"],
+  ["playerHealthBelow", "Player health is below a value"],
+  ["variableEquals", "Variable equals a value"]
+];
+
+const actionTypes = [
+  ["damageEnemy", "Damage nearest enemy"],
+  ["destroyEnemy", "Destroy nearest enemy"],
+  ["changeVariable", "Change a variable"],
+  ["healPlayer", "Heal player"],
+  ["restartScene", "Restart scene"]
+];
+
+function goBack() {
+  location.href = "engine.html";
+}
+
+function loadProject() {
+  try {
+    projects = JSON.parse(localStorage.getItem(PROJECTS_KEY) || "[]");
+  } catch {
+    projects = [];
+  }
+
+  const params = new URLSearchParams(location.search);
+  const requestedIndex = Number(params.get("project"));
+
+  if (Number.isInteger(requestedIndex) &&
+      requestedIndex >= 0 &&
+      requestedIndex < projects.length) {
+    projectIndex = requestedIndex;
+  } else {
+    const savedIndex = Number(localStorage.getItem("blankbox_current_project"));
+    if (Number.isInteger(savedIndex) &&
+        savedIndex >= 0 &&
+        savedIndex < projects.length) {
+      projectIndex = savedIndex;
+    }
+  }
+
+  if (projects[projectIndex]) {
+    eventSheet = Array.isArray(projects[projectIndex].eventSheets)
+      ? projects[projectIndex].eventSheets
+      : [];
+    eventSheet = eventSheet.map(normalizeEvent);
+  } else {
+    eventSheet = [];
+  }
+
+  render();
+}
+
+function normalizeEvent(event) {
+  return {
+    id: event.id || crypto.randomUUID(),
+    name: event.name || "New Event",
+    conditions: Array.isArray(event.conditions)
+      ? event.conditions.map(normalizeCondition)
+      : [],
+    actions: Array.isArray(event.actions)
+      ? event.actions.map(normalizeAction)
+      : []
+  };
+}
+
+function normalizeCondition(condition) {
+  return {
+    type: condition.type || "always",
+    value: condition.value ?? ""
+  };
+}
+
+function normalizeAction(action) {
+  return {
+    type: action.type || "damageEnemy",
+    value: action.value ?? "10"
+  };
+}
+
+function saveEvents() {
+  if (!projects[projectIndex]) {
+    document.getElementById("status").textContent =
+      "No saved project found. Open a project in BlankBox first.";
+    return;
+  }
+
+  projects[projectIndex].eventSheets = eventSheet;
+
+  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+  localStorage.setItem("blankbox_current_project", String(projectIndex));
+
+  document.getElementById("status").textContent =
+    "Events saved to this project.";
+}
+
+function addEvent() {
+  eventSheet.push({
+    id: crypto.randomUUID(),
+    name: "New Event",
+    conditions: [{ type: "always", value: "" }],
+    actions: [{ type: "damageEnemy", value: "10" }]
+  });
+
+  render();
+  saveEvents();
+}
+
+function deleteEvent(index) {
+  eventSheet.splice(index, 1);
+  render();
+  saveEvents();
+}
+
+function addLogicRow(eventIndex, section) {
+  const event = eventSheet[eventIndex];
+
+  if (section === "conditions") {
+    event.conditions.push({ type: "always", value: "" });
+  } else {
+    event.actions.push({ type: "damageEnemy", value: "10" });
+  }
+
+  render();
+  saveEvents();
+}
+
+function deleteLogicRow(eventIndex, section, rowIndex) {
+  const rows = eventSheet[eventIndex][section];
+  rows.splice(rowIndex, 1);
+  render();
+  saveEvents();
+}
+
+function updateEventName(eventIndex, value) {
+  eventSheet[eventIndex].name = value;
+  saveEvents();
+}
+
+function updateLogic(eventIndex, section, rowIndex, property, value) {
+  eventSheet[eventIndex][section][rowIndex][property] = value;
+  saveEvents();
+}
+
+function makeSelect(options, selected, onChange) {
+  const select = document.createElement("select");
+
+  for (const [value, label] of options) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    option.selected = value === selected;
+    select.appendChild(option);
+  }
+
+  select.addEventListener("change", () => onChange(select.value));
+  return select;
+}
+
+function makeLogicSection(eventIndex, section, rows, options) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "section";
+
+  const heading = document.createElement("h3");
+  heading.textContent = section === "conditions"
+    ? "WHEN — Conditions"
+    : "THEN — Actions";
+
+  wrapper.appendChild(heading);
+
+  rows.forEach((row, rowIndex) => {
+    const line = document.createElement("div");
+    line.className = "logic-row";
+
+    line.appendChild(makeSelect(
+      options,
+      row.type,
+      value => updateLogic(eventIndex, section, rowIndex, "type", value)
+    ));
+
+    const valueInput = document.createElement("input");
+    valueInput.value = row.value ?? "";
+    valueInput.placeholder = section === "conditions"
+      ? "Optional value"
+      : "Amount (e.g. 10)";
+    valueInput.setAttribute("aria-label", "Condition or action value");
+
+    valueInput.addEventListener("change", () => {
+      updateLogic(
+        eventIndex, section, rowIndex, "value", valueInput.value
+      );
+    });
+
+    line.appendChild(valueInput);
+
+    const remove = document.createElement("button");
+    remove.className = "danger";
+    remove.textContent = "×";
+    remove.title = "Remove row";
+    remove.onclick = () => deleteLogicRow(eventIndex, section, rowIndex);
+
+    line.appendChild(remove);
+    wrapper.appendChild(line);
+  });
+
+  const add = document.createElement("button");
+  add.className = "add-row";
+  add.textContent = section === "conditions"
+    ? "+ Add Condition"
+    : "+ Add Action";
+  add.onclick = () => addLogicRow(eventIndex, section);
+
+  wrapper.appendChild(add);
+  return wrapper;
+}
+
+function render() {
+  const container = document.getElementById("events");
+  container.replaceChildren();
+
+  if (eventSheet.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent =
+      "No events yet. Click “+ Add Event” to create your first one.";
+    container.appendChild(empty);
+  }
+
+  eventSheet.forEach((event, index) => {
+    const card = document.createElement("section");
+    card.className = "event";
+
+    const titleRow = document.createElement("div");
+    titleRow.className = "event-title";
+
+    const name = document.createElement("input");
+    name.value = event.name;
+    name.setAttribute("aria-label", "Event name");
+    name.addEventListener("change", () =>
+      updateEventName(index, name.value)
+    );
+
+    const remove = document.createElement("button");
+    remove.className = "danger";
+    remove.textContent = "Delete Event";
+    remove.onclick = () => deleteEvent(index);
+
+    titleRow.append(name, remove);
+    card.appendChild(titleRow);
+
+    card.appendChild(makeLogicSection(
+      index, "conditions", event.conditions, conditionTypes
+    ));
+
+    card.appendChild(makeLogicSection(
+      index, "actions", event.actions, actionTypes
+    ));
+
+    container.appendChild(card);
+  });
+
+  if (projects[projectIndex]) {
+    document.getElementById("status").textContent =
+      "Project: " + (projects[projectIndex].name || "Untitled") +
+      " · " + eventSheet.length + " event(s)";
+  } else {
+    document.getElementById("status").textContent =
+      "No project loaded. Open a saved BlankBox project first.";
+  }
+}
+
+loadProject();
+</script>
+</body>
+</html>
