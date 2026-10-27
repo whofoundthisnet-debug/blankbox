@@ -216,28 +216,45 @@ const actionTypes = [
 
 function goBack() {
   location.href = "engine.html";
-}
-
-
+}  
 function loadProject() {
   try {
     projects = JSON.parse(
       localStorage.getItem("blankbox_projects") || "[]"
     );
-  } catch {
+  } catch (error) {
     projects = [];
   }
 
-  // The engine stores the project's ID, not its array index.
   const currentProjectID = localStorage.getItem(
     "blankbox_current_project"
   );
 
+  // First, look for the actual project ID.
   projectIndex = projects.findIndex(
     project => String(project.id) === String(currentProjectID)
   );
 
+  // Recovery: an earlier save may have stored the array position instead.
+  if (projectIndex === -1 && currentProjectID !== null) {
+    const possibleIndex = Number(currentProjectID);
+
+    if (
+      Number.isInteger(possibleIndex) &&
+      possibleIndex >= 0 &&
+      possibleIndex < projects.length
+    ) {
+      projectIndex = possibleIndex;
+    }
+  }
+
   if (projectIndex !== -1) {
+    // Restore the actual ID, never the array position.
+    localStorage.setItem(
+      "blankbox_current_project",
+      String(projects[projectIndex].id)
+    );
+
     eventSheet = Array.isArray(projects[projectIndex].eventSheets)
       ? projects[projectIndex].eventSheets.map(normalizeEvent)
       : [];
@@ -248,34 +265,6 @@ function loadProject() {
   render();
 }
 
-
-  const params = new URLSearchParams(location.search);
-  const requestedIndex = Number(params.get("project"));
-
-  if (Number.isInteger(requestedIndex) &&
-      requestedIndex >= 0 &&
-      requestedIndex < projects.length) {
-    projectIndex = requestedIndex;
-  } else {
-    const savedIndex = Number(localStorage.getItem("blankbox_current_project"));
-    if (Number.isInteger(savedIndex) &&
-        savedIndex >= 0 &&
-        savedIndex < projects.length) {
-      projectIndex = savedIndex;
-    }
-  }
-
-  if (projects[projectIndex]) {
-    eventSheet = Array.isArray(projects[projectIndex].eventSheets)
-      ? projects[projectIndex].eventSheets
-      : [];
-    eventSheet = eventSheet.map(normalizeEvent);
-  } else {
-    eventSheet = [];
-  }
-
-  render();
-}
 
 function normalizeEvent(event) {
   return {
@@ -313,7 +302,10 @@ function saveEvents() {
 
   projects[projectIndex].eventSheets = eventSheet;
 
-  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+  localStorage.setItem(
+    PROJECTS_KEY,
+    JSON.stringify(projects)
+  );
   localStorage.setItem("blankbox_current_project", String(projectIndex));
 
   document.getElementById("status").textContent =
