@@ -358,14 +358,25 @@ emptyNewProject.addEventListener(
 
 function openProject(id) {
 
+    const projects = getProjects();
+    const project = projects.find(p => p.id === id);
+
+    // Special BlankBox 3D Studio project
+    if (
+        project &&
+        project.name &&
+        project.name.toLowerCase() === "early3d"
+    ) {
+        window.location.href = "boxel.html";
+        return;
+    }
+
     localStorage.setItem(
         "blankbox_current_project",
         id
     );
 
-    window.location.href =
-        "engine.html";
-
+    window.location.href = "boxel.html";
 }
 
 
