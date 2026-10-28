@@ -396,9 +396,29 @@ function deleteProject(id) {
 
     saveProjects(updated);
 
-    renderProjects();
+ // Register Early3D as a special project
+(function registerEarly3D() {
+    const projects = getProjects();
 
-}
+    const exists = projects.some(
+        p => p.name &&
+             p.name.toLowerCase() === "early3d"
+    );
+
+    if (!exists) {
+        projects.push({
+            id: "early3d",
+            name: "early3d",
+            mode: "3D Studio",
+            dimension: "3D",
+            description: "BlankBox 3D modeling studio"
+        });
+
+        saveProjects(projects);
+    }
+})();
+
+renderProjects(); }
 
 
 /* -------------------------
