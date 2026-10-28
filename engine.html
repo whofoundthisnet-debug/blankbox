@@ -975,6 +975,12 @@ let objects = [];
 let selected = null;
 
 let playMode = false;
+  
+let runtimeEvents = [];
+let eventRuntimeState = new Map();
+let gameVariables = {};
+const keysPressedThisFrame = {};
+
 let multiplayerMode = false;
 let multiplayerHost = false;
 let multiplayerConnected = false;
@@ -3610,7 +3616,7 @@ function startPhysics() {
   stopPhysics();
 
   if (!findPlayer()) return;
-
+loadRuntimeEvents();
   // Remember where every object started
   playStartPositions.clear();
 
@@ -4080,6 +4086,250 @@ function showAttackVisual(
   object.currentAnimationFrame = 0;
   object.animationTimer = 0;
 }
+  
+function loadRuntimeEvents() {
+  try {
+    const projectID = localStorage.getItem(
+      "blankbox_current_project"
+    );
+
+    const projects = JSON.parse(
+      localStorage.getItem("blankbox_projects") || "[]"
+    );
+
+    const project = projects.find(
+      p => String(p.id) === String(projectID)
+    );
+
+    runtimeEvents = Array.isArray(project?.eventSheets)
+      ? project.eventSheets
+      : [];
+  } catch (error) {
+    runtimeEvents = [];
+  }
+
+  eventRuntimeState = new Map();
+}
+
+function eventKeyCode(value) {
+  const key = String(value || "").trim();
+
+  if (!key) return "";
+
+  if (/^Key[A-Z]$/.test(key)) return key;
+  if (/^Digit[0-9]$/.test(key)) return key;
+  if (key.toLowerCase() === "space") return "Space";
+  if (key.startsWith("Arrow")) return key;
+
+  if (key.length === 1 && /[a-z]/i.test(key)) {
+    return "Key" + key.toUpperCase();
+  }
+
+  if (key.length === 1 && /[0-9]/.test(key)) {
+    return "Digit" + key;
+  }
+
+  return key;
+}
+
+function nearestRuntimeEnemy() {
+  if (!playerObject) return null;
+
+  const enemies = objects.filter(object =>
+    object.type?.toLowerCase() === "enemy" &&
+    object.element
+  );
+
+  enemies.sort((a, b) => {
+    const distanceA = Math.hypot(
+      a.x - playerObject.x,
+      a.y - playerObject.y
+    );
+
+    const distanceB = Math.hypot(
+      b.x - playerObject.x,
+      b.y - playerObject.y
+    );
+
+    return distanceA - distanceB;
+  });
+
+  return enemies[0] || null;
+}
+
+function playerTouchesRuntimeEnemy() {
+  if (!playerObject) return false;
+
+  const pw = Number(playerObject.width) || 60;
+  const ph = Number(playerObject.height) || 60;
+
+  return objects.some(enemy => {
+    if (enemy.type?.toLowerCase() !== "enemy") return false;
+    if (!enemy.element) return false;
+
+    const ew = Number(enemy.width) || 60;
+    const eh = Number(enemy.height) || 60;
+
+    return (
+      playerObject.x < enemy.x + ew &&
+      playerObject.x + pw > enemy.x &&
+      playerObject.y < enemy.y + eh &&
+      playerObject.y + ph > enemy.y
+    );
+  });
+}
+
+function checkRuntimeCondition(condition) {
+  const value = String(condition.value ?? "").trim();
+
+  switch (condition.type) {
+    case "always":
+      return true;
+
+    case "keyPressed":
+      return !!keysPressedThisFrame[eventKeyCode(value)];
+
+    case "playerTouchesEnemy":
+      return playerTouchesRuntimeEnemy();
+
+    case "playerHealthBelow":
+      return !!playerObject &&
+        Number(playerObject.health) < Number(value);
+
+    case "variableEquals": {
+      const parts = value.split("=");
+      if (parts.length < 2) return false;
+
+      const name = parts.shift().trim();
+      const expected = parts.join("=").trim();
+
+      return name !== "" &&
+        String(gameVariables[name] ?? "") === expected;
+    }
+
+    default:
+      return false;
+  }
+}
+
+function runRuntimeAction(action) {
+  const value = String(action.value ?? "").trim();
+
+  switch (action.type) {
+    case "damageEnemy": {
+      const enemy = nearestRuntimeEnemy();
+      const damage = Number(value);
+
+      if (enemy && Number.isFinite(damage) && damage > 0) {
+        damageEnemy(enemy, damage);
+      }
+      break;
+    }
+
+    case "destroyEnemy": {
+      const enemy = nearestRuntimeEnemy();
+      if (enemy) killEnemy(enemy);
+      break;
+    }
+
+    case "healPlayer": {
+      if (!playerObject) break;
+
+      const amount = Number(value);
+      if (!Number.isFinite(amount) || amount <= 0) break;
+
+      const maximum = Number(playerObject.maxHealth) || 100;
+      const current = Number(playerObject.health) || 0;
+
+      playerObject.health = Math.min(maximum, current + amount);
+      break;
+    }
+
+    case "changeVariable": {
+      const parts = value.split("=");
+      if (parts.length < 2) break;
+
+      const name = parts.shift().trim();
+      const rawValue = parts.join("=").trim();
+
+      if (!name) break;
+
+      const numberValue = Number(rawValue);
+
+      gameVariables[name] =
+        rawValue !== "" && Number.isFinite(numberValue)
+          ? numberValue
+          : rawValue;
+
+      break;
+    }
+
+    case "restartScene": {
+      objects.forEach(object => {
+        const start = playStartPositions.get(object.id);
+
+        if (start) {
+          object.x = start.x;
+          object.y = start.y;
+        }
+
+        if (object.type?.toLowerCase() === "enemy") {
+          object.health = Number(object.maxHealth) || 100;
+        }
+
+        if (object.element) {
+          object.element.style.left = `${object.x}px`;
+          object.element.style.top = `${object.y}px`;
+        }
+      });
+
+      if (playerObject) {
+        playerObject.health = Number(playerObject.maxHealth) || 100;
+        playerObject.velocityX = 0;
+        playerObject.velocityY = 0;
+      }
+
+      break;
+    }
+  }
+}
+
+function runGameEvents() {
+  if (!playMode || !playerObject) return;
+
+  const now = performance.now();
+
+  for (const event of runtimeEvents) {
+    if (!event || !Array.isArray(event.actions)) continue;
+
+    const conditions = Array.isArray(event.conditions)
+      ? event.conditions
+      : [];
+
+    const passed = conditions.every(condition =>
+      checkRuntimeCondition(condition)
+    );
+
+    if (!passed) continue;
+
+    const lastRun = eventRuntimeState.get(event.id) || 0;
+
+    // Prevent actions such as damage from firing every frame.
+    if (now - lastRun < 300) continue;
+
+    eventRuntimeState.set(event.id, now);
+
+    for (const action of event.actions) {
+      runRuntimeAction(action);
+    }
+  }
+
+  // Key-press conditions last for one game-frame evaluation.
+  for (const key in keysPressedThisFrame) {
+    delete keysPressedThisFrame[key];
+  }
+}
+
 /* ---------------------------------------------------------
    PHYSICS LOOP
    --------------------------------------------------------- */
@@ -4192,13 +4442,11 @@ if (multiplayerMode) {
 
 }
 
-  physicsFrame =
-    requestAnimationFrame(
-      physicsLoop
-    );
-checkPlatformCollision();
-}
- 
+ checkPlatformCollision();
+runGameEvents();
+
+physicsFrame =
+  requestAnimationFrame(physicsLoop);
 function checkPlatformCollision() {
 
   const player = playerObject;
@@ -4409,7 +4657,7 @@ window.addEventListener("keydown", event => {
 
 
   keys[event.code] = true;
-
+keysPressedThisFrame[event.code] = true;
 
   /*
     Player attack.
