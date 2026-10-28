@@ -1,0 +1,416 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BlankBox 3D Studio</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:dark;--bg:#17191f;--panel:#20232b;--line:#343844;--blue:#648cff;--text:#e9ebf2;--muted:#9299aa}
+body{margin:0;background:var(--bg);color:var(--text);font:13px Arial,sans-serif;height:100vh;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button{background:#303440;border:1px solid #424755;border-radius:5px;padding:8px;cursor:pointer}
+button:hover{background:#41495a}
+button.primary{background:var(--blue);border-color:var(--blue);color:white}
+button.active{outline:1px solid var(--blue);background:#303d60}
+header{height:48px;display:flex;align-items:center;gap:12px;padding:0 14px;background:#20232b;border-bottom:1px solid var(--line)}
+.logo{font-size:16px;font-weight:bold}.logo span{color:var(--blue)}
+header .spacer{flex:1}.status{color:var(--muted);font-size:11px}
+main{height:calc(100vh - 48px);display:grid;grid-template-columns:190px minmax(200px,1fr) 245px}
+aside{background:var(--panel);overflow:auto;min-width:0}
+.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}
+.section{padding:12px;border-bottom:1px solid var(--line)}
+.heading{font-weight:bold;color:#c8cede;margin-bottom:10px;font-size:11px;text-transform:uppercase;letter-spacing:.7px}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tools button{min-height:38px}
+#objects{display:flex;flex-direction:column;gap:3px}
+.obj{padding:9px;border-radius:5px;display:flex;align-items:center;gap:7px;cursor:pointer}
+.obj:hover{background:#2c303b}.obj.selected{background:#33446a}
+.obj .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.obj .ico{color:#93b0ff}
+.center{display:flex;flex-direction:column;min-width:0;min-height:0}
+.toolbar{height:43px;display:flex;align-items:center;gap:6px;padding:5px 9px;background:#1c1f26;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.toolbar button{padding:6px 9px}.toolbar .spacer{flex:1}
+#view{display:block;width:100%;flex:1;min-height:0;touch-action:none;cursor:crosshair}
+.hint{padding:7px 10px;color:var(--muted);font-size:11px;background:#1c1f26;border-top:1px solid var(--line)}
+.field{display:grid;grid-template-columns:65px 1fr;align-items:center;gap:7px;margin:9px 0}
+.field label{color:var(--muted)}
+.field input,.field select{min-width:0;width:100%;background:#17191f;border:1px solid #3a3f4c;border-radius:4px;padding:7px}
+.xyz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.xyz input{width:100%;min-width:0;background:#17191f;border:1px solid #3a3f4c;border-radius:4px;padding:7px}
+.xyz label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+.full{width:100%;margin-top:7px}
+.muted{color:var(--muted);line-height:1.5}
+#empty{padding:10px;color:var(--muted)}
+@media(max-width:720px){main{grid-template-columns:130px minmax(140px,1fr)}.right{display:none}header{gap:7px}.status{display:none}.section{padding:8px}.tools{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span>□</span> BLANKBOX <span>3D</span></div>
+  <div class="status">STUDIO · EARLY PROTOTYPE</div>
+  <div class="spacer"></div>
+  <button onclick="saveProject()">Save</button>
+  <button onclick="loadProject()">Open</button>
+  <button class="primary" onclick="exportOBJ()">Export OBJ</button>
+</header>
+<main>
+<aside class="left">
+  <div class="section">
+    <div class="heading">Create object</div>
+    <div class="tools">
+      <button onclick="addObject('Cube')">＋ Cube</button>
+      <button onclick="addObject('Sphere')">＋ Sphere</button>
+      <button onclick="addObject('Cylinder')">＋ Cylinder</button>
+      <button onclick="addObject('Cone')">＋ Cone</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="heading">Scene objects</div>
+    <div id="objects"></div>
+  </div>
+  <div class="section">
+    <div class="heading">Project</div>
+    <button class="full" onclick="newProject()">New project</button>
+    <button class="full" onclick="document.getElementById('file').click()">Import project JSON</button>
+    <input id="file" type="file" accept=".json" hidden onchange="importProject(event)">
+    <button class="full" onclick="exportJSON()">Export project JSON</button>
+  </div>
+</aside>
+<section class="center">
+  <div class="toolbar">
+    <button id="orbitBtn" class="active" onclick="setTool('orbit')">Orbit</button>
+    <button id="moveBtn" onclick="setTool('move')">Move</button>
+    <button id="rotateBtn" onclick="setTool('rotate')">Rotate</button>
+    <button id="scaleBtn" onclick="setTool('scale')">Scale</button>
+    <div class="spacer"></div>
+    <button onclick="resetCamera()">Reset view</button>
+  </div>
+  <canvas id="view"></canvas>
+  <div class="hint">Drag empty space to orbit · Scroll to zoom · Click an object to select · Edit transforms on the right</div>
+</section>
+<aside class="right">
+  <div class="section">
+    <div class="heading">Object properties</div>
+    <div id="noSelection" class="muted">Select an object in the scene to edit its properties.</div>
+    <div id="props" hidden>
+      <div class="field"><label>Name</label><input id="pName" onchange="updateProp('name',this.value)"></div>
+      <div class="field"><label>Shape</label><input id="pShape" disabled></div>
+      <div class="field"><label>Color</label><input id="pColor" type="color" onchange="updateProp('color',this.value)"></div>
+      <div class="heading" style="margin-top:18px">Position</div>
+      <div class="xyz">
+        <div><label>X</label><input id="px" type="number" step=".25" onchange="updateVec('pos',0,this.value)"></div>
+        <div><label>Y</label><input id="py" type="number" step=".25" onchange="updateVec('pos',1,this.value)"></div>
+        <div><label>Z</label><input id="pz" type="number" step=".25" onchange="updateVec('pos',2,this.value)"></div>
+      </div>
+      <div class="heading" style="margin-top:18px">Rotation (degrees)</div>
+      <div class="xyz">
+        <div><label>X</label><input id="rx" type="number" step="15" onchange="updateVec('rot',0,this.value)"></div>
+        <div><label>Y</label><input id="ry" type="number" step="15" onchange="updateVec('rot',1,this.value)"></div>
+        <div><label>Z</label><input id="rz" type="number" step="15" onchange="updateVec('rot',2,this.value)"></div>
+      </div>
+      <div class="heading" style="margin-top:18px">Scale</div>
+      <div class="xyz">
+        <div><label>X</label><input id="sx" type="number" min=".05" step=".1" onchange="updateVec('scale',0,this.value)"></div>
+        <div><label>Y</label><input id="sy" type="number" min=".05" step=".1" onchange="updateVec('scale',1,this.value)"></div>
+        <div><label>Z</label><input id="sz" type="number" min=".05" step=".1" onchange="updateVec('scale',2,this.value)"></div>
+      </div>
+      <button class="full" onclick="duplicateObject()">Duplicate object</button>
+      <button class="full" onclick="deleteObject()">Delete object</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="heading">Viewport</div>
+    <div class="field"><label>Grid</label><select id="gridToggle" onchange="draw()"><option value="yes">Visible</option><option value="no">Hidden</option></select></div>
+    <div class="field"><label>Edges</label><select id="edgeToggle" onchange="draw()"><option value="yes">Visible</option><option value="no">Hidden</option></select></div>
+    <p class="muted">This prototype uses a lightweight custom renderer. It doesn't need a 3D library or an internet connection.</p>
+  </div>
+</aside>
+</main>
+<script>
+const canvas=document.getElementById('view');
+const ctx=canvas.getContext('2d');
+let objects=[], selected=null, nextId=1, tool='orbit';
+let cam={yaw:.7,pitch:.42,dist:10,target:[0,0,0]};
+let drag=null, projectName='Untitled Project';
+
+const $=id=>document.getElementById(id);
+const copy=o=>JSON.parse(JSON.stringify(o));
+const vec=(x=0,y=0,z=0)=>[x,y,z];
+
+function addObject(shape){
+ const o={id:nextId++,name:shape+' '+nextId,color:
+  ({Cube:'#648cff',Sphere:'#e3a65c',Cylinder:'#70c79b',Cone:'#c18aff'}[shape]||'#648cff'),
+  shape,pos:vec(objects.length*1.5,0,0),rot:vec(),scale:vec(1,1,1)};
+ objects.push(o);selected=o.id;refresh();draw();
+}
+function getSelected(){return objects.find(o=>o.id===selected)}
+function refresh(){
+ $('objects').innerHTML='';
+ if(!objects.length)$('objects').innerHTML='<div id="empty">No objects yet. Add one above.</div>';
+ objects.forEach(o=>{
+  const d=document.createElement('div');
+  d.className='obj'+(o.id===selected?' selected':'');
+  d.innerHTML='<span class="ico">◆</span><span class="name"></span>';
+  d.querySelector('.name').textContent=o.name;
+  d.onclick=()=>{selected=o.id;refresh();draw()};
+  $('objects').appendChild(d);
+ });
+ const o=getSelected();
+ $('props').hidden=!o;$('noSelection').hidden=!!o;
+ if(!o)return;
+ $('pName').value=o.name;$('pShape').value=o.shape;$('pColor').value=o.color;
+ ['pos','rot','scale'].forEach((k,i)=>{
+  const prefix=['p','r','s'][i];
+  o[k].forEach((v,j)=>$(prefix+'xyz'[j+1]).value=Number(v.toFixed(2)));
+ });
+}
+function updateProp(k,v){const o=getSelected();if(!o)return;o[k]=v;refresh();draw()}
+function updateVec(k,i,v){
+ const o=getSelected();if(!o)return;
+ let n=Number(v);if(!Number.isFinite(n))n=0;
+ if(k==='scale')n=Math.max(.05,n);
+ o[k][i]=k==='rot'?n*Math.PI/180:n;
+ draw();
+}
+function deleteObject(){
+ objects=objects.filter(o=>o.id!==selected);selected=null;refresh();draw();
+}
+function duplicateObject(){
+ const o=getSelected();if(!o)return;
+ const n=copy(o);n.id=nextId++;n.name=o.name+' Copy';n.pos[0]+=.75;
+ objects.push(n);selected=n.id;refresh();draw();
+}
+function setTool(t){
+ tool=t;
+ ['orbit','move','rotate','scale'].forEach(k=>$(k+'Btn').classList.toggle('active',k===t));
+}
+function newProject(){
+ if(objects.length&&!confirm('Start a new project? Unsaved changes will be lost.'))return;
+ objects=[];selected=null;nextId=1;projectName='Untitled Project';refresh();draw();
+}
+function saveProject(){
+ try{
+ localStorage.setItem('blankbox3d_project',JSON.stringify({version:1,name:projectName,nextId,objects}));
+ $('status');alert('Project saved in this browser.');
+ }catch(e){alert('Could not save project in this browser. Try Export project JSON instead.')}
+}
+function loadProject(){
+ try{
+ const s=localStorage.getItem('blankbox3d_project');
+ if(!s){alert('No saved project found in this browser.');return}
+ applyProject(JSON.parse(s));alert('Project opened.');
+ }catch(e){alert('Could not load that project.')}
+}
+function applyProject(p){
+ if(!p||!Array.isArray(p.objects))throw Error('Invalid project');
+ objects=p.objects;nextId=p.nextId||Math.max(0,...objects.map(o=>o.id))+1;
+ projectName=p.name||'Untitled Project';
+ selected=objects.length?objects[0].id:null;refresh();draw();
+}
+function exportJSON(){
+ const blob=new Blob([JSON.stringify({version:1,name:projectName,nextId,objects},null,2)],{type:'application/json'});
+ download(blob,'blankbox3d-project.json');
+}
+function importProject(e){
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{try{applyProject(JSON.parse(r.result))}catch(err){alert('That file is not a valid BlankBox 3D project.')}};
+ r.readAsText(f);e.target.value='';
+}
+function download(blob,name){
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// Meshes use local XYZ coordinates. The model transforms are applied before projection.
+function mesh(shape){
+ let v=[],f=[];
+ if(shape==='Cube'){
+  v=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
+     [-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
+  f=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[2,3,7,6],[1,2,6,5],[3,0,4,7]];
+ }else if(shape==='Sphere'){
+  const rows=10,cols=16;
+  for(let y=0;y<=rows;y++){
+   const phi=Math.PI*y/rows;
+   for(let x=0;x<cols;x++){
+    const th=2*Math.PI*x/cols;
+    v.push([Math.sin(phi)*Math.cos(th),Math.cos(phi),Math.sin(phi)*Math.sin(th)]);
+   }
+  }
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+   const a=y*cols+x,b=y*cols+(x+1)%cols,c=(y+1)*cols+(x+1)%cols,d=(y+1)*cols+x;
+   f.push([a,d,c,b]);
+  }
+ }else{
+  const n=16;
+  for(let i=0;i<n;i++){
+   const a=2*Math.PI*i/n;
+   v.push([Math.cos(a),-1,Math.sin(a)]);
+  }
+  const tip=v.length;v.push([0,shape==='Cone'?1:1,0]);
+  const bottom=v.length;v.push([0,-1,0]);
+  for(let i=0;i<n;i++){
+   const j=(i+1)%n;
+   f.push([i,j,tip]);
+   if(shape==='Cylinder')f.push([i,bottom,j]);
+  }
+ }
+ return {v,f};
+}
+function transform(p,o){
+ let [x,y,z]=p;
+ x*=o.scale[0];y*=o.scale[1];z*=o.scale[2];
+ const [rx,ry,rz]=o.rot;
+ let c=Math.cos(rx),s=Math.sin(rx);[y,z]=[y*c-z*s,y*s+z*c];
+ c=Math.cos(ry);s=Math.sin(ry);[x,z]=[x*c+z*s,-x*s+z*c];
+ c=Math.cos(rz);s=Math.sin(rz);[x,y]=[x*c-y*s,x*s+y*c];
+ return [x+o.pos[0],y+o.pos[1],z+o.pos[2]];
+}
+function cameraPoint(p){
+ let [x,y,z]=p;
+ x-=cam.target[0];y-=cam.target[1];z-=cam.target[2];
+ let c=Math.cos(cam.yaw),s=Math.sin(cam.yaw);
+ [x,z]=[x*c-z*s,x*s+z*c];
+ c=Math.cos(cam.pitch);s=Math.sin(cam.pitch);
+ [y,z]=[y*c-z*s,y*s+z*c];
+ return [x,y,z+cam.dist];
+}
+function project(p){
+ const q=cameraPoint(p),w=canvas.width,h=canvas.height;
+ const focal=Math.min(w,h)*.9;
+ const depth=Math.max(.1,q[2]);
+ return [w/2+q[0]*focal/depth,h/2-q[1]*focal/depth,depth];
+}
+function line(a,b,color,width=1){
+ const A=project(a),B=project(b);
+ ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);
+ ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();
+}
+function drawGrid(){
+ if($('gridToggle').value==='no')return;
+ for(let i=-10;i<=10;i++){
+  const col=i===0?'#566d9d':'#303540';
+  line([i,0,-10],[i,0,10],col,i===0?1.5:1);
+  line([-10,0,i],[10,0,i],col,i===0?1.5:1);
+ }
+}
+function shade(hex,factor){
+ const n=parseInt(hex.slice(1),16);
+ const r=Math.min(255,Math.round(((n>>16)&255)*factor));
+ const g=Math.min(255,Math.round(((n>>8)&255)*factor));
+ const b=Math.min(255,Math.round((n&255)*factor));
+ return `rgb(${r},${g},${b})`;
+}
+function draw(){
+ const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
+ if(canvas.width!==Math.round(rect.width*dpr)||canvas.height!==Math.round(rect.height*dpr)){
+  canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
+ }
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ const w=rect.width,h=rect.height;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#191c23';ctx.fillRect(0,0,w,h);
+ // Use CSS pixel coordinates for all drawing.
+ drawGrid();
+ let faces=[],centers=[];
+ for(const o of objects){
+  const m=mesh(o.shape),world=m.v.map(p=>transform(p,o));
+  const projected=world.map(project);
+  centers.push({o,p:project(transform([0,0,0],o))});
+  m.f.forEach(face=>{
+   const points=face.map(i=>projected[i]);
+   const depth=points.reduce((s,p)=>s+p[2],0)/points.length;
+   faces.push({o,points,depth,face});
+  });
+ }
+ faces.sort((a,b)=>b.depth-a.depth);
+ for(const item of faces){
+  const {o,points}=item;
+  ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);
+  points.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));ctx.closePath();
+  const normal=faceNormal(item.face.map(i=>transform(mesh(o.shape).v[i],o)));
+  const light=Math.max(.42,Math.min(1.15,.78+.28*(normal[0]*-.4+normal[1]*.8+normal[2]*.4)));
+  ctx.fillStyle=shade(o.color,light);ctx.fill();
+  if($('edgeToggle').value==='yes'){
+   ctx.strokeStyle='#11141a';ctx.lineWidth=.7;ctx.stroke();
+  }
+ }
+ const sel=centers.find(c=>c.o.id===selected);
+ if(sel){
+  const p=sel.p;
+  ctx.strokeStyle='#a9c0ff';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(p[0],p[1],10,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#dce5ff';ctx.beginPath();ctx.arc(p[0],p[1],3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e7edff';ctx.font='12px Arial';ctx.fillText(sel.o.name,p[0]+14,p[1]-12);
+ }
+ ctx.fillStyle='#7f8799';ctx.font='11px Arial';ctx.fillText('BLANKBOX 3D  /  '+projectName,12,18);
+}
+function faceNormal(p){
+ if(p.length<3)return [0,1,0];
+ const a=p[0],b=p[1],c=p[2];
+ const u=b.map((v,i)=>v-a[i]),v=c.map((x,i)=>x-a[i]);
+ return [u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
+}
+function resetCamera(){cam={yaw:.7,pitch:.42,dist:10,target:[0,0,0]};draw()}
+function resize(){draw()}
+window.addEventListener('resize',resize);
+
+canvas.addEventListener('wheel',e=>{
+ e.preventDefault();cam.dist=Math.max(2.5,Math.min(35,cam.dist+e.deltaY*.012));draw();
+},{passive:false});
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{
+ canvas.setPointerCapture(e.pointerId);
+ drag={x:e.clientX,y:e.clientY,yaw:cam.yaw,pitch:cam.pitch,moved:false,button:e.button};
+});
+canvas.addEventListener('pointermove',e=>{
+ if(!drag)return;
+ const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+ if(Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
+ if(drag.moved&&tool==='orbit'){
+  cam.yaw=drag.yaw-dx*.008;
+  cam.pitch=Math.max(-1.35,Math.min(1.35,drag.pitch+dy*.008));
+  draw();
+ }
+});
+canvas.addEventListener('pointerup',e=>{
+ if(!drag)return;
+ if(!drag.moved){
+  const r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  let best=null,bestDist=Infinity;
+  for(const o of objects){
+   const p=project(transform([0,0,0],o));
+   const d=Math.hypot(p[0]-mx,p[1]-my);
+   if(d<bestDist&&d<40){best=o;bestDist=d}
+  }
+  selected=best?best.id:null;refresh();draw();
+ }
+ drag=null;
+});
+window.addEventListener('keydown',e=>{
+ if(['INPUT','SELECT'].includes(document.activeElement.tagName))return;
+ if(e.key==='Delete'||e.key==='Backspace'){if(selected!==null)deleteObject()}
+ if(e.key==='Escape'){selected=null;refresh();draw()}
+});
+
+function exportOBJ(){
+ if(!objects.length){alert('Add an object before exporting.');return}
+ let lines=['# BlankBox 3D Studio OBJ export'],offset=1;
+ for(const o of objects){
+  lines.push('o '+o.name.replace(/\s+/g,'_'));
+  const m=mesh(o.shape);
+  m.v.forEach(p=>{
+   const v=transform(p,o);lines.push(`v ${v[0]} ${v[1]} ${v[2]}`);
+  });
+  m.f.forEach(f=>lines.push('f '+f.map(i=>i+offset).join(' ')));
+  offset+=m.v.length;
+ }
+ download(new Blob([lines.join('\n')],{type:'text/plain'}),'blankbox3d-model.obj');
+}
+addObject('Cube');
+</script>
+</body>
+</html>
